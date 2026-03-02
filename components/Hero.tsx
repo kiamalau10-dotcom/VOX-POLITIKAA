@@ -4,10 +4,6 @@ import { OrbitControls, Float, Sphere, MeshDistortMaterial } from '@react-three/
 import { motion } from 'framer-motion';
 import { AppSection } from '../types';
 
-const AmbientLight = 'ambientLight' as any;
-const SpotLight = 'spotLight' as any;
-const PointLight = 'pointLight' as any;
-
 // Komponen Bola 3D yang warnanya berubah sesuai mode
 const AnimatedShape = ({ isDarkMode }: { isDarkMode: boolean }) => {
   const meshRef = useRef<any>(null);
@@ -48,9 +44,9 @@ const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
       {/* BACKGROUND CANVAS */}
       <div className="absolute inset-0 z-0 opacity-60">
         <Canvas camera={{ position: [0, 0, 8] }}>
-          <AmbientLight intensity={0.5} />
-          <SpotLight position={[10, 10, 10]} angle={0.15} penumbra={1} color={isDarkMode ? "#0ea5e9" : "#ef4444"} />
-          <PointLight position={[-10, -10, -10]} color="#dc2626" />
+          <ambientLight intensity={0.5} />
+          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} color={isDarkMode ? "#0ea5e9" : "#ef4444"} />
+          <pointLight position={[-10, -10, -10]} color="#dc2626" />
           <AnimatedShape isDarkMode={isDarkMode} />
           <OrbitControls enableZoom={false} />
         </Canvas>

@@ -1,12 +1,22 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Fix: Initialize GoogleGenAI correctly using the named parameter as required
-const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
+let aiInstance: GoogleGenAI | null = null;
+
+const getAi = () => {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn("GEMINI_API_KEY is missing. AI features will be disabled.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey: apiKey || 'dummy-key' });
+  }
+  return aiInstance;
+};
 
 export const getAsistenResponse = async (prompt: string, history: { role: string; parts: { text: string }[] }[]) => {
   try {
-    // Fix: Include conversation history to maintain context between turns
+    const ai = getAi();
     const chat = ai.chats.create({
       model: 'gemini-3-flash-preview',
       history: history,
