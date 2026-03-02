@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  /* KUNCI UTAMA: Memastikan website sadar saat mode gelap dinyalakan */
+  --variant-dark: &:where(.dark, .dark *);
+}
+
+@layer base {
+  body {
+    /* Mengatur warna dasar: Putih saat terang, Hitam saat gelap */
+    @apply bg-white text-black dark:bg-black dark:text-white transition-colors duration-500;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Kartu efek kaca yang bisa berubah warna otomatis */
+  .glass-card {
+    @apply bg-white/80 border border-black/10 dark:bg-black/80 dark:border-white/10 backdrop-blur-md;
+  }
+}
+
+/* Mengubah warna scrollbar (batang penggeser) menjadi Merah */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border-radius: 10px;
+}
+
+/* Mengubah warna saat teks disorot/diblok menjadi Merah Putih */
+::selection {
+  background-color: #dc2626;
+  color: white;
+}
