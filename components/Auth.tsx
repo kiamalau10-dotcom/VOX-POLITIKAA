@@ -9,7 +9,8 @@ import {
   getDoc, 
   setDoc, 
   updateDoc, 
-  signInAnonymously 
+  signInAnonymously,
+  increment
 } from '../firebase';
 
 interface AuthProps {
@@ -73,6 +74,20 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
 
         await setDoc(doc(db, 'users', docId), newUser);
         
+        // Update global stats
+        const statsRef = doc(db, 'stats', 'global');
+        await updateDoc(statsRef, {
+          totalUsers: increment(1)
+        });
+
+        // CRITICAL: Store role by UID for security rules
+        if (uid) {
+          await setDoc(doc(db, 'users_by_uid', uid), {
+            username: formattedUsername,
+            role: 'USER'
+          });
+        }
+        
         // Also update local storage for compatibility
         localStorage.setItem(`user_data_${formattedUsername}`, JSON.stringify(newUser));
         const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
@@ -123,12 +138,28 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
             };
             // Sync admin to Firestore if not exists
             await setDoc(doc(db, 'users', docId), user, { merge: true });
+            
+            // CRITICAL: Store role by UID for security rules
+            if (uid) {
+              await setDoc(doc(db, 'users_by_uid', uid), {
+                username: user.username,
+                role: 'ADMIN'
+              });
+            }
           } else {
             user = savedUser!;
             // Update UID if it's missing (for legacy users)
-            if (!user.uid) {
+            if (!user.uid || user.uid !== uid) {
               user.uid = uid;
               await updateDoc(doc(db, 'users', docId), { uid: uid });
+            }
+            
+            // CRITICAL: Store role by UID for security rules
+            if (uid) {
+              await setDoc(doc(db, 'users_by_uid', uid), {
+                username: user.username,
+                role: user.role
+              });
             }
           }
           

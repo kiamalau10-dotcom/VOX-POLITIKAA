@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { db, doc, onSnapshot, updateDoc, OperationType, handleFirestoreError } from '../firebase';
+import { 
+  db, 
+  doc, 
+  onSnapshot, 
+  updateDoc, 
+  setDoc,
+  OperationType, 
+  handleFirestoreError,
+  auth,
+  signInAnonymously,
+  onAuthStateChanged
+} from '../firebase';
 import { UserContext } from './UserContextCore';
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -14,6 +25,52 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  // Initialize Firebase Auth
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Sync UID to currentUser and Firestore if missing
+        setCurrentUser(prev => {
+          if (prev && !prev.uid) {
+            const updatedUser = { ...prev, uid: user.uid };
+            
+            // Update in storage
+            if (localStorage.getItem("isLoggedIn") === "true") {
+              localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+            } else {
+              sessionStorage.setItem("currentUser", JSON.stringify(updatedUser));
+            }
+
+            // Update in Firestore
+            const docId = prev.username.replace('@', '');
+            updateDoc(doc(db, 'users', docId), { uid: user.uid });
+            
+            // Update users_by_uid
+            setDoc(doc(db, 'users_by_uid', user.uid), {
+              username: prev.username,
+              role: prev.role
+            }, { merge: true });
+
+            return updatedUser;
+          }
+          return prev;
+        });
+      } else {
+        try {
+          await signInAnonymously(auth);
+        } catch (err: any) {
+          // Don't block the flow, but warn the user if it's the restricted operation error
+          if (err.code === 'auth/admin-restricted-operation') {
+            console.warn("Anonymous Authentication is disabled in Firebase Console. Real-time sync and security rules may be limited.");
+          } else {
+            console.error("Anonymous auth error:", err);
+          }
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Sync currentUser from Firestore in real-time
   useEffect(() => {

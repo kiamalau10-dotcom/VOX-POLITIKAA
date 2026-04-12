@@ -14,6 +14,8 @@ import {
   updateDoc, 
   doc, 
   getDoc,
+  addDoc,
+  increment,
   OperationType,
   handleFirestoreError
 } from '../firebase';
@@ -299,6 +301,12 @@ const Quiz: React.FC<{
             level: updatedUser.level,
             quizHistory: updatedUser.quizHistory,
             achievements: updatedUser.achievements || []
+          });
+
+          // Update global stats
+          const statsRef = doc(db, 'stats', 'global');
+          await updateDoc(statsRef, {
+            totalQuizzesTaken: increment(1)
           });
 
           // Sync local storage
