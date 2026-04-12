@@ -7,6 +7,14 @@ import firebaseConfig from './firebase-applet-config.json';
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
+
+// Helper to get the correct redirect URL based on environment
+export const getRedirectURL = () => {
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  if (isLocal) return 'http://localhost:3000';
+  return window.location.origin;
+};
+
 export const googleProvider = new GoogleAuthProvider();
 
 // Test connection to Firestore
@@ -77,7 +85,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 export { 
-  signInWithPopup, 
+  signInWithPopup,
   signOut, 
   onAuthStateChanged,
   signInAnonymously,

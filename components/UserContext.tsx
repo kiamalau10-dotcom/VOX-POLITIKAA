@@ -26,31 +26,31 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   // Initialize Firebase Auth
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setIsLoading(true);
       if (user) {
         // Sync UID to currentUser and Firestore if missing
         setCurrentUser(prev => {
-          if (prev && !prev.uid) {
+          if (prev && (!prev.uid || prev.uid !== user.uid)) {
             const updatedUser = { ...prev, uid: user.uid };
             
             // Update in storage
-            if (localStorage.getItem("isLoggedIn") === "true") {
-              localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-            } else {
-              sessionStorage.setItem("currentUser", JSON.stringify(updatedUser));
-            }
+            const storage = localStorage.getItem("isLoggedIn") === "true" ? localStorage : sessionStorage;
+            storage.setItem("currentUser", JSON.stringify(updatedUser));
 
             // Update in Firestore
             const docId = prev.username.replace('@', '');
-            updateDoc(doc(db, 'users', docId), { uid: user.uid });
+            updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
             
             // Update users_by_uid
             setDoc(doc(db, 'users_by_uid', user.uid), {
               username: prev.username,
               role: prev.role
-            }, { merge: true });
+            }, { merge: true }).catch(e => console.error("Sync users_by_uid error:", e));
 
             return updatedUser;
           }
@@ -70,6 +70,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       }
+      setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -124,7 +125,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout }}>
+    <UserContext.Provider value={{ currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading }}>
       {children}
     </UserContext.Provider>
   );

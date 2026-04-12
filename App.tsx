@@ -141,7 +141,7 @@ const LegalModal: React.FC<{
 
 const AppContent: React.FC = () => {
   const { isEditMode, setIsEditMode } = useCMS();
-  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout } = useUser();
+  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading } = useUser();
   const [legalModal, setLegalModal] = useState<{ title: string; content: React.ReactNode } | null>(null);
   
   // --- STATE TEMA & NAVIGASI ---
@@ -228,6 +228,18 @@ const AppContent: React.FC = () => {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }, [feedback, currentUser]);
+
+  if (isLoading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
