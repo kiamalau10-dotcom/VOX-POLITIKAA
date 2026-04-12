@@ -19,6 +19,7 @@ import {
   OperationType,
   handleFirestoreError
 } from '../firebase';
+import { where } from 'firebase/firestore';
 
 interface Post {
   id: string;
@@ -194,15 +195,16 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const handleFollow = async (targetUsername: string) => {
     if (!currentUser || currentUser.username === targetUsername) return;
     
+    const path = 'follows';
     try {
-      const followsRef = collection(db, 'follows');
+      const followsRef = collection(db, path);
       const q = query(followsRef, where('followerId', '==', currentUser.username), where('followingId', '==', targetUsername));
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
         // Unfollow
         const followDoc = snapshot.docs[0];
-        await deleteDoc(doc(db, 'follows', followDoc.id));
+        await deleteDoc(doc(db, path, followDoc.id));
       } else {
         // Follow
         await addDoc(followsRef, {
@@ -212,7 +214,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         });
       }
     } catch (error) {
-      console.error("Error following user: ", error);
+      handleFirestoreError(error, OperationType.WRITE, path);
     }
   };
 
@@ -394,7 +396,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
                       <Trash2 size={12} /> Hapus (Admin)
                     </button>
                   ) : (
-                    currentUser?.username === post.username && (
+                    (currentUser?.username === post.username || (currentUser?.uid && post.authorId === currentUser.uid)) && (
                       <button 
                         onClick={() => setPostToDelete(post.id)}
                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg"

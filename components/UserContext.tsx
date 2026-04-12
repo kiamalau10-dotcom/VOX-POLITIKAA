@@ -60,7 +60,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           await signInAnonymously(auth);
         } catch (err: any) {
-          // Don't block the flow, but warn the user if it's the restricted operation error
+          // Clear UID if auth fails to prevent stale UIDs from causing permission errors
+          setCurrentUser(prev => prev ? { ...prev, uid: undefined } : null);
+          
           if (err.code === 'auth/admin-restricted-operation') {
             console.warn("Anonymous Authentication is disabled in Firebase Console. Real-time sync and security rules may be limited.");
           } else {

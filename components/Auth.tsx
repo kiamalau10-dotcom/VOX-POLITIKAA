@@ -10,6 +10,8 @@ import {
   setDoc, 
   updateDoc, 
   signInAnonymously,
+  signInWithPopup,
+  googleProvider,
   increment
 } from '../firebase';
 
@@ -260,8 +262,81 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
             </div>
           )}
 
-          <button className="w-full bg-red-600 py-4 rounded-xl font-black italic text-white hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-600/30 uppercase tracking-widest text-xs">
+          <button className="w-full bg-red-600 py-4 rounded-xl font-black italic text-white hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-600/30 uppercase tracking-widest text-xs mb-4">
             {isSignUpMode ? 'Daftar Sekarang' : 'Masuk Dashboard'}
+          </button>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/10"></div>
+            </div>
+            <div className="relative flex justify-center text-[8px] uppercase font-black tracking-widest">
+              <span className={`px-4 ${isDarkMode ? 'bg-zinc-900 text-zinc-500' : 'bg-white text-gray-500'}`}>Atau</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                const formattedUsername = `@${user.displayName?.toLowerCase().replace(/\s+/g, '') || user.uid.slice(0, 5)}`;
+                const docId = formattedUsername.replace('@', '');
+                
+                const userDoc = await getDoc(doc(db, 'users', docId));
+                let userData: User;
+
+                if (userDoc.exists()) {
+                  userData = userDoc.data() as User;
+                  if (userData.uid !== user.uid) {
+                    await updateDoc(doc(db, 'users', docId), { uid: user.uid });
+                    userData.uid = user.uid;
+                  }
+                } else {
+                  userData = {
+                    username: formattedUsername,
+                    displayName: user.displayName || 'User',
+                    password: 'google-auth-user',
+                    role: user.email === 'devinapurba23@gmail.com' ? 'ADMIN' : 'USER',
+                    level: 1,
+                    currentExp: 0,
+                    streak: 1,
+                    lastLoginDate: new Date().toISOString().split('T')[0],
+                    progress: {},
+                    quizHistory: [],
+                    coins: 100,
+                    streakFreezeCount: 0,
+                    followers: [],
+                    following: [],
+                    uid: user.uid,
+                    avatarConfig: user.photoURL
+                  };
+                  await setDoc(doc(db, 'users', docId), userData);
+                  
+                  const statsRef = doc(db, 'stats', 'global');
+                  await updateDoc(statsRef, {
+                    totalUsers: increment(1)
+                  });
+                }
+
+                await setDoc(doc(db, 'users_by_uid', user.uid), {
+                  username: userData.username,
+                  role: userData.role
+                });
+
+                onLogin(userData);
+              } catch (error) {
+                console.error("Google login error: ", error);
+              }
+            }}
+            className={`w-full py-4 rounded-xl border-2 flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest transition-all ${
+              isDarkMode ? 'border-white/10 hover:bg-white/5 text-white' : 'border-black/5 hover:bg-gray-50 text-black'
+            }`}
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
+            Masuk dengan Google
           </button>
         </form>
 

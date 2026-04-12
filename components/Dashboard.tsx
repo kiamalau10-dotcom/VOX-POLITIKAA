@@ -17,11 +17,11 @@ import {
   writeBatch,
   query,
   orderBy,
-  where,
   limit,
   OperationType,
   handleFirestoreError
 } from '../firebase';
+import { where } from 'firebase/firestore';
 
 const StreakFire: React.FC<{ count: number; isPopping: boolean }> = ({ count, isPopping }) => {
   return (
