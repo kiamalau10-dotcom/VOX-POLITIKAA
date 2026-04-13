@@ -9,8 +9,7 @@ import {
   getDoc, 
   setDoc, 
   updateDoc, 
-  signInAnonymously,
-  increment
+  signInAnonymously 
 } from '../firebase';
 
 interface AuthProps {
@@ -74,20 +73,6 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
 
         await setDoc(doc(db, 'users', docId), newUser);
         
-        // Update global stats
-        const statsRef = doc(db, 'stats', 'global');
-        await updateDoc(statsRef, {
-          totalUsers: increment(1)
-        });
-
-        // CRITICAL: Store role by UID for security rules
-        if (uid) {
-          await setDoc(doc(db, 'users_by_uid', uid), {
-            username: formattedUsername,
-            role: 'USER'
-          });
-        }
-        
         // Also update local storage for compatibility
         localStorage.setItem(`user_data_${formattedUsername}`, JSON.stringify(newUser));
         const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
@@ -96,9 +81,12 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         alert("Akun berhasil dibuat! Silakan login.");
         setIsSignUpMode(false);
       } else {
-        // UPDATED ADMIN LIST - STRICT VALIDATION
+        // UPDATED ADMIN LIST
         const admins = [
-          { username: 'superadmin', password: 'devinakialarissa', displayName: 'Dekila' }
+          { username: 'superadmin', password: 'devinakialarissa', displayName: 'Dekila' },
+          { username: '@kia', password: 'kiacantik', displayName: 'Kia' },
+          { username: '@larissa', password: 'larissabigayle123', displayName: 'Larissa' },
+          { username: '@devina', password: 'devina321', displayName: 'Devina' }
         ];
 
         const adminMatch = admins.find(a => 
@@ -138,28 +126,12 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
             };
             // Sync admin to Firestore if not exists
             await setDoc(doc(db, 'users', docId), user, { merge: true });
-            
-            // CRITICAL: Store role by UID for security rules
-            if (uid) {
-              await setDoc(doc(db, 'users_by_uid', uid), {
-                username: user.username,
-                role: 'ADMIN'
-              });
-            }
           } else {
             user = savedUser!;
             // Update UID if it's missing (for legacy users)
-            if (!user.uid || user.uid !== uid) {
+            if (!user.uid) {
               user.uid = uid;
               await updateDoc(doc(db, 'users', docId), { uid: uid });
-            }
-            
-            // CRITICAL: Store role by UID for security rules
-            if (uid) {
-              await setDoc(doc(db, 'users_by_uid', uid), {
-                username: user.username,
-                role: user.role
-              });
             }
           }
           
@@ -195,15 +167,9 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           alert("Username atau Password salah!");
         }
       }
-    } catch (error: any) {
-      console.error("Auth error details:", {
-        message: error.message,
-        code: error.code,
-        stack: error.stack,
-        env: process.env.NODE_ENV,
-        hostname: window.location.hostname
-      });
-      alert(`Terjadi kesalahan saat autentikasi: ${error.message || 'Silakan coba lagi.'}`);
+    } catch (error) {
+      console.error("Auth error: ", error);
+      alert("Terjadi kesalahan saat autentikasi. Silakan coba lagi.");
     }
   };
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { AppSection } from '../types';
-import { Sun, Moon, Menu, X, Coins, Zap, Trophy } from 'lucide-react';
-import { useUser } from './useUser';
+import { Sun, Moon, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
   activeSection: AppSection;
@@ -16,7 +15,6 @@ const Navbar: React.FC<NavbarProps> = ({
   isDarkMode, 
   toggleDarkMode 
 }) => {
-  const { currentUser, isLoggedIn } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   // DAFTAR MENU (Sudah ditambah Dasar Politik)
@@ -41,33 +39,11 @@ const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
         {/* LOGO */}
-        <div className="flex items-center gap-8">
-          <div 
-            className="text-xl md:text-2xl font-black italic tracking-tighter cursor-pointer flex items-center transition-transform hover:scale-105"
-            onClick={() => setActiveSection(AppSection.HOME)}
-          >
-            <span className="uppercase italic">VOX<span className={isDarkMode ? 'text-red-600' : 'text-black'}>POLITIKA</span></span>
-          </div>
-
-          {/* USER STATS IN NAVBAR */}
-          {isLoggedIn && currentUser && (
-            <div className="hidden xl:flex items-center gap-4 px-4 py-1.5 rounded-2xl bg-black/10 border border-white/10">
-              <div className="flex items-center gap-1.5">
-                <Trophy size={14} className="text-yellow-400" />
-                <span className="text-[10px] font-black uppercase tracking-tighter">LVL {currentUser.level}</span>
-              </div>
-              <div className="w-px h-3 bg-white/20" />
-              <div className="flex items-center gap-1.5">
-                <Zap size={14} className="text-red-400" />
-                <span className="text-[10px] font-black uppercase tracking-tighter">{currentUser.currentExp} EXP</span>
-              </div>
-              <div className="w-px h-3 bg-white/20" />
-              <div className="flex items-center gap-1.5">
-                <Coins size={14} className="text-yellow-500" />
-                <span className="text-[10px] font-black uppercase tracking-tighter">{currentUser.coins || 0}</span>
-              </div>
-            </div>
-          )}
+        <div 
+          className="text-xl md:text-2xl font-black italic tracking-tighter cursor-pointer flex items-center transition-transform hover:scale-105"
+          onClick={() => setActiveSection(AppSection.HOME)}
+        >
+          <span className="uppercase italic">VOX<span className="text-red-600">POLITIKA</span></span>
         </div>
 
         {/* DESKTOP MENU - Dioptimalkan untuk 6 item */}

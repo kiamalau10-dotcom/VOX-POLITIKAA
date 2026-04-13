@@ -1,11 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, History, TrendingUp, MessageSquare, Users, Award, LogOut, Flame, BookOpen, CheckCircle2, AlertCircle, Sparkles, Trash2, Coins, Snowflake } from 'lucide-react';
-import { User, Feedback, Vote } from '../types';
-import UserProfileModal from './UserProfileModal';
+import { User, Feedback } from '../types';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { useCMS } from './CMSContext';
-import { useUser } from './useUser';
 
 import { 
   db, 
@@ -15,13 +13,9 @@ import {
   deleteDoc, 
   getDocs,
   writeBatch,
-  query,
-  orderBy,
-  limit,
   OperationType,
   handleFirestoreError
 } from '../firebase';
-import { where } from 'firebase/firestore';
 
 const StreakFire: React.FC<{ count: number; isPopping: boolean }> = ({ count, isPopping }) => {
   return (
@@ -152,118 +146,6 @@ const CinematicStreakOverlay: React.FC<{
   );
 };
 
-const LiveVotes: React.FC<{ votes: Vote[]; totalVotes: number; isDarkMode: boolean }> = ({ votes, totalVotes, isDarkMode }) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}
-    >
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <TrendingUp size={20} className="text-red-600" />
-          <h4 className="text-xs font-black uppercase tracking-widest">Live Voices</h4>
-        </div>
-        <div className="px-3 py-1 bg-red-600 rounded-full text-[10px] font-black text-white animate-pulse">
-          {totalVotes} TOTAL
-        </div>
-      </div>
-      <div className="space-y-3">
-        <AnimatePresence mode="popLayout">
-          {votes.map((vote) => (
-            <motion.div
-              key={vote.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="flex items-center justify-between p-3 rounded-xl bg-black/5 border border-black/5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-red-600/10 flex items-center justify-center text-red-600 font-black text-[10px]">
-                  {vote.username.charAt(1).toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase">{vote.username}</p>
-                  <p className="text-[8px] font-bold opacity-50 uppercase">Menyuarakan Aspirasi</p>
-                </div>
-              </div>
-              <div className="text-[8px] font-bold opacity-30 uppercase">
-                {vote.timestamp?.seconds ? new Date(vote.timestamp.seconds * 1000).toLocaleTimeString() : 'Baru saja'}
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        {votes.length === 0 && (
-          <p className="text-[10px] font-bold uppercase opacity-30 italic text-center py-4">Menunggu suara baru...</p>
-        )}
-      </div>
-    </motion.div>
-  );
-};
-
-const AdminStatsPlatform: React.FC<{ stats: any; isDarkMode: boolean }> = ({ stats, isDarkMode }) => {
-  const chartData = [
-    { name: 'Users', value: stats.totalUsers },
-    { name: 'Active', value: stats.activeUsers },
-    { name: 'Votes', value: stats.totalVotes },
-    { name: 'Quizzes', value: stats.totalQuizzesTaken },
-  ];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}
-      >
-        <div className="flex items-center gap-3 mb-8">
-          <TrendingUp size={24} className="text-red-600" />
-          <h3 className="text-2xl font-black uppercase italic">Real-time Analytics</h3>
-        </div>
-        <div className="h-[250px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#333' : '#eee'} />
-              <XAxis dataKey="name" stroke={isDarkMode ? '#666' : '#999'} fontSize={10} fontWeight="bold" />
-              <YAxis stroke={isDarkMode ? '#666' : '#999'} fontSize={10} fontWeight="bold" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: isDarkMode ? '#18181b' : '#fff',
-                  border: 'none',
-                  borderRadius: '1rem',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                }}
-              />
-              <Line type="monotone" dataKey="value" stroke="#dc2626" strokeWidth={4} dot={{ r: 6, fill: '#dc2626' }} activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </motion.div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {[
-          { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'text-blue-500' },
-          { label: 'Active Sessions', value: stats.activeUsers, icon: Shield, color: 'text-green-500' },
-          { label: 'Total Voices', value: stats.totalVotes, icon: MessageSquare, color: 'text-red-500' },
-          { label: 'Quizzes Taken', value: stats.totalQuizzesTaken, icon: BookOpen, color: 'text-purple-500' },
-        ].map((item, idx) => (
-          <motion.div
-            key={item.label}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: idx * 0.1 }}
-            className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-lg'}`}
-          >
-            <item.icon className={`mb-4 ${item.color}`} size={24} />
-            <p className="text-[10px] font-black uppercase opacity-50 mb-1">{item.label}</p>
-            <p className="text-3xl font-black italic tracking-tighter">{item.value}</p>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 const DashboardAvatar2D = ({ username, costumeId }: { username: string, costumeId: string }) => {
   // Use DiceBear Adventurer for a 2D anime/animated look
   const avatarUrl = costumeId === 'none' 
@@ -356,8 +238,7 @@ const Dashboard: React.FC<{
   isDarkMode: boolean, 
   currentUser: User | null,
   onLogout: () => void
-}> = ({ isDarkMode, onLogout }) => {
-  const { currentUser, logout } = useUser();
+}> = ({ isDarkMode, currentUser, onLogout }) => {
   const { isEditMode, setIsEditMode } = useCMS();
   const role = currentUser?.role;
   const username = currentUser?.username;
@@ -376,63 +257,10 @@ const Dashboard: React.FC<{
   const [showCinematic, setShowCinematic] = useState(false);
   const [coins, setCoins] = useState(currentUser?.coins || 0);
   const [freezeCount, setFreezeCount] = useState(currentUser?.streakFreezeCount || 0);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{id: string, type: 'post' | 'user' | 'all_posts'}>({id: '', type: 'post'});
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [globalStats, setGlobalStats] = useState({ totalUsers: 0, activeUsers: 0, totalVotes: 0, totalQuizzesTaken: 0 });
-  const [liveVotes, setLiveVotes] = useState<Vote[]>([]);
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
-  const [followers, setFollowers] = useState<string[]>([]);
-  const [following, setFollowing] = useState<string[]>([]);
   const [hasCheckedToday, setHasCheckedToday] = useState(() => {
     const today = new Date().toISOString().split('T')[0];
     return currentUser?.lastLoginDate === today;
   });
-
-  // Real-time Global Stats
-  useEffect(() => {
-    const statsRef = doc(db, 'stats', 'global');
-    const unsubscribe = onSnapshot(statsRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setGlobalStats(docSnap.data() as any);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Real-time Live Votes
-  useEffect(() => {
-    const votesRef = collection(db, 'votes');
-    const q = query(votesRef, orderBy('timestamp', 'desc'), limit(10));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedVotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Vote[];
-      setLiveVotes(fetchedVotes);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Real-time Follows
-  useEffect(() => {
-    if (!currentUser) return;
-    
-    const followsRef = collection(db, 'follows');
-    
-    // Listen to followers
-    const qFollowers = query(followsRef, where('followingId', '==', currentUser.username));
-    const unsubFollowers = onSnapshot(qFollowers, (snapshot) => {
-      setFollowers(snapshot.docs.map(doc => doc.data().followerId));
-    });
-
-    // Listen to following
-    const qFollowing = query(followsRef, where('followerId', '==', currentUser.username));
-    const unsubFollowing = onSnapshot(qFollowing, (snapshot) => {
-      setFollowing(snapshot.docs.map(doc => doc.data().followingId));
-    });
-
-    return () => {
-      unsubFollowers();
-      unsubFollowing();
-    };
-  }, [currentUser]);
 
   const handleCheckStreak = () => {
     const today = new Date().toISOString().split('T')[0];
@@ -505,41 +333,42 @@ const Dashboard: React.FC<{
     }
   };
 
-  const [adminQuizHistory, setAdminQuizHistory] = useState<any[]>([]);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [myPosts, setMyPosts] = useState<any[]>([]);
-
-  const quizHistory = useMemo(() => {
-    return role === 'USER' ? (currentUser?.quizHistory || []) : adminQuizHistory;
-  }, [role, currentUser?.quizHistory, adminQuizHistory]);
-
-  useEffect(() => {
-    if (!currentUser || role !== 'ADMIN') return;
-    
-    const q = query(collection(db, 'quiz_results'), orderBy('date', 'desc'), limit(50));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const results = snapshot.docs.map(doc => doc.data());
-      setAdminQuizHistory(results);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'quiz_results');
-    });
-    return () => unsubscribe();
-  }, [currentUser, role]);
-
-  useEffect(() => {
-    if (role === 'ADMIN') {
-      const q = query(collection(db, 'feedbacks'), orderBy('timestamp', 'desc'), limit(50));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const fbs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Feedback));
-        setFeedbacks(fbs);
-      }, (error) => {
-        handleFirestoreError(error, OperationType.LIST, 'feedbacks');
-      });
-      return () => unsubscribe();
+  const [quizHistory] = useState(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'ADMIN') {
+      return JSON.parse(localStorage.getItem('all_quiz_results') || '[]');
     }
-  }, [role]);
+    return currentUser.quizHistory || [];
+  });
+  
+  const [feedbacks] = useState<Feedback[]>(() => {
+    const saved = localStorage.getItem('all_feedbacks');
+    return saved ? JSON.parse(saved) : [
+      { id: '1', username: 'Sistem', message: 'Selamat datang di dashboard VoxPolitika 2026.', date: '2026-01-01' },
+    ];
+  });
 
   const [usersList, setUsersList] = useState<User[]>([]);
+  const [liveStats, setLiveStats] = useState({ activeNow: 0, votesToday: 0, newUsersToday: 0 });
+
+  // Dynamic Usage Data for Admin Graphs
+  const usageData = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const currentMonth = new Date().getMonth();
+    const data = [];
+    
+    // Base growth simulation (Deterministic for purity)
+    for (let i = 0; i <= currentMonth; i++) {
+      const baseUsers = 100 + (i * 150);
+      // Use a deterministic "fluctuation" based on index i
+      const fluctuation = (i * 13) % 50;
+      data.push({ 
+        name: months[i], 
+        users: usersList.length > 0 ? Math.max(baseUsers, usersList.length * 10 + fluctuation) : baseUsers 
+      });
+    }
+    return data;
+  }, [usersList.length]);
 
   // Real-time Users List and Stats
   useEffect(() => {
@@ -554,13 +383,9 @@ const Dashboard: React.FC<{
         const today = now.toISOString().split('T')[0];
         const newUsers = users.filter(u => u.lastLoginDate === today).length;
         
-        // For "Active Now", we'll use users who logged in today as a proxy 
-        // since we don't have a real heartbeat system.
-        const activeToday = users.filter(u => u.lastLoginDate === today).length;
-
         setLiveStats(prev => ({
           ...prev,
-          activeNow: activeToday || 1,
+          activeNow: Math.floor(users.length * 0.3) + 1, // Simulated active users based on total
           newUsersToday: newUsers
         }));
       }, (error) => {
@@ -584,68 +409,33 @@ const Dashboard: React.FC<{
     }
   }, [role, currentUser]);
 
-  // Real-time fetch user's posts
-  useEffect(() => {
-    if (!currentUser || role === 'ADMIN') return;
-    
-    const path = 'posts';
-    const q = query(
-      collection(db, path), 
-      where('username', '==', currentUser.username), 
-      orderBy('timestamp', 'desc')
-    );
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setMyPosts(posts);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, path);
-    });
-
-    return () => unsubscribe();
-  }, [currentUser, role]);
-
-  const handleDeletePost = async (postId: string) => {
-    const path = `posts/${postId}`;
-    try {
-      await deleteDoc(doc(db, 'posts', postId));
-      setIsConfirmOpen(false);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, path);
-    }
-  };
-
   const handleRemoveUser = async (usernameToRemove: string) => {
-    try {
-      const docId = usernameToRemove.replace('@', '');
-      await deleteDoc(doc(db, 'users', docId));
-      // Also remove from users_by_uid if we have the UID
-      // (This is tricky if we don't have the UID here, but we can search for it)
-      setIsConfirmOpen(false);
-      alert("User berhasil dihapus.");
-    } catch (error) {
-      console.error("Error removing user: ", error);
-      alert("Gagal menghapus user.");
+    if (window.confirm(`Apakah Anda yakin ingin menghapus user "${usernameToRemove}"? Semua data kuis dan progres akan hilang.`)) {
+      try {
+        const docId = usernameToRemove.replace('@', '');
+        await deleteDoc(doc(db, 'users', docId));
+        alert("User berhasil dihapus.");
+      } catch (error) {
+        console.error("Error removing user: ", error);
+        alert("Gagal menghapus user.");
+      }
     }
   };
 
   const handleClearAllPosts = async () => {
-    try {
-      const postsRef = collection(db, 'posts');
-      const snapshot = await getDocs(postsRef);
-      const batch = writeBatch(db);
-      snapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-      setIsConfirmOpen(false);
-      alert("Semua postingan berhasil dihapus.");
-    } catch (error) {
-      console.error("Error clearing posts: ", error);
-      alert("Gagal menghapus semua postingan.");
+    if (window.confirm("PERINGATAN: Ini akan menghapus SEMUA postingan di VoxCircle secara global. Lanjutkan?")) {
+      try {
+        const snapshot = await getDocs(collection(db, 'posts'));
+        const batch = writeBatch(db);
+        snapshot.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+        alert("Semua postingan telah dihapus.");
+      } catch (error) {
+        console.error("Error clearing posts: ", error);
+        alert("Gagal menghapus postingan.");
+      }
     }
   };
 
@@ -704,6 +494,17 @@ const Dashboard: React.FC<{
   const [isVoxStudioEnabled, setIsVoxStudioEnabled] = useState(false);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
   
+  const myPosts = useMemo(() => {
+    const savedPosts = JSON.parse(localStorage.getItem('vox_circle_posts') || '[]');
+    return savedPosts
+      .map((p: any) => ({
+        ...p,
+        likes: Array.isArray(p.likes) ? p.likes : [],
+        comments: Array.isArray(p.comments) ? p.comments : []
+      }))
+      .filter((p: any) => p.username === currentUser?.username);
+  }, [currentUser?.username]);
+
   if (!currentUser) return null;
 
   const displayName = currentUser.displayName || username;
@@ -774,7 +575,7 @@ const Dashboard: React.FC<{
               Vox-Studio {isVoxStudioEnabled ? 'ON' : 'OFF'}
             </button>
             <button 
-              onClick={() => { logout(); onLogout(); }}
+              onClick={onLogout}
               className="flex items-center gap-2 bg-zinc-900 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-red-600 transition-all"
             >
               <LogOut size={16} /> Logout
@@ -782,7 +583,7 @@ const Dashboard: React.FC<{
           </div>
         ) : (
           <button 
-            onClick={() => { logout(); onLogout(); }}
+            onClick={onLogout}
             className="flex items-center gap-2 bg-zinc-900 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-red-600 transition-all"
           >
             <LogOut size={16} /> Logout
@@ -1019,8 +820,6 @@ const Dashboard: React.FC<{
                 <p className="text-xs font-medium italic mb-4">"{reportCard?.suggestion}"</p>
                 <button className="text-[10px] font-black uppercase text-red-600 hover:underline">Pelajari Sekarang →</button>
               </motion.div>
-
-              <LiveVotes votes={liveVotes} totalVotes={globalStats.totalVotes} isDarkMode={isDarkMode} />
             </>
           )}
         </div>
@@ -1127,20 +926,15 @@ const Dashboard: React.FC<{
                 
                 <div className="space-y-4">
                   {quizHistory.length > 0 ? (
-                    quizHistory.map((quiz: any, idx: number) => (
+                    quizHistory.slice().reverse().map((quiz: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-black/5 border border-transparent hover:border-red-600/20 transition-all">
                         <div className="flex items-center gap-4">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${quiz.score >= 70 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                             {quiz.score >= 70 ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                           </div>
                           <div>
-                            <p className="text-sm font-black uppercase">
-                              {quiz.topic || quiz.category || 'Pengetahuan Umum'}
-                              {role === 'ADMIN' && quiz.username && (
-                                <span className="ml-2 text-[10px] text-red-600">(@{quiz.username})</span>
-                              )}
-                            </p>
-                            <p className="text-[10px] font-bold opacity-50 uppercase">{new Date(quiz.date).toLocaleDateString()}</p>
+                            <p className="text-sm font-black uppercase">{quiz.category || 'Pengetahuan Umum'}</p>
+                            <p className="text-[10px] font-bold opacity-50 uppercase">{quiz.date}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -1170,25 +964,13 @@ const Dashboard: React.FC<{
                 <div className="space-y-4">
                   {myPosts.length > 0 ? (
                     myPosts.map((post: any) => (
-                      <div key={post.id} className="p-4 rounded-2xl bg-black/5 flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium mb-2 line-clamp-2">{post.content}</p>
-                          <div className="flex items-center gap-4 text-[10px] font-black uppercase opacity-50">
-                            <span>{post.likes?.length || 0} Suka</span>
-                            <span>{post.comments?.length || 0} Komentar</span>
-                            <span>{post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString('id-ID') : 'Baru saja'}</span>
-                          </div>
+                      <div key={post.id} className="p-4 rounded-2xl bg-black/5">
+                        <p className="text-sm font-medium mb-2 line-clamp-2">{post.content}</p>
+                        <div className="flex items-center gap-4 text-[10px] font-black uppercase opacity-50">
+                          <span>{post.likes.length} Suka</span>
+                          <span>{post.comments.length} Komentar</span>
+                          <span>{post.date}</span>
                         </div>
-                        <button 
-                          onClick={() => {
-                            setShowDeleteConfirm({ id: post.id, type: 'post' });
-                            setIsConfirmOpen(true);
-                          }}
-                          className="p-2 rounded-xl text-zinc-400 hover:bg-red-600 hover:text-white transition-all"
-                          title="Hapus Postingan"
-                        >
-                          <Trash2 size={14} />
-                        </button>
                       </div>
                     ))
                   ) : (
@@ -1202,7 +984,81 @@ const Dashboard: React.FC<{
           ) : (
             <div className="space-y-8">
               {/* ADMIN VIEW */}
-              <AdminStatsPlatform stats={globalStats} isDarkMode={isDarkMode} />
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className={`p-8 rounded-[2.5rem] border mb-8 ${isDarkMode ? 'bg-red-600/5 border-red-600/20' : 'bg-red-50 border-red-200 shadow-xl'}`}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
+                    <h3 className="text-xl font-black uppercase italic">Live Platform Pulse</h3>
+                  </div>
+                  <span className="text-[10px] font-black uppercase opacity-50">Real-time Feed</span>
+                </div>
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-black text-red-600 tabular-nums">{liveStats.activeNow}</p>
+                    <p className="text-[10px] font-bold uppercase opacity-50">Aktif Sekarang</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-black text-red-600 tabular-nums">{liveStats.votesToday}</p>
+                    <p className="text-[10px] font-bold uppercase opacity-50">Suara Masuk</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-black text-red-600 tabular-nums">{liveStats.newUsersToday}</p>
+                    <p className="text-[10px] font-bold uppercase opacity-50">User Baru</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}
+              >
+                <div className="flex items-center gap-3 mb-8">
+                  <TrendingUp size={24} className="text-red-600" />
+                  <h3 className="text-2xl font-black uppercase italic">Statistik Platform</h3>
+                </div>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={usageData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? '#333' : '#eee'} />
+                      <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fontSize: 10, fontWeight: 900, fill: isDarkMode ? '#666' : '#999' }} 
+                      />
+                      <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fontSize: 10, fontWeight: 900, fill: isDarkMode ? '#666' : '#999' }} 
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: isDarkMode ? '#18181b' : '#fff', 
+                          border: 'none', 
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                        }}
+                        itemStyle={{ fontSize: 12, fontWeight: 900, textTransform: 'uppercase' }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="users" 
+                        stroke="#dc2626" 
+                        strokeWidth={4} 
+                        dot={{ r: 6, fill: '#dc2626', strokeWidth: 2, stroke: isDarkMode ? '#18181b' : '#fff' }}
+                        activeDot={{ r: 8 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <motion.div 
@@ -1294,7 +1150,7 @@ const Dashboard: React.FC<{
                 friendTab === 'followers' ? 'text-red-600' : 'opacity-50'
               }`}
             >
-              Followers ({followers.length})
+              Followers ({currentUser?.followers?.length || 0})
               {friendTab === 'followers' && <motion.div layoutId="friendTab" className="absolute bottom-0 left-0 right-0 h-1 bg-red-600" />}
             </button>
             <button 
@@ -1303,51 +1159,48 @@ const Dashboard: React.FC<{
                 friendTab === 'following' ? 'text-red-600' : 'opacity-50'
               }`}
             >
-              Following ({following.length})
+              Following ({currentUser?.following?.length || 0})
               {friendTab === 'following' && <motion.div layoutId="friendTab" className="absolute bottom-0 left-0 right-0 h-1 bg-red-600" />}
             </button>
           </div>
 
           <div className="space-y-4">
-            {(friendTab === 'followers' ? followers : following).length === 0 ? (
+            {(friendTab === 'followers' ? currentUser?.followers : currentUser?.following)?.length === 0 ? (
               <div className="text-center py-12 opacity-50 font-bold uppercase tracking-widest text-xs">
                 Belum ada {friendTab === 'followers' ? 'pengikut' : 'yang diikuti'}.
               </div>
             ) : (
-              (friendTab === 'followers' ? followers : following).map((friendUsername) => {
-                const isMutual = followers.includes(friendUsername) && following.includes(friendUsername);
-                return (
-                  <div key={friendUsername} className="flex items-center justify-between p-4 rounded-2xl bg-black/5 hover:bg-black/10 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-red-600/20">
-                        <img 
-                          src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${friendUsername.replace('@', '')}&backgroundColor=f8fafc,f1f5f9&radius=20`}
-                          alt={friendUsername}
-                          className="w-full h-full object-contain"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold uppercase tracking-tight">{friendUsername}</p>
-                          {isMutual && (
-                            <span className="px-2 py-0.5 bg-green-500/10 text-green-500 text-[8px] font-black uppercase rounded-full border border-green-500/20">
-                              Friends
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[10px] font-bold text-red-600 uppercase">Warga Aktif</p>
-                      </div>
+              (friendTab === 'followers' ? currentUser?.followers : currentUser?.following)?.map((friendUsername) => (
+                <div key={friendUsername} className="flex items-center justify-between p-4 rounded-2xl bg-black/5 hover:bg-black/10 transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-red-600/20">
+                      <img 
+                        src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${friendUsername.replace('@', '')}&backgroundColor=f8fafc,f1f5f9&radius=20`}
+                        alt={friendUsername}
+                        className="w-full h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
                     </div>
-                    <button 
-                      onClick={() => setSelectedProfile(friendUsername)}
-                      className="px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all"
-                    >
-                      Lihat Profil
-                    </button>
+                    <div>
+                      <p className="font-bold uppercase tracking-tight">{friendUsername}</p>
+                      <p className="text-[10px] font-bold text-red-600 uppercase">Warga Aktif</p>
+                    </div>
                   </div>
-                );
-              })
+                  <button 
+                    onClick={() => {
+                      // Navigate to VoxCircle and filter for this user
+                      (window as any).setActiveSection('home');
+                      setTimeout(() => {
+                        const voxCircle = document.getElementById('vox-circle');
+                        if (voxCircle) voxCircle.scrollIntoView({ behavior: 'smooth' });
+                      }, 500);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all"
+                  >
+                    Lihat Profil
+                  </button>
+                </div>
+              ))
             )}
           </div>
         </motion.div>
@@ -1364,14 +1217,6 @@ const Dashboard: React.FC<{
           />
         )}
       </AnimatePresence>
-
-      <UserProfileModal 
-        isOpen={!!selectedProfile}
-        onClose={() => setSelectedProfile(null)}
-        targetUsername={selectedProfile || ''}
-        currentUsername={currentUser.username}
-        isDarkMode={isDarkMode}
-      />
 
       {/* ADMIN EDIT BUTTON AT BOTTOM */}
       {role === 'ADMIN' && (
@@ -1406,51 +1251,6 @@ const Dashboard: React.FC<{
           </div>
         </div>
       )}
-      {/* Confirmation Modal */}
-      <AnimatePresence>
-        {isConfirmOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setIsConfirmOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className={`relative w-full max-w-md p-8 rounded-[2.5rem] border transition-all ${
-                isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5 shadow-2xl'
-              }`}
-            >
-              <h3 className="text-xl font-black uppercase italic mb-4 text-red-600">Konfirmasi Hapus</h3>
-              <p className="opacity-60 mb-8 text-sm font-medium">
-                {showDeleteConfirm.type === 'post' && "Apakah Anda yakin ingin menghapus postingan ini?"}
-                {showDeleteConfirm.type === 'user' && `Apakah Anda yakin ingin menghapus user "${showDeleteConfirm.id}"? Semua data kuis dan progres akan hilang.`}
-                {showDeleteConfirm.type === 'all_posts' && "PERINGATAN: Ini akan menghapus SEMUA postingan di VoxCircle secara global. Lanjutkan?"}
-              </p>
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setIsConfirmOpen(false)}
-                  className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
-                    isDarkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-zinc-100 hover:bg-zinc-200'
-                  }`}
-                >
-                  Batal
-                </button>
-                <button 
-                  onClick={() => {
-                    if (showDeleteConfirm.type === 'post') handleDeletePost(showDeleteConfirm.id);
-                    else if (showDeleteConfirm.type === 'user') handleRemoveUser(showDeleteConfirm.id);
-                    else if (showDeleteConfirm.type === 'all_posts') handleClearAllPosts();
-                  }}
-                  className="flex-1 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
-                >
-                  Ya, Hapus
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

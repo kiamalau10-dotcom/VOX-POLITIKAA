@@ -12,17 +12,14 @@ import ChatBot from './components/ChatBot';
 import News from './components/News';
 import VoxCircle from './components/VoxCircle';
 import AvatarLab from './components/AvatarLab';
-import UserProfileModal from './components/UserProfileModal';
 import Quiz from './components/Quiz';
 import Dashboard from './components/Dashboard';
 import ProgramSection from './components/ProgramSection';
 import { MessageSquare, Send } from 'lucide-react';
-import { db, collection, addDoc, OperationType, handleFirestoreError } from './firebase';
+import { db, doc, onSnapshot, OperationType, handleFirestoreError } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import { CMSProvider, useCMS } from './components/CMSContext';
-import { UserProvider } from './components/UserContext';
-import { useUser } from './components/useUser';
 
 const Content = ({ 
   activeSection, 
@@ -141,9 +138,17 @@ const LegalModal: React.FC<{
 
 const AppContent: React.FC = () => {
   const { isEditMode, setIsEditMode } = useCMS();
-  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading } = useUser();
   const [legalModal, setLegalModal] = useState<{ title: string; content: React.ReactNode } | null>(null);
-  
+  // --- STATE AUTH ---
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const remembered = localStorage.getItem("isLoggedIn") === "true";
+    const sessioned = sessionStorage.getItem("isLoggedIn") === "true";
+    return remembered || sessioned;
+  });
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   // --- STATE TEMA & NAVIGASI ---
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -157,12 +162,9 @@ const AppContent: React.FC = () => {
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
   const [isAvatarLabOpen, setIsAvatarLabOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
 
   useEffect(() => {
     (window as any).openAvatarLab = () => setIsAvatarLabOpen(true);
-    (window as any).setActiveSection = (section: AppSection) => setActiveSection(section);
-    (window as any).setSelectedProfile = (username: string | null) => setSelectedProfile(username);
   }, []);
 
   useEffect(() => {
@@ -199,47 +201,62 @@ const AppContent: React.FC = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("currentUser");
+    sessionStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("currentUser");
     setActiveSection(AppSection.HOME);
   };
 
   // Sync currentUser from Firestore in real-time
-  // (Moved to UserContext)
+  useEffect(() => {
+    if (isLoggedIn && currentUser?.username) {
+      const docId = currentUser.username.replace('@', '');
+      const path = `users/${docId}`;
+      const unsubscribe = onSnapshot(doc(db, 'users', docId), (docSnap) => {
+        if (docSnap.exists()) {
+          const userData = docSnap.data() as User;
+          setCurrentUser(userData);
+          localStorage.setItem("currentUser", JSON.stringify(userData));
+          localStorage.setItem(`user_data_${userData.username}`, JSON.stringify(userData));
+        }
+      }, (error) => {
+        handleFirestoreError(error, OperationType.GET, path);
+      });
+      return () => unsubscribe();
+    }
+  }, [isLoggedIn, currentUser?.username]);
 
   // Sync currentUser from localStorage (for updates from other components)
-  // (Moved to UserContext)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedUser = localStorage.getItem("currentUser");
+      if (savedUser) {
+        setCurrentUser(JSON.parse(savedUser));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
-  const handleSendFeedback = useCallback(async (e: React.FormEvent) => {
+  const handleSendFeedback = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedback.trim()) return;
-
-    const path = 'feedbacks';
-    try {
-      await addDoc(collection(db, path), {
-        username: currentUser?.username || 'Anonymous',
-        message: feedback,
-        date: new Date().toISOString().split('T')[0],
-        timestamp: new Date().toISOString()
-      });
-      setIsSent(true);
-      setFeedback('');
-      setTimeout(() => setIsSent(false), 3000);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, path);
-    }
+    const allFeedbacks = JSON.parse(localStorage.getItem('all_feedbacks') || '[]');
+    const newFeedback = {
+      id: Date.now().toString(),
+      username: currentUser?.username || 'Anonymous',
+      message: feedback,
+      date: new Date().toISOString().split('T')[0]
+    };
+    localStorage.setItem('all_feedbacks', JSON.stringify([newFeedback, ...allFeedbacks]));
+    setIsSent(true);
+    setFeedback('');
+    setTimeout(() => setIsSent(false), 3000);
   }, [feedback, currentUser]);
-
-  if (isLoading) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
 
   if (!isLoggedIn) {
     return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
@@ -424,14 +441,6 @@ const AppContent: React.FC = () => {
         />
       )}
 
-      <UserProfileModal 
-        isOpen={!!selectedProfile}
-        onClose={() => setSelectedProfile(null)}
-        targetUsername={selectedProfile || ''}
-        currentUsername={currentUser?.username || ''}
-        isDarkMode={isDarkMode}
-      />
-
       {activeSection !== AppSection.AI && activeSection !== AppSection.FEEDBACK && !isQuizActive && (
         <motion.button
           initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
@@ -449,9 +458,7 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <CMSProvider>
-        <UserProvider>
-          <AppContent />
-        </UserProvider>
+        <AppContent />
       </CMSProvider>
     </ErrorBoundary>
   );

@@ -45,32 +45,8 @@
       "properties": {
         "totalUsers": { "type": "number" },
         "activeUsers": { "type": "number" },
-        "totalVotes": { "type": "number" },
-        "totalQuizzesTaken": { "type": "number" }
+        "totalVotes": { "type": "number" }
       }
-    },
-    "Follow": {
-      "title": "User Follow Relation",
-      "description": "Stores follow relationships between users.",
-      "type": "object",
-      "properties": {
-        "followerId": { "type": "string" },
-        "followingId": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["followerId", "followingId", "timestamp"]
-    },
-    "Vote": {
-      "title": "User Vote/Voice",
-      "description": "Stores real-time votes or voices from users.",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "username": { "type": "string" },
-        "type": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userId", "username", "timestamp"]
     }
   },
   "firestore": {
@@ -85,14 +61,6 @@
     "/stats/global": {
       "schema": "GlobalStats",
       "description": "Global application statistics."
-    },
-    "/follows/{followId}": {
-      "schema": "Follow",
-      "description": "User follow relationships."
-    },
-    "/votes/{voteId}": {
-      "schema": "Vote",
-      "description": "Real-time user votes."
     }
   }
 }

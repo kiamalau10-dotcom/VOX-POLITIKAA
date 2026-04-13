@@ -1,20 +1,12 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch } from 'firebase/firestore';
 import firebaseConfig from './firebase-applet-config.json';
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
-
-// Helper to get the correct redirect URL based on environment
-export const getRedirectURL = () => {
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  if (isLocal) return 'http://localhost:3000';
-  return window.location.origin;
-};
-
 export const googleProvider = new GoogleAuthProvider();
 
 // Test connection to Firestore
@@ -85,7 +77,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 export { 
-  signInWithPopup,
+  signInWithPopup, 
   signOut, 
   onAuthStateChanged,
   signInAnonymously,
@@ -105,6 +97,5 @@ export {
   arrayUnion,
   arrayRemove,
   serverTimestamp,
-  writeBatch,
-  increment
+  writeBatch
 };
