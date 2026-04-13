@@ -45,48 +45,14 @@
       "properties": {
         "totalUsers": { "type": "number" },
         "activeUsers": { "type": "number" },
-        "totalVotes": { "type": "number" },
-        "totalQuizzesTaken": { "type": "number" }
+        "totalVotes": { "type": "number" }
       }
-    },
-    "Follow": {
-      "title": "User Follow Relation",
-      "description": "Stores follow relationships between users.",
-      "type": "object",
-      "properties": {
-        "followerId": { "type": "string" },
-        "followingId": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["followerId", "followingId", "timestamp"]
-    },
-    "Vote": {
-      "title": "User Vote/Voice",
-      "description": "Stores real-time votes or voices from users.",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "username": { "type": "string" },
-        "type": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userId", "username", "timestamp"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "User",
       "description": "User profile data."
-    },
-    "/users_by_uid/{uid}": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "username": { "type": "string" },
-          "role": { "type": "string" }
-        }
-      },
-      "description": "Mapping from Firebase UID to username and role for security rules."
     },
     "/posts/{postId}": {
       "schema": "Post",
@@ -95,14 +61,6 @@
     "/stats/global": {
       "schema": "GlobalStats",
       "description": "Global application statistics."
-    },
-    "/follows/{followId}": {
-      "schema": "Follow",
-      "description": "User follow relationships."
-    },
-    "/votes/{voteId}": {
-      "schema": "Vote",
-      "description": "Real-time user votes."
     }
   }
 }

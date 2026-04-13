@@ -1,57 +1,12 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, deleteUser } from 'firebase/auth';
-import { initializeFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch } from 'firebase/firestore';
 import firebaseConfig from './firebase-applet-config.json';
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
-
-// Use initializeFirestore with long polling to bypass potential proxy/websocket issues in sandboxed environments
-export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-}, firebaseConfig.firestoreDatabaseId);
-
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
-
-// Helper to delete account (Auth + Firestore)
-export const deleteAccount = async (username: string) => {
-  const user = auth.currentUser;
-  if (!user) throw new Error("No user logged in");
-
-  const docId = username.replace('@', '');
-  const batch = writeBatch(db);
-
-  // 1. Delete user document
-  batch.delete(doc(db, 'users', docId));
-  
-  // 2. Delete user mapping
-  batch.delete(doc(db, 'users_by_uid', user.uid));
-
-  // 3. Delete user's posts (optional but recommended for clean up)
-  const postsQuery = query(collection(db, 'posts'), where('username', '==', username));
-  const postsSnap = await getDocs(postsQuery);
-  postsSnap.forEach(postDoc => batch.delete(postDoc.ref));
-
-  // 4. Delete user's follows
-  const followsQuery1 = query(collection(db, 'follows'), where('followerId', '==', username));
-  const followsSnap1 = await getDocs(followsQuery1);
-  followsSnap1.forEach(fDoc => batch.delete(fDoc.ref));
-
-  const followsQuery2 = query(collection(db, 'follows'), where('followingId', '==', username));
-  const followsSnap2 = await getDocs(followsQuery2);
-  followsSnap2.forEach(fDoc => batch.delete(fDoc.ref));
-
-  await batch.commit();
-  await deleteUser(user);
-};
-
-// Helper to get the correct redirect URL based on environment
-export const getRedirectURL = () => {
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  if (isLocal) return 'http://localhost:3000';
-  return window.location.origin;
-};
-
 export const googleProvider = new GoogleAuthProvider();
 
 // Test connection to Firestore
@@ -122,7 +77,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 export { 
-  signInWithPopup,
+  signInWithPopup, 
   signOut, 
   onAuthStateChanged,
   signInAnonymously,
@@ -142,6 +97,5 @@ export {
   arrayUnion,
   arrayRemove,
   serverTimestamp,
-  writeBatch,
-  increment
+  writeBatch
 };

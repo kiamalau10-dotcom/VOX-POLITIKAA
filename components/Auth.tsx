@@ -9,8 +9,7 @@ import {
   getDoc, 
   setDoc, 
   updateDoc, 
-  signInAnonymously,
-  increment
+  signInAnonymously 
 } from '../firebase';
 
 interface AuthProps {
@@ -40,8 +39,7 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         } catch (err: any) {
           // Don't block the flow, but warn the user if it's the restricted operation error
           if (err.code === 'auth/admin-restricted-operation') {
-            // Silent warning
-            console.debug("Anonymous Auth disabled.");
+            console.warn("Anonymous Authentication is disabled in Firebase Console. Real-time sync may be limited.");
           } else {
             console.error("Auth error: ", err);
           }
@@ -74,20 +72,6 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         };
 
         await setDoc(doc(db, 'users', docId), newUser);
-        
-        // Update global stats
-        const statsRef = doc(db, 'stats', 'global');
-        await updateDoc(statsRef, {
-          totalUsers: increment(1)
-        });
-
-        // CRITICAL: Store role by UID for security rules
-        if (uid) {
-          await setDoc(doc(db, 'users_by_uid', uid), {
-            username: formattedUsername,
-            role: 'USER'
-          });
-        }
         
         // Also update local storage for compatibility
         localStorage.setItem(`user_data_${formattedUsername}`, JSON.stringify(newUser));
@@ -139,28 +123,12 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
             };
             // Sync admin to Firestore if not exists
             await setDoc(doc(db, 'users', docId), user, { merge: true });
-            
-            // CRITICAL: Store role by UID for security rules
-            if (uid) {
-              await setDoc(doc(db, 'users_by_uid', uid), {
-                username: user.username,
-                role: 'ADMIN'
-              });
-            }
           } else {
             user = savedUser!;
             // Update UID if it's missing (for legacy users)
-            if (!user.uid || user.uid !== uid) {
+            if (!user.uid) {
               user.uid = uid;
               await updateDoc(doc(db, 'users', docId), { uid: uid });
-            }
-            
-            // CRITICAL: Store role by UID for security rules
-            if (uid) {
-              await setDoc(doc(db, 'users_by_uid', uid), {
-                username: user.username,
-                role: user.role
-              });
             }
           }
           
@@ -196,15 +164,9 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           alert("Username atau Password salah!");
         }
       }
-    } catch (error: any) {
-      console.error("Auth error details:", {
-        message: error.message,
-        code: error.code,
-        stack: error.stack,
-        env: process.env.NODE_ENV,
-        hostname: window.location.hostname
-      });
-      alert(`Terjadi kesalahan saat autentikasi: ${error.message || 'Silakan coba lagi.'}`);
+    } catch (error) {
+      console.error("Auth error: ", error);
+      alert("Terjadi kesalahan saat autentikasi. Silakan coba lagi.");
     }
   };
 

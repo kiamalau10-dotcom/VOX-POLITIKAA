@@ -118,21 +118,6 @@ export interface User {
   }[];
 }
 
-export interface Vote {
-  id: string;
-  userId: string;
-  username: string;
-  timestamp: any;
-  type: string;
-}
-
-export interface Follow {
-  id: string;
-  followerId: string;
-  followingId: string;
-  timestamp: any;
-}
-
 export interface Feedback {
   id: string;
   username: string;

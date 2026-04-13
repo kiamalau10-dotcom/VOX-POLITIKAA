@@ -7,7 +7,6 @@ export interface UserContextType {
   isLoggedIn: boolean;
   setIsLoggedIn: (val: boolean) => void;
   logout: () => void;
-  isLoading: boolean;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);

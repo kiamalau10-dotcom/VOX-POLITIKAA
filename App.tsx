@@ -12,7 +12,6 @@ import ChatBot from './components/ChatBot';
 import News from './components/News';
 import VoxCircle from './components/VoxCircle';
 import AvatarLab from './components/AvatarLab';
-import UserProfileModal from './components/UserProfileModal';
 import Quiz from './components/Quiz';
 import Dashboard from './components/Dashboard';
 import ProgramSection from './components/ProgramSection';
@@ -141,7 +140,7 @@ const LegalModal: React.FC<{
 
 const AppContent: React.FC = () => {
   const { isEditMode, setIsEditMode } = useCMS();
-  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading } = useUser();
+  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout } = useUser();
   const [legalModal, setLegalModal] = useState<{ title: string; content: React.ReactNode } | null>(null);
   
   // --- STATE TEMA & NAVIGASI ---
@@ -157,12 +156,9 @@ const AppContent: React.FC = () => {
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
   const [isAvatarLabOpen, setIsAvatarLabOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
 
   useEffect(() => {
     (window as any).openAvatarLab = () => setIsAvatarLabOpen(true);
-    (window as any).setActiveSection = (section: AppSection) => setActiveSection(section);
-    (window as any).setSelectedProfile = (username: string | null) => setSelectedProfile(username);
   }, []);
 
   useEffect(() => {
@@ -228,18 +224,6 @@ const AppContent: React.FC = () => {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }, [feedback, currentUser]);
-
-  if (isLoading) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
 
   if (!isLoggedIn) {
     return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
@@ -423,14 +407,6 @@ const AppContent: React.FC = () => {
           }}
         />
       )}
-
-      <UserProfileModal 
-        isOpen={!!selectedProfile}
-        onClose={() => setSelectedProfile(null)}
-        targetUsername={selectedProfile || ''}
-        currentUsername={currentUser?.username || ''}
-        isDarkMode={isDarkMode}
-      />
 
       {activeSection !== AppSection.AI && activeSection !== AppSection.FEEDBACK && !isQuizActive && (
         <motion.button
