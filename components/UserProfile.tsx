@@ -1,19 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Award, Flame, MessageSquare, Shield, UserPlus, UserMinus, Lock } from 'lucide-react';
+import { Award, Flame, MessageSquare, Shield } from 'lucide-react';
 import { useRealtimeProfile } from '../hooks/useRealtimeProfile';
-import { useFollowStatus } from '../hooks/useFollowStatus';
 
 interface UserProfileProps {
   targetUsername: string;
-  currentUsername: string;
   isDarkMode: boolean;
   isAdmin?: boolean;
 }
 
-const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, currentUsername, isDarkMode, isAdmin }) => {
+const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, isAdmin }) => {
   const { profile, posts, loading } = useRealtimeProfile(targetUsername);
-  const { isFollowing, isFriends, followerCount, followingCount, toggleFollow } = useFollowStatus(currentUsername, targetUsername);
 
   if (loading) {
     return (
@@ -31,9 +28,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, currentUserna
       </div>
     );
   }
-
-  const isSelf = currentUsername === targetUsername;
-  const canSeeFullProfile = isSelf || isFriends || profile.role === 'ADMIN' || isAdmin;
 
   return (
     <div className="space-y-8">
@@ -56,25 +50,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, currentUserna
         <div className="flex-1 text-center md:text-left">
           <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
             <h2 className="text-4xl font-black uppercase italic tracking-tighter">{profile.username}</h2>
-            {isFriends && (
-              <span className="px-3 py-1 bg-green-500/10 text-green-500 text-[10px] font-black uppercase rounded-full border border-green-500/20">
-                Friends
-              </span>
-            )}
           </div>
           <p className="text-sm font-bold opacity-50 uppercase tracking-widest mb-4">
             {profile.voxTitle || 'Warga Aktif'} • Level {profile.level}
           </p>
           
           <div className="flex items-center justify-center md:justify-start gap-6">
-            <div className="text-center">
-              <p className="text-xl font-black text-red-600">{followerCount}</p>
-              <p className="text-[8px] font-black uppercase opacity-50">Followers</p>
-            </div>
-            <div className="text-center">
-              <p className="text-xl font-black text-red-600">{followingCount}</p>
-              <p className="text-[8px] font-black uppercase opacity-50">Following</p>
-            </div>
             <div className="text-center">
               <div className="flex items-center gap-1">
                 <Flame size={14} className="text-orange-500" />
@@ -84,20 +65,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, currentUserna
             </div>
           </div>
         </div>
-
-        {!isSelf && (
-          <button 
-            onClick={toggleFollow}
-            className={`px-8 py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 ${
-              isFollowing 
-                ? 'bg-zinc-800 text-white hover:bg-red-600' 
-                : 'bg-red-600 text-white hover:bg-red-700 shadow-red-600/20'
-            }`}
-          >
-            {isFollowing ? <UserMinus size={18} /> : <UserPlus size={18} />}
-            {isFollowing ? 'Unfollow' : 'Follow'}
-          </button>
-        )}
       </div>
 
       {/* Progress Bar */}
@@ -156,56 +123,42 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, currentUserna
         </div>
       </div>
 
-      {/* VoxCircle Feed - Conditional */}
+      {/* VoxCircle Feed */}
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <MessageSquare size={20} className="text-red-600" />
           <h4 className="text-xs font-black uppercase tracking-widest">VoxCircle Thoughts</h4>
         </div>
 
-        {!canSeeFullProfile ? (
-          <div className={`p-12 rounded-[2.5rem] border border-dashed flex flex-col items-center gap-4 text-center ${isDarkMode ? 'border-white/10 bg-white/5' : 'border-black/10 bg-black/5'}`}>
-            <div className="w-16 h-16 rounded-full bg-red-600/10 flex items-center justify-center text-red-600">
-              <Lock size={32} />
+        <div className="space-y-4">
+          {posts.length === 0 ? (
+            <div className="py-12 text-center border-2 border-dashed border-black/5 rounded-[2rem]">
+              <p className="text-[10px] font-bold uppercase opacity-30 italic">Belum ada postingan.</p>
             </div>
-            <div>
-              <h5 className="text-sm font-black uppercase mb-1">Konten Terkunci</h5>
-              <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest max-w-xs">
-                Jadilah teman (mutual follow) untuk melihat pemikiran politik {profile.username}.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {posts.length === 0 ? (
-              <div className="py-12 text-center border-2 border-dashed border-black/5 rounded-[2rem]">
-                <p className="text-[10px] font-bold uppercase opacity-30 italic">Belum ada postingan.</p>
-              </div>
-            ) : (
-              posts.map((post) => (
-                <motion.div 
-                  key={post.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-black/5 shadow-sm'}`}
-                >
-                  <p className="text-sm font-medium mb-4 leading-relaxed">{post.content}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-[9px] font-black uppercase opacity-50">
-                      <span className="flex items-center gap-1"><MessageSquare size={10} /> {post.comments?.length || 0}</span>
-                      <span>{post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString() : 'Baru saja'}</span>
-                    </div>
-                    {isAdmin && (
-                      <button className="text-red-600 hover:opacity-70 transition-opacity">
-                        <Shield size={14} />
-                      </button>
-                    )}
+          ) : (
+            posts.map((post) => (
+              <motion.div 
+                key={post.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-black/5 shadow-sm'}`}
+              >
+                <p className="text-sm font-medium mb-4 leading-relaxed">{post.content}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-[9px] font-black uppercase opacity-50">
+                    <span className="flex items-center gap-1"><MessageSquare size={10} /> {post.comments?.length || 0}</span>
+                    <span>{post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString() : 'Baru saja'}</span>
                   </div>
-                </motion.div>
-              ))
-            )}
-          </div>
-        )}
+                  {isAdmin && (
+                    <button className="text-red-600 hover:opacity-70 transition-opacity">
+                      <Shield size={14} />
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

@@ -211,10 +211,8 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     return ts;
   };
 
-  const renderAvatar = (costumeId: any, username: string) => {
-    const avatarUrl = costumeId === 'none' || !costumeId
-      ? `https://api.dicebear.com/9.x/adventurer/svg?seed=${username}&backgroundColor=f8fafc,f1f5f9&radius=20`
-      : costumeId;
+  const renderAvatar = (username: string) => {
+    const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${username}&backgroundColor=f8fafc,f1f5f9&radius=20`;
     
     return (
       <div className="w-12 h-12 rounded-2xl bg-red-600/10 overflow-hidden border-2 border-red-600/20 shrink-0">
@@ -353,24 +351,13 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
                       <UserPlus size={16} />
                     </button>
                   )}
-                  
-                  {/* Admin Specific Delete Button */}
-                  {currentUser?.role === 'ADMIN' ? (
+                  {(currentUser?.role === 'ADMIN' || currentUser?.username === post.username) && (
                     <button 
                       onClick={() => handleDelete(post.id)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+                      className="p-2 rounded-xl bg-zinc-800 text-zinc-400 hover:bg-red-600 hover:text-white transition-all"
                     >
-                      <Trash2 size={12} /> Hapus (Admin)
+                      <Trash2 size={16} />
                     </button>
-                  ) : (
-                    currentUser?.username === post.username && (
-                      <button 
-                        onClick={() => handleDelete(post.id)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg"
-                      >
-                        <Trash2 size={12} /> Hapus
-                      </button>
-                    )
                   )}
                 </div>
               </div>

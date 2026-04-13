@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { db, doc, onSnapshot, updateDoc, OperationType, handleFirestoreError } from '../firebase';
+import { 
+  db, 
+  doc, 
+  onSnapshot, 
+  updateDoc, 
+  setDoc,
+  OperationType, 
+  handleFirestoreError,
+  auth,
+  signInAnonymously,
+  onAuthStateChanged
+} from '../firebase';
 import { UserContext } from './UserContextCore';
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -14,6 +25,56 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Initialize Firebase Auth
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setIsLoading(true);
+      if (user) {
+        // Sync UID to currentUser and Firestore if missing
+        setCurrentUser(prev => {
+          if (prev && (!prev.uid || prev.uid !== user.uid)) {
+            const updatedUser = { ...prev, uid: user.uid };
+            
+            // Update in storage
+            const storage = localStorage.getItem("isLoggedIn") === "true" ? localStorage : sessionStorage;
+            storage.setItem("currentUser", JSON.stringify(updatedUser));
+
+            // Update in Firestore
+            const docId = prev.username.replace('@', '');
+            updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
+            
+            // Update users_by_uid
+            setDoc(doc(db, 'users_by_uid', user.uid), {
+              username: prev.username,
+              role: prev.role
+            }, { merge: true }).catch(e => console.error("Sync users_by_uid error:", e));
+
+            return updatedUser;
+          }
+          return prev;
+        });
+      } else {
+        try {
+          await signInAnonymously(auth);
+        } catch (err: any) {
+          // Clear UID if auth fails to prevent stale UIDs from causing permission errors
+          setCurrentUser(prev => prev ? { ...prev, uid: undefined } : null);
+          
+          if (err.code === 'auth/admin-restricted-operation') {
+            // Silent warning to avoid cluttering logs if intentionally disabled
+            console.debug("Anonymous Auth disabled.");
+          } else {
+            console.error("Anonymous auth error:", err);
+          }
+        }
+      }
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Sync currentUser from Firestore in real-time
   useEffect(() => {
@@ -65,7 +126,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout }}>
+    <UserContext.Provider value={{ currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading }}>
       {children}
     </UserContext.Provider>
   );

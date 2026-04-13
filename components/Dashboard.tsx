@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, History, TrendingUp, MessageSquare, Users, Award, LogOut, Flame, BookOpen, CheckCircle2, AlertCircle, Sparkles, Trash2, Coins, Snowflake } from 'lucide-react';
 import { User, Feedback } from '../types';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { useCMS } from './CMSContext';
-import { useUser } from './useUser';
 
 import { 
   db, 
@@ -14,10 +12,6 @@ import {
   deleteDoc, 
   getDocs,
   writeBatch,
-  query,
-  orderBy,
-  where,
-  limit,
   OperationType,
   handleFirestoreError
 } from '../firebase';
@@ -243,8 +237,7 @@ const Dashboard: React.FC<{
   isDarkMode: boolean, 
   currentUser: User | null,
   onLogout: () => void
-}> = ({ isDarkMode, onLogout }) => {
-  const { currentUser, logout } = useUser();
+}> = ({ isDarkMode, currentUser, onLogout }) => {
   const { isEditMode, setIsEditMode } = useCMS();
   const role = currentUser?.role;
   const username = currentUser?.username;
@@ -339,39 +332,20 @@ const Dashboard: React.FC<{
     }
   };
 
-  const [adminQuizHistory, setAdminQuizHistory] = useState<any[]>([]);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [myPosts, setMyPosts] = useState<any[]>([]);
-
-  const quizHistory = useMemo(() => {
-    return role === 'USER' ? (currentUser?.quizHistory || []) : adminQuizHistory;
-  }, [role, currentUser?.quizHistory, adminQuizHistory]);
-
-  useEffect(() => {
-    if (!currentUser || role !== 'ADMIN') return;
-    
-    const q = query(collection(db, 'quiz_results'), orderBy('date', 'desc'), limit(50));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const results = snapshot.docs.map(doc => doc.data());
-      setAdminQuizHistory(results);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'quiz_results');
-    });
-    return () => unsubscribe();
-  }, [currentUser, role]);
-
-  useEffect(() => {
-    if (role === 'ADMIN') {
-      const q = query(collection(db, 'feedbacks'), orderBy('timestamp', 'desc'), limit(50));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const fbs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Feedback));
-        setFeedbacks(fbs);
-      }, (error) => {
-        handleFirestoreError(error, OperationType.LIST, 'feedbacks');
-      });
-      return () => unsubscribe();
+  const [quizHistory] = useState(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'ADMIN') {
+      return JSON.parse(localStorage.getItem('all_quiz_results') || '[]');
     }
-  }, [role]);
+    return currentUser.quizHistory || [];
+  });
+  
+  const [feedbacks] = useState<Feedback[]>(() => {
+    const saved = localStorage.getItem('all_feedbacks');
+    return saved ? JSON.parse(saved) : [
+      { id: '1', username: 'Sistem', message: 'Selamat datang di dashboard VoxPolitika 2026.', date: '2026-01-01' },
+    ];
+  });
 
   const [usersList, setUsersList] = useState<User[]>([]);
   const [liveStats, setLiveStats] = useState({ activeNow: 0, votesToday: 0, newUsersToday: 0 });
@@ -408,13 +382,9 @@ const Dashboard: React.FC<{
         const today = now.toISOString().split('T')[0];
         const newUsers = users.filter(u => u.lastLoginDate === today).length;
         
-        // For "Active Now", we'll use users who logged in today as a proxy 
-        // since we don't have a real heartbeat system.
-        const activeToday = users.filter(u => u.lastLoginDate === today).length;
-
         setLiveStats(prev => ({
           ...prev,
-          activeNow: activeToday || 1,
+          activeNow: Math.floor(users.length * 0.3) + 1, // Simulated active users based on total
           newUsersToday: newUsers
         }));
       }, (error) => {
@@ -437,40 +407,6 @@ const Dashboard: React.FC<{
       };
     }
   }, [role, currentUser]);
-
-  // Real-time fetch user's posts
-  useEffect(() => {
-    if (!currentUser || role === 'ADMIN') return;
-    
-    const path = 'posts';
-    const q = query(
-      collection(db, path), 
-      where('username', '==', currentUser.username), 
-      orderBy('timestamp', 'desc')
-    );
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setMyPosts(posts);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, path);
-    });
-
-    return () => unsubscribe();
-  }, [currentUser, role]);
-
-  const handleDeletePost = async (postId: string) => {
-    if (!window.confirm("Hapus postingan ini?")) return;
-    const path = `posts/${postId}`;
-    try {
-      await deleteDoc(doc(db, 'posts', postId));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, path);
-    }
-  };
 
   const handleRemoveUser = async (usernameToRemove: string) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus user "${usernameToRemove}"? Semua data kuis dan progres akan hilang.`)) {
@@ -557,6 +493,17 @@ const Dashboard: React.FC<{
   const [isVoxStudioEnabled, setIsVoxStudioEnabled] = useState(false);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
   
+  const myPosts = useMemo(() => {
+    const savedPosts = JSON.parse(localStorage.getItem('vox_circle_posts') || '[]');
+    return savedPosts
+      .map((p: any) => ({
+        ...p,
+        likes: Array.isArray(p.likes) ? p.likes : [],
+        comments: Array.isArray(p.comments) ? p.comments : []
+      }))
+      .filter((p: any) => p.username === currentUser?.username);
+  }, [currentUser?.username]);
+
   if (!currentUser) return null;
 
   const displayName = currentUser.displayName || username;
@@ -627,7 +574,7 @@ const Dashboard: React.FC<{
               Vox-Studio {isVoxStudioEnabled ? 'ON' : 'OFF'}
             </button>
             <button 
-              onClick={() => { logout(); onLogout(); }}
+              onClick={onLogout}
               className="flex items-center gap-2 bg-zinc-900 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-red-600 transition-all"
             >
               <LogOut size={16} /> Logout
@@ -635,7 +582,7 @@ const Dashboard: React.FC<{
           </div>
         ) : (
           <button 
-            onClick={() => { logout(); onLogout(); }}
+            onClick={onLogout}
             className="flex items-center gap-2 bg-zinc-900 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-red-600 transition-all"
           >
             <LogOut size={16} /> Logout
@@ -978,20 +925,15 @@ const Dashboard: React.FC<{
                 
                 <div className="space-y-4">
                   {quizHistory.length > 0 ? (
-                    quizHistory.map((quiz: any, idx: number) => (
+                    quizHistory.slice().reverse().map((quiz: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-black/5 border border-transparent hover:border-red-600/20 transition-all">
                         <div className="flex items-center gap-4">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${quiz.score >= 70 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                             {quiz.score >= 70 ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                           </div>
                           <div>
-                            <p className="text-sm font-black uppercase">
-                              {quiz.topic || quiz.category || 'Pengetahuan Umum'}
-                              {role === 'ADMIN' && quiz.username && (
-                                <span className="ml-2 text-[10px] text-red-600">(@{quiz.username})</span>
-                              )}
-                            </p>
-                            <p className="text-[10px] font-bold opacity-50 uppercase">{new Date(quiz.date).toLocaleDateString()}</p>
+                            <p className="text-sm font-black uppercase">{quiz.category || 'Pengetahuan Umum'}</p>
+                            <p className="text-[10px] font-bold opacity-50 uppercase">{quiz.date}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -1021,22 +963,13 @@ const Dashboard: React.FC<{
                 <div className="space-y-4">
                   {myPosts.length > 0 ? (
                     myPosts.map((post: any) => (
-                      <div key={post.id} className="p-4 rounded-2xl bg-black/5 flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium mb-2 line-clamp-2">{post.content}</p>
-                          <div className="flex items-center gap-4 text-[10px] font-black uppercase opacity-50">
-                            <span>{post.likes?.length || 0} Suka</span>
-                            <span>{post.comments?.length || 0} Komentar</span>
-                            <span>{post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString('id-ID') : 'Baru saja'}</span>
-                          </div>
+                      <div key={post.id} className="p-4 rounded-2xl bg-black/5">
+                        <p className="text-sm font-medium mb-2 line-clamp-2">{post.content}</p>
+                        <div className="flex items-center gap-4 text-[10px] font-black uppercase opacity-50">
+                          <span>{post.likes.length} Suka</span>
+                          <span>{post.comments.length} Komentar</span>
+                          <span>{post.date}</span>
                         </div>
-                        <button 
-                          onClick={() => handleDeletePost(post.id)}
-                          className="p-2 rounded-xl text-zinc-400 hover:bg-red-600 hover:text-white transition-all"
-                          title="Hapus Postingan"
-                        >
-                          <Trash2 size={14} />
-                        </button>
                       </div>
                     ))
                   ) : (
