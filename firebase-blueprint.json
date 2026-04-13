@@ -96,6 +96,10 @@
       "schema": "GlobalStats",
       "description": "Global application statistics."
     },
+    "/follows/{followId}": {
+      "schema": "Follow",
+      "description": "User follow relationships."
+    },
     "/votes/{voteId}": {
       "schema": "Vote",
       "description": "Real-time user votes."

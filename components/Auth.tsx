@@ -68,6 +68,8 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           quizHistory: [],
           coins: 100,
           streakFreezeCount: 0,
+          followers: [],
+          following: [],
           uid: uid // Store the UID if we have it
         };
 
@@ -131,6 +133,8 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
               quizHistory: [],
               coins: 9999999,
               streakFreezeCount: 99,
+              followers: [],
+              following: [],
               uid: uid
             };
             // Sync admin to Firestore if not exists

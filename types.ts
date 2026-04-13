@@ -97,6 +97,8 @@ export interface User {
   }[];
   coins?: number;
   streakFreezeCount?: number;
+  followers?: string[]; // array of usernames
+  following?: string[]; // array of usernames
   avatarConfig?: {
     base: string;
     skin: string;
@@ -122,6 +124,13 @@ export interface Vote {
   username: string;
   timestamp: any;
   type: string;
+}
+
+export interface Follow {
+  id: string;
+  followerId: string;
+  followingId: string;
+  timestamp: any;
 }
 
 export interface Feedback {

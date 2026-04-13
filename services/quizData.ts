@@ -1409,7 +1409,7 @@ export const ALL_QUESTIONS: Question[] = [
     options: [
       "Memastikan bahwa kita selalu menang dalam setiap debat di kolom komentar",
       "Menjaga ruang siber agar tetap sehat, sopan, dan berdasarkan fakta",
-      "Mendapatkan popularitas semu dalam waktu singkat",
+      "Mendapatkan pengikut (followers) sebanyak mungkin dalam waktu singkat",
       "Menyembunyikan identitas asli agar bisa mengkritik tanpa rasa takut"
     ],
     correctAnswer: 1, // B

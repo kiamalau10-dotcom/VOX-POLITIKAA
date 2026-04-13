@@ -32,6 +32,15 @@ export const deleteAccount = async (username: string) => {
   const postsSnap = await getDocs(postsQuery);
   postsSnap.forEach(postDoc => batch.delete(postDoc.ref));
 
+  // 4. Delete user's follows
+  const followsQuery1 = query(collection(db, 'follows'), where('followerId', '==', username));
+  const followsSnap1 = await getDocs(followsQuery1);
+  followsSnap1.forEach(fDoc => batch.delete(fDoc.ref));
+
+  const followsQuery2 = query(collection(db, 'follows'), where('followingId', '==', username));
+  const followsSnap2 = await getDocs(followsQuery2);
+  followsSnap2.forEach(fDoc => batch.delete(fDoc.ref));
+
   await batch.commit();
   await deleteUser(user);
 };
@@ -135,21 +144,4 @@ export {
   serverTimestamp,
   writeBatch,
   increment
-};
-export const nukeAllPosts = async () => {
-  const userInput = window.prompt("Ketik 'HAPUS SEMUA' untuk mengosongkan VoxCircle:");
-  if (userInput === 'HAPUS SEMUA') {
-    try {
-      const querySnapshot = await getDocs(collection(db, "posts"));
-      const batch = writeBatch(db);
-      querySnapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-      alert("VoxCircle bersih total! Silakan refresh.");
-      window.location.reload();
-    } catch (error) {
-      alert("Gagal menghapus. Pastikan kamu Admin.");
-    }
-  }
 };
