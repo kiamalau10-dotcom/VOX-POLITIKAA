@@ -16,7 +16,7 @@ import Quiz from './components/Quiz';
 import Dashboard from './components/Dashboard';
 import ProgramSection from './components/ProgramSection';
 import { MessageSquare, Send } from 'lucide-react';
-import { db, collection, addDoc, OperationType, handleFirestoreError } from './firebase';
+import { db, collection, addDoc, OperationType, handleFirestoreError, getDocs, writeBatch } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import { CMSProvider, useCMS } from './components/CMSContext';
@@ -200,12 +200,6 @@ const AppContent: React.FC = () => {
     setActiveSection(AppSection.HOME);
   };
 
-  // Sync currentUser from Firestore in real-time
-  // (Moved to UserContext)
-
-  // Sync currentUser from localStorage (for updates from other components)
-  // (Moved to UserContext)
-
   const handleSendFeedback = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedback.trim()) return;
@@ -225,6 +219,24 @@ const AppContent: React.FC = () => {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }, [feedback, currentUser]);
+
+  // FUNGSI NUKE (DIPANGGIL DI BUTTON ADMIN)
+  const handleNukeAllPosts = async () => {
+    const confirm = window.prompt("⚠️ BAHAYA: Ini akan menghapus SEMUA postingan di VoxCircle. Ketik 'HAPUS SEMUA' untuk konfirmasi:");
+    if (confirm === 'HAPUS SEMUA') {
+      try {
+        const snap = await getDocs(collection(db, 'posts'));
+        const batch = writeBatch(db);
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        alert("💥 SEMUA POSTINGAN BERHASIL DIHAPUS!");
+        window.location.reload();
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menghapus! Cek console.");
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -256,6 +268,14 @@ const AppContent: React.FC = () => {
       <main className={`relative ${isQuizActive ? 'pt-0' : 'pt-16'}`}> 
         {currentUser?.role === 'ADMIN' && (
           <div className="fixed bottom-8 right-8 z-[60] flex flex-col gap-4">
+            {/* TOMBOL NUKE */}
+            <button 
+              onClick={handleNukeAllPosts}
+              className="px-6 py-3 rounded-xl font-black italic uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95 bg-black text-red-600 border-2 border-red-600 hover:bg-red-600 hover:text-white"
+            >
+              💣 NUKE ALL POSTS
+            </button>
+
             <button 
               onClick={() => setIsEditMode(!isEditMode)}
               className={`px-6 py-3 rounded-xl font-black italic uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95 ${
