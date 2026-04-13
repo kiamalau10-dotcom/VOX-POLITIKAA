@@ -19,7 +19,8 @@ import {
   orderBy,
   limit,
   OperationType,
-  handleFirestoreError
+  handleFirestoreError,
+  deleteAccount
 } from '../firebase';
 import { where } from 'firebase/firestore';
 
@@ -201,10 +202,10 @@ const LiveVotes: React.FC<{ votes: Vote[]; totalVotes: number; isDarkMode: boole
   );
 };
 
-const AdminStatsPlatform: React.FC<{ stats: any; isDarkMode: boolean }> = ({ stats, isDarkMode }) => {
+const AdminStatsPlatform: React.FC<{ stats: any; liveStats?: any; isDarkMode: boolean }> = ({ stats, liveStats, isDarkMode }) => {
   const chartData = [
     { name: 'Users', value: stats.totalUsers },
-    { name: 'Active', value: stats.activeUsers },
+    { name: 'Active', value: liveStats?.activeNow || stats.activeUsers },
     { name: 'Votes', value: stats.totalVotes },
     { name: 'Quizzes', value: stats.totalQuizzesTaken },
   ];
@@ -243,7 +244,7 @@ const AdminStatsPlatform: React.FC<{ stats: any; isDarkMode: boolean }> = ({ sta
       <div className="grid grid-cols-2 gap-4">
         {[
           { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'text-blue-500' },
-          { label: 'Active Sessions', value: stats.activeUsers, icon: Shield, color: 'text-green-500' },
+          { label: 'Active Now', value: liveStats?.activeNow || stats.activeUsers, icon: Shield, color: 'text-green-500' },
           { label: 'Total Voices', value: stats.totalVotes, icon: MessageSquare, color: 'text-red-500' },
           { label: 'Quizzes Taken', value: stats.totalQuizzesTaken, icon: BookOpen, color: 'text-purple-500' },
         ].map((item, idx) => (
@@ -376,10 +377,11 @@ const Dashboard: React.FC<{
   const [showCinematic, setShowCinematic] = useState(false);
   const [coins, setCoins] = useState(currentUser?.coins || 0);
   const [freezeCount, setFreezeCount] = useState(currentUser?.streakFreezeCount || 0);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{id: string, type: 'post' | 'user' | 'all_posts'}>({id: '', type: 'post'});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{id: string, type: 'post' | 'user' | 'all_posts' | 'my_account'}>({id: '', type: 'post'});
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [globalStats, setGlobalStats] = useState({ totalUsers: 0, activeUsers: 0, totalVotes: 0, totalQuizzesTaken: 0 });
   const [liveVotes, setLiveVotes] = useState<Vote[]>([]);
+  const [liveStats, setLiveStats] = useState({ activeNow: 0, newUsersToday: 0, votesToday: 0 });
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
   const [followers, setFollowers] = useState<string[]>([]);
   const [following, setFollowing] = useState<string[]>([]);
@@ -897,6 +899,19 @@ const Dashboard: React.FC<{
                     <span className="text-xs font-black uppercase text-red-600">{streakData.count} Hari</span>
                   </div>
                 )}
+                {role === 'USER' && (
+                  <div className="pt-4 border-t border-black/5 dark:border-white/5">
+                    <button 
+                      onClick={() => {
+                        setShowDeleteConfirm({ id: currentUser.username, type: 'my_account' });
+                        setIsConfirmOpen(true);
+                      }}
+                      className="w-full py-3 rounded-xl bg-red-600/10 text-red-600 font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all"
+                    >
+                      Hapus Akun Saya
+                    </button>
+                  </div>
+                )}
               </div>
           </motion.div>
 
@@ -1202,7 +1217,7 @@ const Dashboard: React.FC<{
           ) : (
             <div className="space-y-8">
               {/* ADMIN VIEW */}
-              <AdminStatsPlatform stats={globalStats} isDarkMode={isDarkMode} />
+              <AdminStatsPlatform stats={globalStats} liveStats={liveStats} isDarkMode={isDarkMode} />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <motion.div 
@@ -1371,6 +1386,7 @@ const Dashboard: React.FC<{
         targetUsername={selectedProfile || ''}
         currentUsername={currentUser.username}
         isDarkMode={isDarkMode}
+        isAdmin={role === 'ADMIN'}
       />
 
       {/* ADMIN EDIT BUTTON AT BOTTOM */}
@@ -1426,6 +1442,7 @@ const Dashboard: React.FC<{
                 {showDeleteConfirm.type === 'post' && "Apakah Anda yakin ingin menghapus postingan ini?"}
                 {showDeleteConfirm.type === 'user' && `Apakah Anda yakin ingin menghapus user "${showDeleteConfirm.id}"? Semua data kuis dan progres akan hilang.`}
                 {showDeleteConfirm.type === 'all_posts' && "PERINGATAN: Ini akan menghapus SEMUA postingan di VoxCircle secara global. Lanjutkan?"}
+                {showDeleteConfirm.type === 'my_account' && "PERINGATAN: Ini akan menghapus akun Anda secara permanen beserta seluruh data kuis, progres, dan postingan. Anda akan langsung logout."}
               </p>
               <div className="flex gap-4">
                 <button 
@@ -1437,10 +1454,20 @@ const Dashboard: React.FC<{
                   Batal
                 </button>
                 <button 
-                  onClick={() => {
+                  onClick={async () => {
                     if (showDeleteConfirm.type === 'post') handleDeletePost(showDeleteConfirm.id);
                     else if (showDeleteConfirm.type === 'user') handleRemoveUser(showDeleteConfirm.id);
                     else if (showDeleteConfirm.type === 'all_posts') handleClearAllPosts();
+                    else if (showDeleteConfirm.type === 'my_account') {
+                      try {
+                        await deleteAccount(showDeleteConfirm.id);
+                        logout();
+                        onLogout();
+                      } catch (error) {
+                        console.error("Error deleting account:", error);
+                        alert("Gagal menghapus akun. Silakan coba lagi.");
+                      }
+                    }
                   }}
                   className="flex-1 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
                 >

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Send, MessageCircle, Heart, Share2, UserPlus, Search } from 'lucide-react';
+import { Trash2, Send, MessageCircle, Heart, Share2, UserPlus, Search, UserMinus } from 'lucide-react';
 import { User } from '../types';
 import { 
   db, 
@@ -17,9 +17,11 @@ import {
   arrayRemove,
   serverTimestamp,
   OperationType,
-  handleFirestoreError
+  handleFirestoreError,
+  increment
 } from '../firebase';
 import { where } from 'firebase/firestore';
+import UserProfileModal from './UserProfileModal';
 
 interface Post {
   id: string;
@@ -32,6 +34,7 @@ interface Post {
   comments: { username: string; text: string; timestamp: any }[];
   role: 'ADMIN' | 'USER';
   shares?: number;
+  authorId?: string;
 }
 
 const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = ({ currentUser, isDarkMode }) => {
@@ -42,6 +45,8 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const [commentText, setCommentText] = useState('');
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [following, setFollowing] = useState<string[]>([]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -57,6 +62,17 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       handleFirestoreError(error, OperationType.LIST, path);
     });
 
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  // Real-time Following Status for buttons
+  useEffect(() => {
+    if (!currentUser) return;
+    const followsRef = collection(db, 'follows');
+    const q = query(followsRef, where('followerId', '==', currentUser.username));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setFollowing(snapshot.docs.map(doc => doc.data().followingId));
+    });
     return () => unsubscribe();
   }, [currentUser]);
 
@@ -80,7 +96,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         comments: [],
         role: currentUser.role,
         shares: 0,
-        authorId: currentUser.uid // CRITICAL: Added authorId for security rules
+        authorId: currentUser.uid
       });
 
       // Add to votes collection for real-time dashboard
@@ -182,7 +198,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         alert("Link dan konten post berhasil disalin ke clipboard!");
       }
       
-      // Increment share count in Firestore
       const postRef = doc(db, 'posts', post.id);
       await updateDoc(postRef, {
         shares: (post.shares || 0) + 1
@@ -202,11 +217,9 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
-        // Unfollow
         const followDoc = snapshot.docs[0];
         await deleteDoc(doc(db, path, followDoc.id));
       } else {
-        // Follow
         await addDoc(followsRef, {
           followerId: currentUser.username,
           followingId: targetUsername,
@@ -283,7 +296,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
           )}
         </div>
         
-        {/* Search Bar */}
         <div className="relative w-full md:w-64">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" size={18} />
           <input 
@@ -298,14 +310,13 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         </div>
       </motion.div>
 
-      {/* Post Input */}
       <div className={`p-8 rounded-[2.5rem] border mb-12 transition-all ${
         isDarkMode 
           ? 'bg-zinc-900/50 border-white/10 backdrop-blur-xl' 
           : 'bg-white border-black/5 shadow-2xl shadow-black/5'
       }`}>
         <div className="flex gap-4">
-          {currentUser && renderAvatar(currentUser.avatarConfig, currentUser.username)}
+          {currentUser && renderAvatar(currentUser.equippedCostumeId || currentUser.avatarConfig, currentUser.username)}
           <div className="flex-1 space-y-4">
             <textarea
               value={newPost}
@@ -329,7 +340,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         </div>
       </div>
 
-      {/* Feed */}
       <div className="space-y-6">
         <AnimatePresence>
           {filteredPosts.length === 0 ? (
@@ -355,14 +365,14 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
                 <div className="flex gap-4">
                   <div 
                     className="cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => (window as any).setSelectedProfile(post.username)}
+                    onClick={() => setSelectedProfile(post.username)}
                   >
                     {renderAvatar(post.avatarConfig, post.username)}
                   </div>
                   <div>
                     <div 
                       className="flex items-center gap-2 cursor-pointer group"
-                      onClick={() => (window as any).setSelectedProfile(post.username)}
+                      onClick={() => setSelectedProfile(post.username)}
                     >
                       <h4 className="font-black uppercase text-sm tracking-tight group-hover:text-red-600 transition-colors">{post.displayName}</h4>
                       <span className="text-[10px] font-bold opacity-40">{post.username}</span>
@@ -378,16 +388,15 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
                     <button 
                       onClick={() => handleFollow(post.username)}
                       className={`p-2 rounded-xl transition-all ${
-                        currentUser.following?.includes(post.username)
+                        following.includes(post.username)
                           ? 'bg-red-600 text-white'
                           : 'bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white'
                       }`}
                     >
-                      <UserPlus size={16} />
+                      {following.includes(post.username) ? <UserMinus size={16} /> : <UserPlus size={16} />}
                     </button>
                   )}
                   
-                  {/* Admin Specific Delete Button */}
                   {currentUser?.role === 'ADMIN' ? (
                     <button 
                       onClick={() => setPostToDelete(post.id)}
@@ -435,7 +444,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
                 </button>
               </div>
 
-              {/* Comments Section */}
               <AnimatePresence>
                 {commentingOn === post.id && (
                   <motion.div 
@@ -473,7 +481,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         </AnimatePresence>
       </div>
 
-      {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {postToDelete && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
@@ -548,6 +555,15 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
           </div>
         )}
       </AnimatePresence>
+
+      <UserProfileModal 
+        isOpen={!!selectedProfile}
+        onClose={() => setSelectedProfile(null)}
+        targetUsername={selectedProfile || ''}
+        currentUsername={currentUser?.username || ''}
+        isDarkMode={isDarkMode}
+        isAdmin={currentUser?.role === 'ADMIN'}
+      />
     </div>
   );
 };

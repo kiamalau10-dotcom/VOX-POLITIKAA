@@ -78,6 +78,16 @@
       "schema": "User",
       "description": "User profile data."
     },
+    "/users_by_uid/{uid}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      },
+      "description": "Mapping from Firebase UID to username and role for security rules."
+    },
     "/posts/{postId}": {
       "schema": "Post",
       "description": "Vox Circle posts."

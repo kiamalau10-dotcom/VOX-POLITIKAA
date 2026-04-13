@@ -2,134 +2,80 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // ===============================================================
-    // Assumed Data Model
-    // ===============================================================
-    //
-    // Collection: users
-    // Fields:
-    //   - username: string (required)
-    //   - displayName: string (required)
-    //   - role: string ('ADMIN' | 'USER')
-    //   - level: number
-    //   - currentExp: number
-    //   - streak: number
-    //   - lastLoginDate: string (ISO date)
-    //   - coins: number
-    //   - followers: list (strings)
-    //   - following: list (strings)
-    //   - equippedCostumeId: string
-    //   - voxTitle: string
-    //
-    // Collection: posts
-    // Fields:
-    //   - username: string (required)
-    //   - displayName: string (required)
-    //   - content: string (required)
-    //   - timestamp: timestamp (required)
-    //   - likes: list (strings)
-    //   - comments: list (objects)
-    //   - shares: number
-    //
-    // Collection: stats
-    // Fields:
-    //   - totalUsers: number
-    //   - activeUsers: number
-    //   - totalVotes: number
-    // ===============================================================
-
     // Helper Functions
     function isAuthenticated() {
       return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
     }
 
     function isAdmin() {
       return isAuthenticated() && 
         (
           (exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && 
-           get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role == 'ADMIN') ||
+           (get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role == 'ADMIN' || 
+            get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role == 'admin')) ||
           (request.auth.token.email == "devinapurba23@gmail.com" && request.auth.token.email_verified == true)
         );
     }
 
-    function isPostOwner(postData) {
-      return isAuthenticated() && 
-        (
-          (postData.authorId == request.auth.uid) ||
-          (
-            exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) &&
-            get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.username == postData.username
-          )
-        );
-    }
-
     function isValidUser(data) {
-      return data.username is string && data.username.size() > 0 && data.username.size() < 100 &&
-             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
-             data.role in ['ADMIN', 'USER'];
-    }
-
-    function isValidPost(data) {
-      return data.username is string && data.username.size() > 0 && data.username.size() < 100 &&
-             data.content is string && data.content.size() > 0 && data.content.size() < 5000;
-    }
-
-    function hasOnlyAllowedFields(fields) {
-      return request.resource.data.keys().hasOnly(fields);
+      return data.username is string && data.username.size() > 0 &&
+             data.displayName is string && data.displayName.size() > 0 &&
+             data.role in ['ADMIN', 'USER', 'admin', 'user'];
     }
 
     // Rules
-    match /users/{userId} {
+    
+    match /users/{username} {
       allow read: if true; 
-      allow create: if isAuthenticated() && isValidUser(request.resource.data);
-      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      allow delete: if isAdmin();
+      allow create: if isValidUser(request.resource.data);
+      allow update: if (isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin())) || 
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginDate', 'streak', 'streakFreezeCount', 'lastActive', 'uid']));
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
     }
 
     match /posts/{postId} {
       allow read: if true;
-      allow create: if isAuthenticated() && isValidPost(request.resource.data);
-      allow update: if isAuthenticated() && (isPostOwner(resource.data) || isAdmin());
-      allow delete: if isAuthenticated() && (isPostOwner(resource.data) || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.authorId == request.auth.uid);
     }
 
     match /users_by_uid/{uid} {
-      allow read: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
-      allow write: if isAuthenticated() && request.auth.uid == uid;
+      allow read: if true;
+      allow write: if true; // Allow mapping UID to username
     }
 
     match /stats/{statId} {
       allow read: if true;
-      allow update: if isAuthenticated();
+      allow update: if true;
       allow create, delete: if isAdmin();
-    }
-    
-    match /_connection_test_/{docId} {
-      allow read: if true;
     }
 
     match /follows/{followId} {
       allow read: if true;
-      allow create: if isAuthenticated() && 
-        request.resource.data.followerId is string &&
-        request.resource.data.followingId is string;
-      allow delete: if isAuthenticated() && 
-        (resource.data.followerId == get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.username || isAdmin());
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.followerId == get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.username || isAdmin());
     }
 
-    match /feedback/{feedbackId} {
+    match /feedbacks/{feedbackId} {
       allow read: if isAdmin();
-      allow create: if true; // Allow anyone to send feedback
+      allow create: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /quiz_results/{resultId} {
+      allow read: if isAdmin();
+      allow create: if true;
       allow delete: if isAdmin();
     }
 
     match /votes/{voteId} {
       allow read: if true;
-      allow create: if isAuthenticated();
+      allow create: if true;
+    }
+    
+    match /_connection_test_/{docId} {
+      allow read: if true;
     }
   }
 }

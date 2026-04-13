@@ -40,7 +40,8 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         } catch (err: any) {
           // Don't block the flow, but warn the user if it's the restricted operation error
           if (err.code === 'auth/admin-restricted-operation') {
-            console.warn("Anonymous Authentication is disabled in Firebase Console. Real-time sync may be limited.");
+            // Silent warning
+            console.debug("Anonymous Auth disabled.");
           } else {
             console.error("Auth error: ", err);
           }
