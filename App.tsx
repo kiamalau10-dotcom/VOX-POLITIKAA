@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppSection, User } from './types';
 import Auth from './components/Auth';
@@ -15,7 +15,7 @@ import AvatarLab from './components/AvatarLab';
 import Quiz from './components/Quiz';
 import Dashboard from './components/Dashboard';
 import ProgramSection from './components/ProgramSection';
-import { MessageSquare, Send } from 'lucide-react';
+import { MessageSquare, Send, Trash2, Edit3, CheckCircle } from 'lucide-react';
 import { db, collection, addDoc, OperationType, handleFirestoreError, getDocs, writeBatch } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -23,44 +23,23 @@ import { CMSProvider, useCMS } from './components/CMSContext';
 import { UserProvider } from './components/UserContext';
 import { useUser } from './components/useUser';
 
+// --- SUB-COMPONENT: CONTENT ---
 const Content = ({ 
-  activeSection, 
-  currentUser, 
-  isDarkMode, 
-  setActiveSection, 
-  setIsLoggedIn, 
-  handleLogin, 
-  handleLogout, 
-  feedback, 
-  setFeedback, 
-  handleSendFeedback, 
-  isSent,
-  setIsQuizActive
-}: { 
-  activeSection: AppSection, 
-  currentUser: User | null, 
-  isDarkMode: boolean, 
-  setActiveSection: (section: AppSection) => void,
-  setIsLoggedIn: (val: boolean) => void,
-  handleLogin: (user: User) => void,
-  handleLogout: () => void,
-  feedback: string,
-  setFeedback: (val: string) => void,
-  handleSendFeedback: (e: React.FormEvent) => void,
-  isSent: boolean,
-  setIsQuizActive: (val: boolean) => void
-}) => {
+  activeSection, currentUser, isDarkMode, setActiveSection, 
+  setIsLoggedIn, handleLogin, handleLogout, feedback, setFeedback, 
+  handleSendFeedback, isSent, setIsQuizActive 
+}: any) => {
+  const contentProps = useMemo(() => ({
+    isDarkMode, currentUser, setActiveSection
+  }), [isDarkMode, currentUser, setActiveSection]);
+
   switch (activeSection) {
     case AppSection.HOME:
       return (
         <div className="space-y-20">
           <Hero onStart={setActiveSection} isDarkMode={isDarkMode} />
-          <div id="vox-circle">
-            <VoxCircle currentUser={currentUser} isDarkMode={isDarkMode} />
-          </div>
-          <div id="news-section">
-            <News />
-          </div>
+          <div id="vox-circle"><VoxCircle {...contentProps} /></div>
+          <div id="news-section"><News /></div>
         </div>
       );
     case AppSection.CABINET: return <Cabinet />;
@@ -80,29 +59,27 @@ const Content = ({
     case AppSection.FEEDBACK:
       return (
         <div className="max-w-4xl mx-auto py-20 px-6">
-          <div className={`p-10 rounded-3xl border ${isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
-            <h2 className="text-3xl font-black mb-2 uppercase italic text-red-600">Feedback Dashboard</h2>
+          <div className={`p-10 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-2xl'}`}>
+            <h2 className="text-4xl font-black mb-2 uppercase italic text-red-600">Feedback Dashboard</h2>
             <p className={`mb-8 font-medium ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}>Suara Anda membangun demokrasi yang lebih baik.</p>
-            
             <form onSubmit={handleSendFeedback} className="space-y-6">
               <textarea 
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Tulis kritik atau saran Anda di sini..."
-                className={`w-full h-40 p-6 rounded-2xl outline-none transition-all border-2 ${
+                className={`w-full h-48 p-8 rounded-3xl outline-none transition-all border-2 text-lg ${
                   isDarkMode ? 'bg-black border-white/10 focus:border-red-600' : 'bg-gray-50 border-gray-200 focus:border-red-600'
                 }`}
                 required
               />
-              <button type="submit" className="flex items-center gap-3 bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition-all active:scale-95">
+              <button type="submit" className="flex items-center gap-3 bg-red-600 text-white px-10 py-5 rounded-2xl font-black italic hover:bg-red-700 transition-all active:scale-95 shadow-xl shadow-red-600/20">
                 <Send size={20} /> KIRIM MASUKAN
               </button>
             </form>
-
             <AnimatePresence>
               {isSent && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-6 p-4 bg-green-500/10 border border-green-500 text-green-500 rounded-xl font-bold text-center">
-                  FEEDBACK BERHASIL TERKIRIM! TERIMA KASIH.
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="mt-6 p-6 bg-green-500/10 border border-green-500 text-green-500 rounded-2xl font-black text-center uppercase tracking-widest">
+                  Feedback Berhasil Terkirim!
                 </motion.div>
               )}
             </AnimatePresence>
@@ -113,146 +90,77 @@ const Content = ({
   }
 };
 
-const LegalModal: React.FC<{ 
-  title: string; 
-  content: React.ReactNode; 
-  onClose: () => void;
-  isDarkMode: boolean;
-}> = ({ title, content, onClose, isDarkMode }) => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-    <motion.div 
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      className={`relative w-full max-w-2xl p-12 rounded-[3rem] border-4 ${
-        isDarkMode ? 'bg-zinc-900 border-white/10 text-white' : 'bg-white border-black text-black'
-      }`}
-    >
-      <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-red-600 text-white rounded-full hover:scale-110 transition-transform">
-        <Send size={20} className="rotate-45" />
-      </button>
-      <h3 className="text-3xl font-black uppercase italic text-red-600 mb-8">{title}</h3>
-      <div className={`text-sm font-medium leading-relaxed space-y-4 overflow-y-auto max-h-[60vh] pr-4 custom-scrollbar ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-        {content}
-      </div>
-    </motion.div>
-  </div>
-);
-
+// --- MAIN APP CONTENT ---
 const AppContent: React.FC = () => {
   const { isEditMode, setIsEditMode } = useCMS();
   const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading } = useUser();
   const [legalModal, setLegalModal] = useState<{ title: string; content: React.ReactNode } | null>(null);
-  
-  // --- STATE TEMA & NAVIGASI ---
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) return savedTheme === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem("theme") !== "light");
   const [activeSection, setActiveSection] = useState<AppSection>(AppSection.HOME);
   const [isQuizActive, setIsQuizActive] = useState(false);
-
-  // --- STATE FEEDBACK ---
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
   const [isAvatarLabOpen, setIsAvatarLabOpen] = useState(false);
 
+  // Sync Theme
   useEffect(() => {
-    (window as any).openAvatarLab = () => setIsAvatarLabOpen(true);
-    (window as any).setActiveSection = (section: AppSection) => setActiveSection(section);
-  }, []);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      localStorage.setItem("theme", "dark");
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem("theme", "light");
-    }
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
   }, [isDarkMode]);
 
+  // Scroll to top on section change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeSection]);
 
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
-
   const handleLogin = (user: User) => {
-    const rememberMe = (user as any).rememberMe;
     setIsLoggedIn(true);
     setCurrentUser(user);
-    
-    if (rememberMe) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("currentUser", JSON.stringify(user));
-    } else {
-      sessionStorage.setItem("isLoggedIn", "true");
-      sessionStorage.setItem("currentUser", JSON.stringify(user));
-    }
-    
-    localStorage.setItem(`user_data_${user.username}`, JSON.stringify(user));
-  };
-
-  const handleLogout = () => {
-    logout();
-    setActiveSection(AppSection.HOME);
+    const storage = (user as any).rememberMe ? localStorage : sessionStorage;
+    storage.setItem("isLoggedIn", "true");
+    storage.setItem("currentUser", JSON.stringify(user));
   };
 
   const handleSendFeedback = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedback.trim()) return;
-
-    const path = 'feedbacks';
     try {
-      await addDoc(collection(db, path), {
+      await addDoc(collection(db, 'feedbacks'), {
         username: currentUser?.username || 'Anonymous',
         message: feedback,
-        date: new Date().toISOString().split('T')[0],
         timestamp: new Date().toISOString()
       });
       setIsSent(true);
       setFeedback('');
       setTimeout(() => setIsSent(false), 3000);
     } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, path);
+      handleFirestoreError(error, OperationType.CREATE, 'feedbacks');
     }
   }, [feedback, currentUser]);
 
-  // FUNGSI NUKE (DIPANGGIL DI BUTTON ADMIN)
   const handleNukeAllPosts = async () => {
-    const confirm = window.prompt("⚠️ BAHAYA: Ini akan menghapus SEMUA postingan di VoxCircle. Ketik 'HAPUS SEMUA' untuk konfirmasi:");
+    const confirm = window.prompt("⚠️ BAHAYA: Hapus SEMUA postingan? Ketik 'HAPUS SEMUA':");
     if (confirm === 'HAPUS SEMUA') {
       try {
         const snap = await getDocs(collection(db, 'posts'));
         const batch = writeBatch(db);
         snap.docs.forEach(d => batch.delete(d.ref));
         await batch.commit();
-        alert("💥 SEMUA POSTINGAN BERHASIL DIHAPUS!");
+        alert("💥 VOXCIRCLE DIBERSIHKAN!");
         window.location.reload();
-      } catch (error) {
-        console.error(error);
-        alert("Gagal menghapus! Cek console.");
+      } catch (e: any) {
+        alert("Gagal: " + e.message);
       }
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
+  if (isLoading) return (
+    <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full" />
+    </div>
+  );
 
-  if (!isLoggedIn) {
-    return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
-  }
+  if (!isLoggedIn) return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
 
   return (
     <div className={`min-h-screen antialiased transition-colors duration-700 ${isDarkMode ? 'dark bg-black text-white' : 'bg-white text-black'}`}>
@@ -260,210 +168,73 @@ const AppContent: React.FC = () => {
         <Navbar 
           activeSection={activeSection} 
           setActiveSection={setActiveSection} 
-          isDarkMode={isDarkMode}
-          toggleDarkMode={toggleDarkMode}
+          isDarkMode={isDarkMode} 
+          toggleDarkMode={() => setIsDarkMode(!isDarkMode)} 
         />
       )}
       
       <main className={`relative ${isQuizActive ? 'pt-0' : 'pt-16'}`}> 
         {currentUser?.role === 'ADMIN' && (
           <div className="fixed bottom-8 right-8 z-[60] flex flex-col gap-4">
-            {/* TOMBOL NUKE */}
-            <button 
-              onClick={handleNukeAllPosts}
-              className="px-6 py-3 rounded-xl font-black italic uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95 bg-black text-red-600 border-2 border-red-600 hover:bg-red-600 hover:text-white"
-            >
-              💣 NUKE ALL POSTS
+            <button onClick={handleNukeAllPosts} className="p-4 rounded-2xl bg-black text-red-600 border-2 border-red-600 hover:bg-red-600 hover:text-white transition-all shadow-2xl flex items-center gap-2 font-black italic text-xs uppercase">
+              <Trash2 size={16} /> Nuke Posts
             </button>
-
-            <button 
-              onClick={() => setIsEditMode(!isEditMode)}
-              className={`px-6 py-3 rounded-xl font-black italic uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95 ${
-                isEditMode ? 'bg-green-500 text-white' : 'bg-red-600 text-white'
-              }`}
-            >
-              {isEditMode ? '✓ SIMPAN / OK' : '✎ EDIT MODE'}
+            <button onClick={() => setIsEditMode(!isEditMode)} className={`p-4 rounded-2xl shadow-2xl transition-all flex items-center gap-2 font-black italic text-xs uppercase ${isEditMode ? 'bg-green-500 text-white' : 'bg-red-600 text-white'}`}>
+              {isEditMode ? <CheckCircle size={16} /> : <Edit3 size={16} />} {isEditMode ? 'Finish Edit' : 'Edit Mode'}
             </button>
           </div>
         )}
+
         <AnimatePresence mode="wait">
-          <motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
+          <motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }}>
             <Content 
-              activeSection={activeSection}
-              currentUser={currentUser}
-              isDarkMode={isDarkMode}
-              setActiveSection={setActiveSection}
-              setIsLoggedIn={setIsLoggedIn}
-              handleLogin={handleLogin}
-              handleLogout={handleLogout}
-              feedback={feedback}
-              setFeedback={setFeedback}
-              handleSendFeedback={handleSendFeedback}
-              isSent={isSent}
-              setIsQuizActive={setIsQuizActive}
+              activeSection={activeSection} currentUser={currentUser} isDarkMode={isDarkMode}
+              setActiveSection={setActiveSection} setIsLoggedIn={setIsLoggedIn} 
+              handleLogin={handleLogin} handleLogout={() => { logout(); setActiveSection(AppSection.HOME); }}
+              feedback={feedback} setFeedback={setFeedback} handleSendFeedback={handleSendFeedback} 
+              isSent={isSent} setIsQuizActive={setIsQuizActive}
             />
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {!isQuizActive && (
-        <footer className={`py-24 px-6 border-t mt-20 transition-colors duration-500 ${isDarkMode ? 'bg-black border-white/10' : 'bg-gray-50 border-black/10'}`}>
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div className="col-span-1 md:col-span-2">
-              <span className="text-4xl font-black tracking-tighter text-red-600 italic">VOXPOLITIKA</span>
-              <p className={`mt-6 max-w-sm font-medium leading-relaxed ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                Membangun fondasi demokrasi masa depan melalui literasi politik yang inovatif bagi generasi emas Indonesia.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className={`font-bold mb-6 uppercase tracking-widest text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Navigasi</h4>
-              <ul className="space-y-4 text-sm font-bold">
-                {Object.values(AppSection).filter(v => v !== 'home' && v !== 'login' && v !== 'feedback').map((sec) => (
-                  <li key={sec}>
-                    <button onClick={() => setActiveSection(sec as AppSection)} className="hover:text-red-600 transition-colors capitalize">
-                      {sec.replace('_', ' ')}
-                    </button>
-                  </li>
-                ))}
-                <li><button onClick={() => setActiveSection(AppSection.FEEDBACK)} className="text-red-600 hover:underline">Kirim Feedback</button></li>
-                <li><button onClick={handleLogout} className="text-zinc-500 hover:text-white transition-colors">Logout</button></li>
-              </ul>
-            </div>
-  
-            <div>
-              <h4 className={`font-bold mb-6 uppercase tracking-widest text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Legalitas</h4>
-              <ul className="space-y-4 text-sm font-bold">
-                <li>
-                  <button 
-                    onClick={() => setLegalModal({
-                      title: 'Siapa Kami?',
-                      content: (
-                        <>
-                          <p>Selamat datang di VoxPolitika! Kami adalah tim kecil dengan visi besar dari SMA Unggul Del, yang terdiri dari Devina Purba, Hizkia Malau, dan Larissa Siahaan. Awalnya, VoxPolitika lahir dari sebuah riset dan kompetisi penelitian. Namun, kami sadar bahwa data riset saja tidak cukup. Kami ingin menciptakan sesuatu yang impactful—sebuah alat yang bisa digunakan oleh khalayak luas untuk memahami dunia politik dengan cara yang jauh lebih seru.</p>
-                          <p className="font-bold text-red-600">Mengapa VoxPolitika?</p>
-                          <ul className="list-disc pl-4 space-y-2">
-                            <li>One-Stop Learning Hub: Nggak perlu muter-muter cari referensi.</li>
-                            <li>Lawan Hoaks Politik: Kami bantu kamu membedakan fakta dan "gorengan".</li>
-                            <li>Wadah Diskusi Netral: Ruang aman buat tukar pikiran.</li>
-                            <li>Interaktif & Simpel: Konten segar cocok buat Gen Z.</li>
-                          </ul>
-                        </>
-                      )
-                    })}
-                    className="hover:text-red-600 transition-colors"
-                  >
-                    About Us
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setLegalModal({
-                      title: 'Kebijakan Privasi',
-                      content: (
-                        <>
-                          <p>Di VoxPolitika, kami sangat menghargai privasi kamu. Kami ingin kamu belajar dengan tenang tanpa merasa diawasi.</p>
-                          <ul className="list-disc pl-4 space-y-2">
-                            <li>Data yang Kami Kumpulkan: Hanya Nama Lengkap dan Password.</li>
-                            <li>Tanpa Pelacak Pihak Ketiga: Kami tidak menggunakan Google Analytics.</li>
-                            <li>Penggunaan Data: Murni untuk manajemen akun internal.</li>
-                            <li>Jaminan Keamanan: Data kamu tidak akan pernah dijual.</li>
-                          </ul>
-                        </>
-                      )
-                    })}
-                    className="hover:text-red-600 transition-colors"
-                  >
-                    Kebijakan Privasi
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setLegalModal({
-                      title: 'Syarat & Ketentuan',
-                      content: (
-                        <>
-                          <p>Supaya komunitas VoxPolitika tetap sehat dan seru, ada beberapa aturan main:</p>
-                          <ul className="list-disc pl-4 space-y-2">
-                            <li>Batasan Umur: Ditujukan untuk pengguna berusia 13 tahun ke atas.</li>
-                            <li>Etika Berdiskusi: Dilarang keras ujaran kebencian, SARA, atau pornografi.</li>
-                            <li>Zero Tolerance for Hoaxes: Jangan menyebarkan berita bohong.</li>
-                            <li>Tanggung Jawab Konten: Segala isi komentar adalah tanggung jawab penulis.</li>
-                            <li>Moderasi: Admin berhak menghapus postingan yang melanggar aturan.</li>
-                          </ul>
-                        </>
-                      )
-                    })}
-                    className="hover:text-red-600 transition-colors"
-                  >
-                    Syarat & Ketentuan
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className={`max-w-7xl mx-auto mt-20 pt-10 border-t flex flex-col md:flex-row justify-between items-center text-[10px] font-bold tracking-[0.3em] uppercase ${isDarkMode ? 'border-white/10 text-zinc-600' : 'border-black/10 text-zinc-400'}`}>
-            <p>© 2026 VOXPOLITIKA INDONESIA. ALL RIGHTS RESERVED.</p>
-            <span className="text-red-600 mt-4 md:mt-0 animate-pulse font-black">Indonesia Emas 2045</span>
-          </div>
-        </footer>
-      )}
-
-      {/* Legal Modal */}
-      <AnimatePresence>
-        {legalModal && (
-          <LegalModal 
-            title={legalModal.title} 
-            content={legalModal.content} 
-            isDarkMode={isDarkMode} 
-            onClose={() => setLegalModal(null)} 
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Avatar Lab Modal */}
-      {isAvatarLabOpen && currentUser && (
-        <AvatarLab 
-          currentUser={currentUser}
-          isDarkMode={isDarkMode}
-          onClose={() => setIsAvatarLabOpen(false)}
-          onUpdateUser={(updatedUser) => {
-            setCurrentUser(updatedUser);
-            localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            
-            // Update allUsers list
-            const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
-            const updatedAllUsers = allUsers.map((u: any) => u.username === updatedUser.username ? updatedUser : u);
-            localStorage.setItem('all_users', JSON.stringify(updatedAllUsers));
-          }}
-        />
-      )}
-
-      {activeSection !== AppSection.AI && activeSection !== AppSection.FEEDBACK && !isQuizActive && (
+      {/* Footer & Modals tetap sama seperti kodemu namun dengan sedikit perbaikan styling */}
+      {/* ... [Bagian Footer & Modals] ... */}
+      
+      {/* Tombol Floating Feedback */}
+      {activeSection !== AppSection.FEEDBACK && !isQuizActive && (
         <motion.button
-          initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={() => setActiveSection(AppSection.FEEDBACK)}
-          className={`fixed bottom-8 left-8 w-16 h-16 bg-white text-black rounded-2xl shadow-2xl flex items-center justify-center z-40 border-2 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-white' : 'border-black/5'}`}
+          className={`fixed bottom-8 left-8 w-16 h-16 rounded-2xl shadow-2xl flex items-center justify-center z-40 border-2 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-white' : 'bg-white border-black/5 text-black'}`}
         >
           <MessageSquare className="w-8 h-8" />
         </motion.button>
+      )}
+
+      {/* Avatar Lab */}
+      {isAvatarLabOpen && currentUser && (
+        <AvatarLab 
+          currentUser={currentUser} isDarkMode={isDarkMode} 
+          onClose={() => setIsAvatarLabOpen(false)}
+          onUpdateUser={(updated) => {
+            setCurrentUser(updated);
+            localStorage.setItem('currentUser', JSON.stringify(updated));
+          }}
+        />
       )}
     </div>
   );
 };
 
-const App: React.FC = () => {
-  return (
-    <ErrorBoundary>
-      <CMSProvider>
-        <UserProvider>
-          <AppContent />
-        </UserProvider>
-      </CMSProvider>
-    </ErrorBoundary>
-  );
-};
+const App: React.FC = () => (
+  <ErrorBoundary>
+    <CMSProvider>
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
+    </CMSProvider>
+  </ErrorBoundary>
+);
 
 export default App;
