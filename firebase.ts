@@ -61,7 +61,7 @@ async function testConnection() {
 
 testConnection();
 
-enum OperationType {
+export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
   DELETE = 'delete',
@@ -89,7 +89,7 @@ export interface FirestoreErrorInfo {
   }
 }
 
-function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
@@ -134,7 +134,5 @@ export {
   arrayRemove,
   serverTimestamp,
   writeBatch,
-  increment,
-  handleFirestoreError,
-  OperationType
+  increment
 };

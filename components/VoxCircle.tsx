@@ -19,7 +19,6 @@ import {
   OperationType,
   handleFirestoreError
 } from '../firebase';
-import UserProfileModal from './UserProfileModal';
 
 interface Post {
   id: string;
@@ -43,12 +42,12 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const [commentText, setCommentText] = useState('');
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
 
-  // Ambil data postingan real-time
+  // Ambil data postingan
   useEffect(() => {
     if (!currentUser) return;
-    const q = query(collection(db, 'posts'), orderBy('timestamp', 'desc'));
+    const path = 'posts';
+    const q = query(collection(db, path), orderBy('timestamp', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetchedPosts = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -56,18 +55,19 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       })) as Post[];
       setPosts(fetchedPosts);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'posts');
+      handleFirestoreError(error, OperationType.LIST, path);
     });
+
     return () => unsubscribe();
   }, [currentUser]);
 
-  // Buat postingan baru
   const handlePost = async () => {
     if (!newPost.trim() || !currentUser) return;
     if (!currentUser.uid) {
       alert("Sesi tidak valid. Silakan login ulang.");
       return;
     }
+
     try {
       await addDoc(collection(db, 'posts'), {
         username: currentUser.username,
@@ -87,7 +87,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     }
   };
 
-  // Hapus satu postingan
   const handleDelete = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'posts', id));
@@ -97,36 +96,31 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     }
   };
 
-  // Admin: hapus semua postingan
   const handleClearAll = async () => {
-    if (!window.confirm("PERINGATAN: Ini akan menghapus SEMUA postingan di VoxCircle secara permanen. Lanjutkan?")) return;
     setIsDeletingAll(true);
     try {
       const snapshot = await getDocs(collection(db, 'posts'));
       const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
       await Promise.all(deletePromises);
-      alert("Semua postingan berhasil dihapus.");
+      setIsDeletingAll(false);
     } catch (error) {
       console.error("Gagal hapus feed:", error);
-      alert("Gagal menghapus semua postingan.");
-    } finally {
       setIsDeletingAll(false);
     }
   };
 
-  // Like / Unlike
   const handleLike = async (postId: string) => {
     if (!currentUser) return;
     const postRef = doc(db, 'posts', postId);
     const post = posts.find(p => p.id === postId);
     if (!post) return;
+
     const isLiked = post.likes.includes(currentUser.username);
     await updateDoc(postRef, {
       likes: isLiked ? arrayRemove(currentUser.username) : arrayUnion(currentUser.username)
     });
   };
 
-  // Kirim komentar
   const handleComment = async (postId: string) => {
     if (!commentText.trim() || !currentUser) return;
     const postRef = doc(db, 'posts', postId);
@@ -141,7 +135,17 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     setCommentingOn(null);
   };
 
-  // Filter berdasarkan username/displayName
+  const handleDeleteComment = async (postId: string, comment: any) => {
+    try {
+      const postRef = doc(db, 'posts', postId);
+      await updateDoc(postRef, {
+        comments: arrayRemove(comment)
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `posts/${postId}`);
+    }
+  };
+
   const filteredPosts = useMemo(() => {
     if (!searchQuery.trim()) return posts;
     return posts.filter(p => 
@@ -158,17 +162,16 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
 
   return (
     <div className="max-w-4xl mx-auto py-20 px-6">
-      {/* Header */}
+      {/* Header Section */}
       <div className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
           <h2 className="text-4xl md:text-6xl font-black uppercase italic text-red-600 mb-4 tracking-tighter">VoxCircle</h2>
           {currentUser?.role === 'ADMIN' && (
             <button 
-              onClick={handleClearAll}
-              disabled={isDeletingAll}
-              className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-red-600 border border-red-600/20 px-3 py-1 rounded-lg hover:bg-red-600/5 disabled:opacity-50"
+              onClick={() => setIsDeletingAll(true)}
+              className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-red-600 border border-red-600/20 px-3 py-1 rounded-lg hover:bg-red-600/5"
             >
-              <Trash2 size={12} /> {isDeletingAll ? 'Menghapus...' : 'Clear All Feed (Admin)'}
+              <Trash2 size={12} /> Clear All Feed (Admin)
             </button>
           )}
         </div>
@@ -184,7 +187,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         </div>
       </div>
 
-      {/* Form Posting */}
+      {/* Post Input */}
       <div className={`p-8 rounded-[2.5rem] border mb-12 ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white shadow-2xl shadow-black/5'}`}>
         <textarea
           value={newPost}
@@ -199,34 +202,26 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         </div>
       </div>
 
-      {/* Daftar Postingan */}
+      {/* Feed Section */}
       <div className="space-y-6">
         {filteredPosts.map((post) => (
           <div key={post.id} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-white border-black/5 shadow-xl'}`}>
             <div className="flex justify-between items-start mb-6">
               <div className="flex gap-4">
-                <div 
-                  className="w-12 h-12 rounded-2xl bg-red-600/10 overflow-hidden border-2 border-red-600/20 cursor-pointer"
-                  onClick={() => setSelectedProfile(post.username)}
-                >
-                  <img src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${post.username}`} alt="avatar" />
+                <div className="w-12 h-12 rounded-2xl bg-red-600/10 overflow-hidden border-2 border-red-600/20">
+                    <img src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${post.username}`} alt="avatar" />
                 </div>
                 <div>
-                  <h4 
-                    className="font-black uppercase text-sm cursor-pointer hover:text-red-600"
-                    onClick={() => setSelectedProfile(post.username)}
-                  >
-                    {post.displayName}
-                  </h4>
+                  <h4 className="font-black uppercase text-sm">{post.displayName}</h4>
                   <p className="text-[10px] font-bold opacity-40 uppercase">{formatTimestamp(post.timestamp)}</p>
                 </div>
               </div>
 
-              {/* Tombol hapus: hanya untuk admin atau pemilik postingan */}
-              {(currentUser?.role === 'ADMIN' || currentUser?.username === post.username) && (
+              {/* Tombol Hapus: Muncul jika kamu Admin atau Kamu Pemiliknya */}
+              {(currentUser?.role === 'ADMIN' || currentUser?.username === post.username || currentUser?.username.toLowerCase() === '@superadmin') && (
                 <button 
                   onClick={() => setPostToDelete(post.id)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase shadow-lg shadow-red-600/20"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all active:scale-95"
                 >
                   <Trash2 size={12} /> Hapus
                 </button>
@@ -235,7 +230,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
 
             <p className={`text-lg mb-8 ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>{post.content}</p>
 
-            {/* Tombol aksi */}
+            {/* Actions */}
             <div className="flex gap-8 pt-6 border-t border-white/5">
               <button onClick={() => handleLike(post.id)} className={`flex items-center gap-2 text-xs font-bold ${post.likes.includes(currentUser?.username || '') ? 'text-red-600' : 'opacity-50'}`}>
                 <Heart size={16} /> {post.likes.length}
@@ -245,33 +240,63 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
               </button>
             </div>
 
-            {/* Form komentar (jika dibuka) */}
-            {commentingOn === post.id && (
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <div className="flex gap-3">
-                  <input 
-                    type="text"
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Tulis komentar..."
-                    className={`flex-1 p-3 rounded-xl text-sm outline-none ${isDarkMode ? 'bg-black border border-white/10' : 'bg-zinc-100 border border-transparent'}`}
-                  />
-                  <button onClick={() => handleComment(post.id)} className="bg-red-600 text-white px-6 rounded-xl text-xs font-black uppercase">Kirim</button>
+            {/* Comment Section */}
+            <AnimatePresence>
+              {commentingOn === post.id && (
+                <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                  <div className="space-y-3">
+                    {post.comments.map((comment, idx) => (
+                      <div key={idx} className="p-3 rounded-xl bg-black/5 flex justify-between items-start group/comment">
+                        <div className="flex-1">
+                          <p className="text-[10px] font-black uppercase text-red-600 mb-1">{comment.username}</p>
+                          <p className="text-xs font-medium">{comment.text}</p>
+                        </div>
+                        {(currentUser?.role === 'ADMIN' || currentUser?.username === comment.username) && (
+                          <button 
+                            onClick={() => handleDeleteComment(post.id, comment)}
+                            className="p-1 text-zinc-400 hover:text-red-600 transition-colors opacity-0 group-hover/comment:opacity-100"
+                            title="Hapus Komentar"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder="Tulis komentar..."
+                      className={`flex-1 p-3 rounded-xl text-xs outline-none border-2 transition-all ${isDarkMode ? 'bg-black border-white/5 focus:border-red-600' : 'bg-gray-50 border-black/5 focus:border-red-600'}`}
+                    />
+                    <button onClick={() => handleComment(post.id)} className="p-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all">
+                      <Send size={14} />
+                    </button>
+                  </div>
                 </div>
-                <div className="mt-4 space-y-2">
-                  {post.comments.slice().reverse().map((c, idx) => (
-                    <div key={idx} className="text-sm opacity-80">
-                      <span className="font-black uppercase text-red-600">{c.username}</span> {c.text}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
 
-      {/* Popup konfirmasi hapus satu postingan */}
+      {/* Admin Actions */}
+      {currentUser?.role === 'ADMIN' && posts.length > 0 && (
+        <div className="mt-12 p-8 rounded-[2.5rem] border-4 border-dashed border-red-600/20 bg-red-600/5 text-center">
+          <h4 className="text-sm font-black uppercase mb-4">Admin Control</h4>
+          <button 
+            onClick={handleClearAll}
+            disabled={isDeletingAll}
+            className={`px-8 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all ${isDeletingAll ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isDeletingAll ? 'Menghapus...' : 'Hapus Semua Postingan'}
+          </button>
+        </div>
+      )}
+
+      {/* Confirm Delete Popup */}
       <AnimatePresence>
         {postToDelete && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
@@ -285,17 +310,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
           </div>
         )}
       </AnimatePresence>
-
-      {/* Modal profil (jika klik avatar/username) */}
-      {selectedProfile && (
-        <UserProfileModal 
-          isOpen={!!selectedProfile}
-          onClose={() => setSelectedProfile(null)}
-          targetUsername={selectedProfile}
-          isDarkMode={isDarkMode}
-          isAdmin={currentUser?.role === 'ADMIN'}
-        />
-      )}
     </div>
   );
 };

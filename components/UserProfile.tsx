@@ -5,6 +5,7 @@ import { useRealtimeProfile } from '../hooks/useRealtimeProfile';
 
 interface UserProfileProps {
   targetUsername: string;
+  currentUsername: string;
   isDarkMode: boolean;
   isAdmin?: boolean;
 }

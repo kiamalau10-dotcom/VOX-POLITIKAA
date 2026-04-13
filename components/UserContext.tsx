@@ -86,7 +86,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userData = docSnap.data() as User;
           
           // STRICT ADMIN VALIDATION
-          if (userData.role === 'ADMIN' && userData.username.toLowerCase() !== '@superadmin' && userData.username.toLowerCase() !== 'superadmin') {
+          const userEmail = auth.currentUser?.email;
+          const isAdminEmail = userEmail === "devinapurba23@gmail.com";
+          
+          if (userData.role === 'ADMIN' && !isAdminEmail && userData.username.toLowerCase() !== '@superadmin' && userData.username.toLowerCase() !== 'superadmin') {
             console.error("Unauthorized admin access detected. Downgrading role.");
             userData.role = 'USER';
             // Optionally update Firestore too
