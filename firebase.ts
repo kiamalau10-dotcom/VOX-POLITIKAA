@@ -1,29 +1,38 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { 
+  initializeFirestore, // Pakai ini, jangan getFirestore biasa
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  collection, 
+  query, 
+  orderBy, 
+  onSnapshot, 
+  addDoc, 
+  deleteDoc, 
+  where, 
+  limit, 
+  getDocs, 
+  getDocFromServer, 
+  arrayUnion, 
+  arrayRemove, 
+  serverTimestamp, 
+  writeBatch 
+} from 'firebase/firestore';
 import firebaseConfig from './firebase-applet-config.json';
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+// PERBAIKAN UTAMA: Memaksa koneksi stabil di jaringan sekolah
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true, 
+}, firebaseConfig.firestoreDatabaseId);
+
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-
-// Test connection to Firestore
-async function testConnection() {
-  try {
-    // Attempt to read a dummy doc to verify connection
-    await getDocFromServer(doc(db, '_connection_test_', 'ping'));
-    console.log("Firebase connection established successfully.");
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client is offline.");
-    }
-    // Skip logging for other errors during initial test
-  }
-}
-
-testConnection();
 
 export enum OperationType {
   CREATE = 'create',
@@ -73,6 +82,12 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path
   }
   console.error('Firestore Error: ', JSON.stringify(errInfo));
+  
+  // Kasih tahu Kia lewat alert kalau izin ditolak
+  if (errInfo.error.includes("permissions")) {
+    alert("Izin ditolak! Cek apakah kamu sudah login dan cek Firestore Rules.");
+  }
+  
   throw new Error(JSON.stringify(errInfo));
 }
 
