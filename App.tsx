@@ -12,7 +12,6 @@ import ChatBot from './components/ChatBot';
 import News from './components/News';
 import VoxCircle from './components/VoxCircle';
 import AvatarLab from './components/AvatarLab';
-import UserProfileModal from './components/UserProfileModal';
 import Quiz from './components/Quiz';
 import Dashboard from './components/Dashboard';
 import ProgramSection from './components/ProgramSection';
@@ -157,12 +156,10 @@ const AppContent: React.FC = () => {
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
   const [isAvatarLabOpen, setIsAvatarLabOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
 
   useEffect(() => {
     (window as any).openAvatarLab = () => setIsAvatarLabOpen(true);
     (window as any).setActiveSection = (section: AppSection) => setActiveSection(section);
-    (window as any).setSelectedProfile = (username: string | null) => setSelectedProfile(username);
   }, []);
 
   useEffect(() => {
@@ -423,14 +420,6 @@ const AppContent: React.FC = () => {
           }}
         />
       )}
-
-      <UserProfileModal 
-        isOpen={!!selectedProfile}
-        onClose={() => setSelectedProfile(null)}
-        targetUsername={selectedProfile || ''}
-        currentUsername={currentUser?.username || ''}
-        isDarkMode={isDarkMode}
-      />
 
       {activeSection !== AppSection.AI && activeSection !== AppSection.FEEDBACK && !isQuizActive && (
         <motion.button
