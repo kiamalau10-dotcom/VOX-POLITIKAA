@@ -61,7 +61,7 @@ class ErrorBoundary extends Component<Props, State> {
               {errorMessage}
             </p>
             <button 
-              onClick={handleReset}
+              onClick={this.handleReset}
               className="w-full flex items-center justify-center gap-3 bg-red-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95"
             >
               <RotateCcw size={20} /> Muat Ulang Aplikasi

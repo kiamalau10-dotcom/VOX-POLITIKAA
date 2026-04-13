@@ -12,12 +12,14 @@ import {
   doc, 
   updateDoc, 
   deleteDoc, 
+  getDocs,
   arrayUnion, 
   arrayRemove,
   serverTimestamp,
   OperationType,
   handleFirestoreError
 } from '../firebase';
+import { where } from 'firebase/firestore';
 
 interface Post {
   id: string;
@@ -38,6 +40,8 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const [searchQuery, setSearchQuery] = useState('');
   const [commentingOn, setCommentingOn] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -59,6 +63,11 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const handlePost = async () => {
     if (!newPost.trim() || !currentUser) return;
 
+    if (!currentUser.uid) {
+      alert("Sesi autentikasi tidak valid. Silakan login ulang.");
+      return;
+    }
+
     const path = 'posts';
     try {
       await addDoc(collection(db, path), {
@@ -73,6 +82,21 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         shares: 0,
         authorId: currentUser.uid // CRITICAL: Added authorId for security rules
       });
+
+      // Add to votes collection for real-time dashboard
+      await addDoc(collection(db, 'votes'), {
+        userId: currentUser.username,
+        username: currentUser.username,
+        type: 'voice',
+        timestamp: serverTimestamp()
+      });
+
+      // Update global stats
+      const statsRef = doc(db, 'stats', 'global');
+      await updateDoc(statsRef, {
+        totalVotes: increment(1)
+      });
+
       setNewPost('');
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
@@ -80,12 +104,30 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Hapus postingan ini?")) return;
     const path = `posts/${id}`;
     try {
       await deleteDoc(doc(db, 'posts', id));
+      setPostToDelete(null);
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, path);
+    }
+  };
+
+  const handleClearAll = async () => {
+    setIsDeletingAll(true);
+    try {
+      const postsRef = collection(db, 'posts');
+      const q = query(postsRef);
+      const snapshot = await getDocs(q);
+      
+      const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+      
+      setIsDeletingAll(false);
+    } catch (error) {
+      console.error("Error clearing feed: ", error);
+      setIsDeletingAll(false);
+      alert("Gagal menghapus feed.");
     }
   };
 
@@ -153,39 +195,26 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const handleFollow = async (targetUsername: string) => {
     if (!currentUser || currentUser.username === targetUsername) return;
     
+    const path = 'follows';
     try {
-      // 1. Update current user's following list in Firestore
-      // We use the username as the document ID for simplicity in this mapping
-      const currentUserRef = doc(db, 'users', currentUser.username.replace('@', ''));
-      const targetUserRef = doc(db, 'users', targetUsername.replace('@', ''));
+      const followsRef = collection(db, path);
+      const q = query(followsRef, where('followerId', '==', currentUser.username), where('followingId', '==', targetUsername));
+      const snapshot = await getDocs(q);
 
-      const isFollowing = currentUser.following?.includes(targetUsername);
-
-      // Update current user
-      await updateDoc(currentUserRef, {
-        following: isFollowing ? arrayRemove(targetUsername) : arrayUnion(targetUsername)
-      });
-
-      // Update target user
-      await updateDoc(targetUserRef, {
-        followers: isFollowing ? arrayRemove(currentUser.username) : arrayUnion(currentUser.username)
-      });
-
-      // Also update local storage for immediate UI feedback if needed, 
-      // but App.tsx should ideally listen to Firestore for currentUser too.
-      const updatedUser = { 
-        ...currentUser, 
-        following: isFollowing 
-          ? currentUser.following?.filter(u => u !== targetUsername) 
-          : [...(currentUser.following || []), targetUsername] 
-      };
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-      localStorage.setItem(`user_data_${currentUser.username}`, JSON.stringify(updatedUser));
-      
-      window.dispatchEvent(new Event('storage'));
+      if (!snapshot.empty) {
+        // Unfollow
+        const followDoc = snapshot.docs[0];
+        await deleteDoc(doc(db, path, followDoc.id));
+      } else {
+        // Follow
+        await addDoc(followsRef, {
+          followerId: currentUser.username,
+          followingId: targetUsername,
+          timestamp: serverTimestamp()
+        });
+      }
     } catch (error) {
-      console.error("Error following user: ", error);
-      alert("Gagal mengikuti user. Pastikan Anda sudah terdaftar di database.");
+      handleFirestoreError(error, OperationType.WRITE, path);
     }
   };
 
@@ -211,8 +240,10 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     return ts;
   };
 
-  const renderAvatar = (username: string) => {
-    const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${username}&backgroundColor=f8fafc,f1f5f9&radius=20`;
+  const renderAvatar = (costumeId: any, username: string) => {
+    const avatarUrl = costumeId === 'none' || !costumeId
+      ? `https://api.dicebear.com/9.x/adventurer/svg?seed=${username}&backgroundColor=f8fafc,f1f5f9&radius=20`
+      : costumeId;
     
     return (
       <div className="w-12 h-12 rounded-2xl bg-red-600/10 overflow-hidden border-2 border-red-600/20 shrink-0">
@@ -243,15 +274,11 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
           </p>
           {currentUser?.role === 'ADMIN' && (
             <button 
-              onClick={() => {
-                if (window.confirm("Hapus SEMUA postingan di feed? Tindakan ini tidak bisa dibatalkan.")) {
-                  setPosts([]);
-                  localStorage.setItem('vox_circle_posts', JSON.stringify([]));
-                }
-              }}
-              className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-red-600 hover:text-red-700 transition-all border border-red-600/20 px-3 py-1 rounded-lg hover:bg-red-600/5"
+              onClick={() => setIsDeletingAll(true)}
+              disabled={isDeletingAll}
+              className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-red-600 hover:text-red-700 transition-all border border-red-600/20 px-3 py-1 rounded-lg hover:bg-red-600/5 disabled:opacity-50"
             >
-              <Trash2 size={12} /> Clear All Feed (Admin)
+              <Trash2 size={12} /> {isDeletingAll ? 'Deleting...' : 'Clear All Feed (Admin)'}
             </button>
           )}
         </div>
@@ -326,10 +353,18 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
             >
               <div className="flex justify-between items-start mb-6">
                 <div className="flex gap-4">
-                  {renderAvatar(post.avatarConfig, post.username)}
+                  <div 
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => (window as any).setSelectedProfile(post.username)}
+                  >
+                    {renderAvatar(post.avatarConfig, post.username)}
+                  </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-black uppercase text-sm tracking-tight">{post.displayName}</h4>
+                    <div 
+                      className="flex items-center gap-2 cursor-pointer group"
+                      onClick={() => (window as any).setSelectedProfile(post.username)}
+                    >
+                      <h4 className="font-black uppercase text-sm tracking-tight group-hover:text-red-600 transition-colors">{post.displayName}</h4>
                       <span className="text-[10px] font-bold opacity-40">{post.username}</span>
                       {post.role === 'ADMIN' && (
                         <span className="px-2 py-0.5 bg-red-600 text-white text-[8px] font-black rounded-full uppercase">Admin</span>
@@ -351,13 +386,24 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
                       <UserPlus size={16} />
                     </button>
                   )}
-                  {(currentUser?.role === 'ADMIN' || currentUser?.username === post.username) && (
+                  
+                  {/* Admin Specific Delete Button */}
+                  {currentUser?.role === 'ADMIN' ? (
                     <button 
-                      onClick={() => handleDelete(post.id)}
-                      className="p-2 rounded-xl bg-zinc-800 text-zinc-400 hover:bg-red-600 hover:text-white transition-all"
+                      onClick={() => setPostToDelete(post.id)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={12} /> Hapus (Admin)
                     </button>
+                  ) : (
+                    (currentUser?.username === post.username || (currentUser?.uid && post.authorId === currentUser.uid)) && (
+                      <button 
+                        onClick={() => setPostToDelete(post.id)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg"
+                      >
+                        <Trash2 size={12} /> Hapus
+                      </button>
+                    )
                   )}
                 </div>
               </div>
@@ -426,6 +472,82 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
           ))}
         </AnimatePresence>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {postToDelete && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setPostToDelete(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className={`relative w-full max-w-md p-8 rounded-[2rem] border transition-all ${
+                isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5 shadow-2xl'
+              }`}
+            >
+              <h3 className="text-xl font-black uppercase italic mb-4">Konfirmasi Hapus</h3>
+              <p className="opacity-60 mb-8 text-sm font-medium">
+                Apakah Anda yakin ingin menghapus postingan ini? Tindakan ini tidak dapat dibatalkan.
+              </p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setPostToDelete(null)}
+                  className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                    isDarkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-zinc-100 hover:bg-zinc-200'
+                  }`}
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={() => handleDelete(postToDelete)}
+                  className="flex-1 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+                >
+                  Hapus Sekarang
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {isDeletingAll && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className={`relative w-full max-w-md p-8 rounded-[2rem] border transition-all ${
+                isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5 shadow-2xl'
+              }`}
+            >
+              <h3 className="text-xl font-black uppercase italic mb-4 text-red-600">Hapus Semua Feed</h3>
+              <p className="opacity-60 mb-8 text-sm font-medium">
+                Tindakan ini akan menghapus SELURUH postingan dari database. Anda yakin?
+              </p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setIsDeletingAll(false)}
+                  className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                    isDarkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-zinc-100 hover:bg-zinc-200'
+                  }`}
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={handleClearAll}
+                  className="flex-1 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+                >
+                  Ya, Hapus Semua
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -64,8 +64,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setCurrentUser(prev => prev ? { ...prev, uid: undefined } : null);
           
           if (err.code === 'auth/admin-restricted-operation') {
-            // Silent warning to avoid cluttering logs if intentionally disabled
-            console.debug("Anonymous Auth disabled.");
+            console.warn("Anonymous Authentication is disabled in Firebase Console. Real-time sync and security rules may be limited.");
           } else {
             console.error("Anonymous auth error:", err);
           }
