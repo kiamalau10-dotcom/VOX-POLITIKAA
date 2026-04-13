@@ -136,3 +136,20 @@ export {
   writeBatch,
   increment
 };
+export const nukeAllPosts = async () => {
+  const userInput = window.prompt("Ketik 'HAPUS SEMUA' untuk mengosongkan VoxCircle:");
+  if (userInput === 'HAPUS SEMUA') {
+    try {
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      const batch = writeBatch(db);
+      querySnapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      alert("VoxCircle bersih total! Silakan refresh.");
+      window.location.reload();
+    } catch (error) {
+      alert("Gagal menghapus. Pastikan kamu Admin.");
+    }
+  }
+};
