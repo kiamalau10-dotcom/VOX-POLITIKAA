@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper Functions
+    // --- HELPER FUNCTIONS ---
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -23,8 +23,9 @@ service cloud.firestore {
              data.role in ['ADMIN', 'USER', 'admin', 'user'];
     }
 
-    // Rules
+    // --- RULES ---
     
+    // Koleksi Users
     match /users/{username} {
       allow read: if true; 
       allow create: if isValidUser(request.resource.data);
@@ -33,41 +34,55 @@ service cloud.firestore {
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
     }
 
+    // Koleksi VoxCircle (Posts)
     match /posts/{postId} {
       allow read: if true;
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin() || (isAuthenticated() && resource.data.authorId == request.auth.uid);
+      allow update: if isAuthenticated() && (isAdmin() || resource.data.authorId == request.auth.uid || resource.data.userId == request.auth.uid);
+      
+      // PERBAIKAN: Izinkan Admin menghapus apa saja (untuk fitur Nuke)
+      // User biasa hanya bisa hapus jika ID mereka cocok dengan authorId atau userId
+      allow delete: if isAdmin() || 
+                    (isAuthenticated() && (
+                      (exists(resource.data.authorId) && resource.data.authorId == request.auth.uid) || 
+                      (exists(resource.data.userId) && resource.data.userId == request.auth.uid)
+                    ));
     }
 
+    // Pemetaan UID ke Username
     match /users_by_uid/{uid} {
       allow read: if true;
-      allow write: if true; // Allow mapping UID to username
+      allow write: if isAuthenticated(); 
     }
 
+    // Statistik Global
     match /stats/{statId} {
       allow read: if true;
       allow update: if true;
       allow create, delete: if isAdmin();
     }
 
+    // Feedback dari User
     match /feedbacks/{feedbackId} {
       allow read: if isAdmin();
       allow create: if true;
       allow delete: if isAdmin();
     }
 
+    // Hasil Quiz
     match /quiz_results/{resultId} {
       allow read: if isAdmin();
       allow create: if true;
       allow delete: if isAdmin();
     }
 
+    // Voting / Voice
     match /votes/{voteId} {
       allow read: if true;
-      allow create: if true;
+      allow create: if isAuthenticated();
     }
     
+    // Test Koneksi
     match /_connection_test_/{docId} {
       allow read: if true;
     }
