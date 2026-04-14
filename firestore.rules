@@ -51,8 +51,7 @@ service cloud.firestore {
 
     match /stats/{statId} {
       allow read: if true;
-      allow update: if true;
-      allow create, delete: if isAdmin();
+      allow write: if true;
     }
 
     match /feedbacks/{feedbackId} {

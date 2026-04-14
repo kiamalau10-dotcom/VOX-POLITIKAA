@@ -72,18 +72,26 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
 
         await setDoc(doc(db, 'users', docId), newUser);
         
-        // Update global stats
-        const statsRef = doc(db, 'stats', 'global');
-        await setDoc(statsRef, {
-          totalUsers: increment(1)
-        }, { merge: true });
+        // Update global stats - wrap in try-catch to avoid blocking registration
+        try {
+          const statsRef = doc(db, 'stats', 'global');
+          await setDoc(statsRef, {
+            totalUsers: increment(1)
+          }, { merge: true });
+        } catch (e) {
+          console.warn("Failed to update stats:", e);
+        }
 
-        // CRITICAL: Store role by UID for security rules
+        // CRITICAL: Store role by UID for security rules - wrap in try-catch
         if (uid) {
-          await setDoc(doc(db, 'users_by_uid', uid), {
-            username: formattedUsername,
-            role: 'USER'
-          });
+          try {
+            await setDoc(doc(db, 'users_by_uid', uid), {
+              username: formattedUsername,
+              role: 'USER'
+            });
+          } catch (e) {
+            console.warn("Failed to update users_by_uid:", e);
+          }
         }
         
         // Also update local storage for compatibility
