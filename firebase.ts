@@ -1,38 +1,65 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-import { 
-  initializeFirestore, // Pakai ini, jangan getFirestore biasa
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  collection, 
-  query, 
-  orderBy, 
-  onSnapshot, 
-  addDoc, 
-  deleteDoc, 
-  where, 
-  limit, 
-  getDocs, 
-  getDocFromServer, 
-  arrayUnion, 
-  arrayRemove, 
-  serverTimestamp, 
-  writeBatch 
-} from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, deleteUser } from 'firebase/auth';
+import { initializeFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
 import firebaseConfig from './firebase-applet-config.json';
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
 
-// PERBAIKAN UTAMA: Memaksa koneksi stabil di jaringan sekolah
+// Use initializeFirestore with long polling to bypass potential proxy/websocket issues in sandboxed environments
 export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true, 
+  experimentalForceLongPolling: true,
 }, firebaseConfig.firestoreDatabaseId);
 
 export const auth = getAuth(app);
+
+// Helper to delete account (Auth + Firestore)
+export const deleteAccount = async (username: string) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user logged in");
+
+  const docId = username.replace('@', '');
+  const batch = writeBatch(db);
+
+  // 1. Delete user document
+  batch.delete(doc(db, 'users', docId));
+  
+  // 2. Delete user mapping
+  batch.delete(doc(db, 'users_by_uid', user.uid));
+
+  // 3. Delete user's posts (optional but recommended for clean up)
+  const postsQuery = query(collection(db, 'posts'), where('username', '==', username));
+  const postsSnap = await getDocs(postsQuery);
+  postsSnap.forEach(postDoc => batch.delete(postDoc.ref));
+
+  await batch.commit();
+  await deleteUser(user);
+};
+
+// Helper to get the correct redirect URL based on environment
+export const getRedirectURL = () => {
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  if (isLocal) return 'http://localhost:3000';
+  return window.location.origin;
+};
+
 export const googleProvider = new GoogleAuthProvider();
+
+// Test connection to Firestore
+async function testConnection() {
+  try {
+    // Attempt to read a dummy doc to verify connection
+    await getDocFromServer(doc(db, '_connection_test_', 'ping'));
+    console.log("Firebase connection established successfully.");
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.error("Please check your Firebase configuration. The client is offline.");
+    }
+    // Skip logging for other errors during initial test
+  }
+}
+
+testConnection();
 
 export enum OperationType {
   CREATE = 'create',
@@ -82,17 +109,11 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path
   }
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  
-  // Kasih tahu Kia lewat alert kalau izin ditolak
-  if (errInfo.error.includes("permissions")) {
-    alert("Izin ditolak! Cek apakah kamu sudah login dan cek Firestore Rules.");
-  }
-  
   throw new Error(JSON.stringify(errInfo));
 }
 
 export { 
-  signInWithPopup, 
+  signInWithPopup,
   signOut, 
   onAuthStateChanged,
   signInAnonymously,
@@ -112,5 +133,6 @@ export {
   arrayUnion,
   arrayRemove,
   serverTimestamp,
-  writeBatch
+  writeBatch,
+  increment
 };

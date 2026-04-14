@@ -9,7 +9,8 @@ import {
   getDoc, 
   setDoc, 
   updateDoc, 
-  signInAnonymously 
+  signInAnonymously,
+  increment
 } from '../firebase';
 
 interface AuthProps {
@@ -39,7 +40,8 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         } catch (err: any) {
           // Don't block the flow, but warn the user if it's the restricted operation error
           if (err.code === 'auth/admin-restricted-operation') {
-            console.warn("Anonymous Authentication is disabled in Firebase Console. Real-time sync may be limited.");
+            // Silent warning
+            console.debug("Anonymous Auth disabled.");
           } else {
             console.error("Auth error: ", err);
           }
@@ -66,12 +68,24 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           quizHistory: [],
           coins: 100,
           streakFreezeCount: 0,
-          followers: [],
-          following: [],
           uid: uid // Store the UID if we have it
         };
 
         await setDoc(doc(db, 'users', docId), newUser);
+        
+        // Update global stats
+        const statsRef = doc(db, 'stats', 'global');
+        await setDoc(statsRef, {
+          totalUsers: increment(1)
+        }, { merge: true });
+
+        // CRITICAL: Store role by UID for security rules
+        if (uid) {
+          await setDoc(doc(db, 'users_by_uid', uid), {
+            username: formattedUsername,
+            role: 'USER'
+          });
+        }
         
         // Also update local storage for compatibility
         localStorage.setItem(`user_data_${formattedUsername}`, JSON.stringify(newUser));
@@ -81,12 +95,9 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         alert("Akun berhasil dibuat! Silakan login.");
         setIsSignUpMode(false);
       } else {
-        // UPDATED ADMIN LIST
+        // UPDATED ADMIN LIST - STRICT VALIDATION
         const admins = [
-          { username: 'superadmin', password: 'devinakialarissa', displayName: 'Dekila' },
-          { username: '@kia', password: 'kiacantik', displayName: 'Kia' },
-          { username: '@larissa', password: 'larissabigayle123', displayName: 'Larissa' },
-          { username: '@devina', password: 'devina321', displayName: 'Devina' }
+          { username: 'superadmin', password: 'devinakialarissa', displayName: 'Dekila' }
         ];
 
         const adminMatch = admins.find(a => 
@@ -120,18 +131,32 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
               quizHistory: [],
               coins: 9999999,
               streakFreezeCount: 99,
-              followers: [],
-              following: [],
               uid: uid
             };
             // Sync admin to Firestore if not exists
             await setDoc(doc(db, 'users', docId), user, { merge: true });
+            
+            // CRITICAL: Store role by UID for security rules
+            if (uid) {
+              await setDoc(doc(db, 'users_by_uid', uid), {
+                username: user.username,
+                role: 'ADMIN'
+              });
+            }
           } else {
             user = savedUser!;
             // Update UID if it's missing (for legacy users)
-            if (!user.uid) {
+            if (!user.uid || user.uid !== uid) {
               user.uid = uid;
               await updateDoc(doc(db, 'users', docId), { uid: uid });
+            }
+            
+            // CRITICAL: Store role by UID for security rules
+            if (uid) {
+              await setDoc(doc(db, 'users_by_uid', uid), {
+                username: user.username,
+                role: user.role
+              });
             }
           }
           
@@ -167,9 +192,15 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           alert("Username atau Password salah!");
         }
       }
-    } catch (error) {
-      console.error("Auth error: ", error);
-      alert("Terjadi kesalahan saat autentikasi. Silakan coba lagi.");
+    } catch (error: any) {
+      console.error("Auth error details:", {
+        message: error.message,
+        code: error.code,
+        stack: error.stack,
+        env: process.env.NODE_ENV,
+        hostname: window.location.hostname
+      });
+      alert(`Terjadi kesalahan saat autentikasi: ${error.message || 'Silakan coba lagi.'}`);
     }
   };
 

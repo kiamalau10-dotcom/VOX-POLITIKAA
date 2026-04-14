@@ -20,6 +20,9 @@ export const useRealtimeProfile = (username: string) => {
         setProfile(null);
       }
       setLoading(false);
+    }, (error) => {
+      console.warn("Profile fetch error:", error);
+      setLoading(false);
     });
 
     // Listen to user's posts
@@ -31,6 +34,8 @@ export const useRealtimeProfile = (username: string) => {
         ...doc.data()
       }));
       setPosts(fetchedPosts);
+    }, (error) => {
+      console.warn("User posts fetch error:", error);
     });
 
     return () => {

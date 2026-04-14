@@ -2,36 +2,78 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Fungsi pembantu
+    // Helper Functions
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Rules untuk postingan VoxCircle
-    match /posts/{postId} {
-      allow read: if true;
-      // Izinkan membuat post asal sudah login
-      allow create: if isAuthenticated();
-      // Izinkan hapus/edit jika dia Admin atau pemilik asli post tersebut
-      allow update, delete: if isAuthenticated() && (
-        request.auth.token.email == "devinapurba23@gmail.com" || 
-        resource.data.authorId == request.auth.uid || 
-        resource.data.userId == request.auth.uid
-      );
+    function isAdmin() {
+      return isAuthenticated() && 
+        (
+          (exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && 
+           (get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role in ['ADMIN', 'admin'])) ||
+          (request.auth.token.email == "kiamalau10@gmail.com" && request.auth.token.email_verified == true) ||
+          (request.auth.token.email == "devinapurba23@gmail.com")
+        );
     }
 
-    // Rules untuk data user (Penting agar login lancar)
+    function isValidUser(data) {
+      return data.username is string && data.username.size() > 0 &&
+             data.displayName is string && data.displayName.size() > 0 &&
+             data.role in ['ADMIN', 'USER', 'admin', 'user'];
+    }
+
+    // Rules
+    
     match /users/{username} {
-      allow read, write: if true;
+      allow read: if true; 
+      allow create: if isValidUser(request.resource.data);
+      allow update: if (isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin())) || 
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginDate', 'streak', 'streakFreezeCount', 'lastActive', 'uid']));
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+    }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin() || (isAuthenticated() && (
+        (resource.data.authorId == request.auth.uid) ||
+        (exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.username == resource.data.username)
+      ));
     }
 
     match /users_by_uid/{uid} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == uid;
     }
 
-    // Rules cadangan untuk fitur lain
-    match /{document=**} {
-      allow read, write: if isAuthenticated();
+    match /stats/{statId} {
+      allow read: if true;
+      allow update: if true;
+      allow create, delete: if isAdmin();
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /quiz_results/{resultId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /votes/{voteId} {
+      allow read: if true;
+      allow create: if true;
+    }
+    
+    match /_connection_test_/{docId} {
+      allow read: if true;
     }
   }
 }

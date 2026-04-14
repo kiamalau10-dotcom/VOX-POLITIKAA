@@ -58,7 +58,7 @@ const AVATAR_OPTIONS = {
   ]
 };
 
-const Avatar2D = ({ username }: { username: string, config: any, costumeId: string }) => {
+const Avatar2D = ({ username, costumeId }: { username: string, config: any, costumeId: string }) => {
   // Use DiceBear Adventurer for a 2D anime/animated look
   const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${username}&backgroundColor=f8fafc,f1f5f9&radius=20`;
 
