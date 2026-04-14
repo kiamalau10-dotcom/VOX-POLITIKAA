@@ -24,7 +24,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    const hasUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
+    return !hasUser; // Only show global loading if we don't have a cached user
+  });
 
   // Initialize Firebase Auth
   useEffect(() => {
@@ -32,7 +35,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const maxRetries = 3;
 
     const initAuth = async () => {
-      setIsLoading(true);
+      // Only show loading if we don't have a user yet
+      if (!currentUser) setIsLoading(true);
       try {
         if (!auth.currentUser) {
           await signInAnonymously(auth);
@@ -87,7 +91,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [currentUser]);
 
   // Sync currentUser from Firestore in real-time
   useEffect(() => {

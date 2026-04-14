@@ -9,7 +9,6 @@ import {
   getDoc, 
   setDoc, 
   updateDoc, 
-  signInAnonymously,
   increment
 } from '../firebase';
 
@@ -34,18 +33,7 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
 
     try {
       setIsLoading(true);
-      // Sign in anonymously to get a Firebase UID for security rules if not already signed in
-      let uid = auth.currentUser?.uid || '';
-      if (!uid) {
-        try {
-          const userCredential = await signInAnonymously(auth);
-          uid = userCredential.user.uid;
-        } catch {
-          console.warn("Anonymous Auth is disabled, proceeding with custom session only.");
-          // We don't block anymore, just proceed with uid = ''
-          uid = '';
-        }
-      }
+      const uid = auth.currentUser?.uid || '';
 
       if (isSignUpMode) {
         const userDoc = await getDoc(doc(db, 'users', docId));
@@ -99,8 +87,8 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
         localStorage.setItem('all_users', JSON.stringify([...allUsers, newUser]));
 
-        alert("Akun berhasil dibuat! Silakan login.");
-        setIsSignUpMode(false);
+        alert("Akun berhasil dibuat! Mengalihkan ke dashboard...");
+        onLogin(newUser);
       } else {
         // UPDATED ADMIN LIST - STRICT VALIDATION
         const admins = [
@@ -274,7 +262,7 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
             disabled={isLoading}
             className={`w-full bg-red-600 py-4 rounded-xl font-black italic text-white hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-600/30 uppercase tracking-widest text-xs ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
           >
-            {isLoading ? 'Menyiapkan Sesi...' : (isSignUpMode ? 'Daftar Sekarang' : 'Masuk Dashboard')}
+            {isLoading ? (isSignUpMode ? 'Mendaftar...' : 'Masuk...') : (isSignUpMode ? 'Daftar Sekarang' : 'Masuk Dashboard')}
           </button>
         </form>
 
