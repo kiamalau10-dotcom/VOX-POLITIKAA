@@ -28,8 +28,35 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Initialize Firebase Auth
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    const initAuth = async () => {
       setIsLoading(true);
+      try {
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
+      } catch (err: any) {
+        // CRITICAL: If Anonymous Auth is disabled in console, stop retrying immediately
+        if (err.code === 'auth/admin-restricted-operation') {
+          console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console. Please enable it under Authentication > Sign-in method.");
+          setIsLoading(false);
+          return;
+        }
+
+        console.error("Auth initialization error:", err);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(initAuth, 2000); // Retry after 2 seconds
+          return;
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Sync UID to currentUser and Firestore if missing
         setCurrentUser(prev => {
@@ -54,22 +81,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           return prev;
         });
+        setIsLoading(false);
       } else {
-        try {
-          await signInAnonymously(auth);
-        } catch (err: any) {
-          // Clear UID if auth fails to prevent stale UIDs from causing permission errors
-          setCurrentUser(prev => prev ? { ...prev, uid: undefined } : null);
-          
-          if (err.code === 'auth/admin-restricted-operation') {
-            // Silent warning to avoid cluttering logs if intentionally disabled
-            console.debug("Anonymous Auth disabled.");
-          } else {
-            console.error("Anonymous auth error:", err);
-          }
-        }
+        initAuth();
       }
-      setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);

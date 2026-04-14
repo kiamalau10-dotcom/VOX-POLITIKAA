@@ -21,16 +21,19 @@ interface AuthProps {
 const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUpMode, setIsSignUpMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [authData, setAuthData] = useState({ username: '', password: '', displayName: '', rememberMe: false });
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
     
     // Ensure username starts with @
     const formattedUsername = authData.username.startsWith('@') ? authData.username : `@${authData.username}`;
     const docId = formattedUsername.replace('@', '');
 
     try {
+      setIsLoading(true);
       // Sign in anonymously to get a Firebase UID for security rules if not already signed in
       let uid = auth.currentUser?.uid || '';
       if (!uid) {
@@ -38,13 +41,14 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           const userCredential = await signInAnonymously(auth);
           uid = userCredential.user.uid;
         } catch (err: any) {
-          // Don't block the flow, but warn the user if it's the restricted operation error
+          console.error("Auth error during sign in: ", err);
           if (err.code === 'auth/admin-restricted-operation') {
-            // Silent warning
-            console.debug("Anonymous Auth disabled.");
+            alert("Fitur login sedang dibatasi oleh sistem (Anonymous Auth disabled).");
           } else {
-            console.error("Auth error: ", err);
+            alert(`Gagal menyiapkan sesi: ${err.message}`);
           }
+          setIsLoading(false);
+          return;
         }
       }
 
@@ -263,8 +267,11 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
             </div>
           )}
 
-          <button className="w-full bg-red-600 py-4 rounded-xl font-black italic text-white hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-600/30 uppercase tracking-widest text-xs">
-            {isSignUpMode ? 'Daftar Sekarang' : 'Masuk Dashboard'}
+          <button 
+            disabled={isLoading}
+            className={`w-full bg-red-600 py-4 rounded-xl font-black italic text-white hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-600/30 uppercase tracking-widest text-xs ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
+          >
+            {isLoading ? 'Menyiapkan Sesi...' : (isSignUpMode ? 'Daftar Sekarang' : 'Masuk Dashboard')}
           </button>
         </form>
 
