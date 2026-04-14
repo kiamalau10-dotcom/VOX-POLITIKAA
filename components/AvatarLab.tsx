@@ -58,14 +58,15 @@ const AVATAR_OPTIONS = {
   ]
 };
 
-const Avatar2D = ({ username, costumeId }: { username: string, config: any, costumeId: string }) => {
-  // Use DiceBear Adventurer for a 2D anime/animated look
-  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${username}&backgroundColor=f8fafc,f1f5f9&radius=20`;
+const Avatar2D = ({ username, config, costumeId }: { username: string, config: any, costumeId: string }) => {
+  // Construct a seed that changes when any option changes to make it reactive
+  const seed = `${username}-${config.gender || 'male'}-${config.hair || 'short'}-${config.eyes || 'black'}-${config.skin || 'light'}-${costumeId || 'none'}`;
+  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f8fafc,f1f5f9&radius=20`;
 
   return (
     <div className="w-64 h-64 relative">
       <motion.img
-        key={username + costumeId}
+        key={seed}
         src={avatarUrl}
         alt="Avatar Preview"
         className="w-full h-full object-contain drop-shadow-2xl"
@@ -90,8 +91,11 @@ const Avatar2D = ({ username, costumeId }: { username: string, config: any, cost
 };
 
 const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDarkMode, onClose }) => {
-  const isAdmin = currentUser.username === 'super admin' || currentUser.displayName === 'Dekila';
-  const userCoins = isAdmin ? Infinity : (currentUser.coins || 0);
+  const isAdmin = currentUser.role === 'ADMIN' || 
+                  currentUser.username.toLowerCase().includes('admin') || 
+                  currentUser.displayName === 'Dekila';
+                  
+  const userCoins = isAdmin ? 9999999 : (currentUser.coins || 0);
   const ownedItems = currentUser.ownedItems || [];
 
   const [config, setConfig] = useState(currentUser.avatarConfig || {
@@ -109,6 +113,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
   };
 
   const calculateTotalCost = () => {
+    if (isAdmin) return 0;
     let total = 0;
     
     // Check avatar options
@@ -130,7 +135,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
   };
 
   const handleSelect = (category: string, option: any) => {
-    setConfig({ ...config, [category]: option.id });
+    setConfig(prev => ({ ...prev, [category]: option.id }));
   };
 
   const handleEquipCostume = (costume: any) => {
@@ -141,7 +146,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
     const totalCost = calculateTotalCost();
     
     if (!isAdmin && totalCost > userCoins) {
-      alert(`VoxCoins tidak cukup! Total biaya: 🪙${totalCost}`);
+      alert(`VoxCoins tidak cukup! Total biaya: 🪙${totalCost}. Anda punya: 🪙${userCoins}`);
       return;
     }
 
@@ -164,12 +169,13 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
       ...currentUser,
       avatarConfig: config,
       equippedCostumeId: equippedCostumeId,
-      voxTitle: voxTitle === 'none' ? undefined : VOX_TITLES.find(t => t.id === voxTitle)?.label,
+      voxTitle: voxTitle === 'none' ? undefined : (VOX_TITLES.find(t => t.id === voxTitle)?.label || voxTitle),
       coins: isAdmin ? currentUser.coins : (currentUser.coins || 0) - totalCost,
-      ownedItems: [...ownedItems, ...newPurchases]
+      ownedItems: Array.from(new Set([...ownedItems, ...newPurchases]))
     };
 
     onUpdateUser(updatedUser);
+    alert(totalCost > 0 ? `Pembelian berhasil! 🪙${totalCost} koin telah dipotong.` : "Identitas berhasil diperbarui!");
     onClose();
   };
 

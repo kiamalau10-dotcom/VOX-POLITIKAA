@@ -146,45 +146,13 @@ const AdminStatsPlatform: React.FC<{ stats: any; liveStats?: any; isDarkMode: bo
   );
 };
 
-const DashboardAvatar2D = ({ username, costumeId }: { username: string, costumeId: string }) => {
-  const avatarUrl = costumeId === 'none' ? `https://api.dicebear.com/9.x/adventurer/svg?seed=${username}&backgroundColor=f8fafc,f1f5f9&radius=20` : costumeId;
+const DashboardAvatar2D = ({ username, config, costumeId }: { username: string, config: any, costumeId: string }) => {
+  const seed = `${username}-${config?.gender || 'male'}-${config?.hair || 'short'}-${config?.eyes || 'black'}-${config?.skin || 'light'}-${costumeId || 'none'}`;
+  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f8fafc,f1f5f9&radius=20`;
   return (
     <div className="w-full h-full p-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-zinc-800 dark:to-zinc-900 relative">
-      <motion.img key={avatarUrl} src={avatarUrl} alt="Avatar" className="w-full h-full object-contain drop-shadow-xl" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`; }} />
+      <motion.img key={seed} src={avatarUrl} alt="Avatar" className="w-full h-full object-contain drop-shadow-xl" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`; }} />
       <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900 animate-pulse" />
-    </div>
-  );
-};
-
-const AvatarSelector: React.FC<{ currentUser: User; onSelect: (avatarId: string, price: number) => void; isDarkMode: boolean; }> = ({ currentUser, onSelect, isDarkMode }) => {
-  const avatars = [
-    { id: 'none', label: 'Rakyat Biasa', type: 'FREE', url: `https://api.dicebear.com/9.x/adventurer/svg?seed=${currentUser.username}&backgroundColor=f8fafc,f1f5f9&radius=20` },
-    { id: 'presiden-kesayangan', label: 'Presiden Kesayangan', type: 'FREE', url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Felix&radius=20' },
-    { id: 'menteri-cinta', label: 'Menteri Cinta', type: 'FREE', url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka&radius=20' },
-    { id: 'gubernur-love', label: 'Gubernur Love', type: 'FREE', url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Mimi&radius=20' },
-    { id: 'duta-besar-galau', label: 'Duta Besar Galau', type: 'FREE', url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Jasper&radius=20' },
-    { id: 'camat-perhatian', label: 'Camat Perhatian', type: 'FREE', url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Luna&radius=20' },
-    { id: 'lurah-estetik', label: 'Lurah Estetik', type: 'PREMIUM', price: 150, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Oliver&radius=20' },
-    { id: 'staf-ahli-rindu', label: 'Staf Ahli Rindu', type: 'PREMIUM', price: 200, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Jack&radius=20' },
-    { id: 'walikota-chill', label: 'Walikota Chill', type: 'PREMIUM', price: 250, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Zoe&radius=20' },
-    { id: 'bupati-skena', label: 'Bupati Skena', type: 'PREMIUM', price: 300, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Leo&radius=20' },
-    { id: 'diplomat-senja', label: 'Diplomat Senja', type: 'PREMIUM', price: 350, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Maya&radius=20' },
-    { id: 'konsul-hati', label: 'Konsul Hati', type: 'PREMIUM', price: 400, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Toby&radius=20' },
-    { id: 'atase-curhat', label: 'Atase Curhat', type: 'PREMIUM', price: 450, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Ruby&radius=20' },
-    { id: 'sekjen-healing', label: 'Sekjen Healing', type: 'PREMIUM', price: 500, url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Finn&radius=20' },
-  ];
-  return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
-      {avatars.map((avatar) => (
-        <button key={avatar.id} onClick={() => onSelect(avatar.url, avatar.price || 0)} className={`relative group p-3 rounded-3xl border-2 transition-all duration-300 ${currentUser.equippedCostumeId === avatar.url ? 'border-red-600 bg-red-600/10 scale-95' : isDarkMode ? 'border-white/10 hover:border-white/30 hover:bg-white/5' : 'border-black/5 hover:border-black/20 hover:bg-black/5'}`}>
-          <div className="aspect-square mb-3 overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-800 dark:to-zinc-900">
-            <img src={avatar.url} alt={avatar.label} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${avatar.label}`; }} />
-          </div>
-          <div className="text-[9px] font-black uppercase text-center leading-tight mb-1 truncate">{avatar.label}</div>
-          <div className={`text-[7px] font-black uppercase text-center tracking-widest ${avatar.type === 'FREE' ? 'text-green-500' : 'text-yellow-500'}`}>{avatar.type === 'FREE' ? 'GRATIS' : `${avatar.price} KOIN`}</div>
-          {currentUser.equippedCostumeId === avatar.url && <div className="absolute -top-2 -right-2 bg-red-600 text-white p-1.5 rounded-full shadow-lg"><CheckCircle2 size={12} /></div>}
-        </button>
-      ))}
     </div>
   );
 };
@@ -204,8 +172,6 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
   const [isPopping, setIsPopping] = useState(false);
   const [motivation, setMotivation] = useState('');
   const [showCinematic, setShowCinematic] = useState(false);
-  const [coins, setCoins] = useState(currentUser?.coins || 0);
-  const [freezeCount, setFreezeCount] = useState(currentUser?.streakFreezeCount || 0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{id: string, type: 'post' | 'user' | 'all_posts' | 'my_account'}>({id: '', type: 'post'});
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [globalStats, setGlobalStats] = useState({ totalUsers: 0, activeUsers: 0, totalVotes: 0, totalQuizzesTaken: 0 });
@@ -221,7 +187,6 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
   const [allPosts, setAllPosts] = useState<any[]>([]); // Untuk admin
   const [usersList, setUsersList] = useState<User[]>([]);
   const [isVoxStudioEnabled, setIsVoxStudioEnabled] = useState(false);
-  const [showAvatarSelector, setShowAvatarSelector] = useState(false);
 
   // --- Real-time Global Stats ---
   useEffect(() => {
@@ -341,15 +306,28 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
     setTimeout(() => setIsPopping(false), 1000);
   };
 
-  const handleBuyFreeze = () => {
-    if (coins >= 50 && currentUser) {
-      const newCoins = coins - 50;
-      const newFreeze = freezeCount + 1;
-      setCoins(newCoins);
-      setFreezeCount(newFreeze);
+  const handleBuyFreeze = async () => {
+    if (currentUser && (currentUser.coins || 0) >= 50) {
+      const newCoins = (currentUser.coins || 0) - 50;
+      const newFreeze = (currentUser.streakFreezeCount || 0) + 1;
       const updatedUser = { ...currentUser, coins: newCoins, streakFreezeCount: newFreeze };
+      
+      // Update state and local storage
       localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+      
+      // Sync to Firestore
+      try {
+        const docId = updatedUser.username.replace('@', '');
+        await updateDoc(doc(db, 'users', docId), {
+          coins: newCoins,
+          streakFreezeCount: newFreeze
+        });
+        alert("Streak Freeze berhasil dibeli! 🪙50 koin telah dipotong.");
+      } catch (error) {
+        console.error("Error buying freeze:", error);
+        handleFirestoreError(error, OperationType.UPDATE, `users/${updatedUser.username}`);
+      }
     }
   };
 
@@ -379,18 +357,6 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
       setIsConfirmOpen(false);
       alert("Semua postingan berhasil dihapus.");
     } catch (error) { console.error(error); alert("Gagal menghapus semua postingan."); }
-  };
-
-  const handleSelectAvatar = (avatarId: string, price: number) => {
-    if (!currentUser) return;
-    if (price > coins) { alert('Koin tidak cukup!'); return; }
-    const newCoins = coins - price;
-    setCoins(newCoins);
-    const updatedUser = { ...currentUser, equippedCostumeId: avatarId, coins: newCoins };
-    localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-    setShowAvatarSelector(false);
-    window.location.reload();
   };
 
   const learningProgress = useMemo(() => {
@@ -428,7 +394,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
     const costumeId = currentUser.equippedCostumeId || 'none';
     return (
       <div className="w-24 h-24 bg-red-600/10 rounded-3xl overflow-hidden border-2 border-red-600/20 shadow-xl relative group">
-        <DashboardAvatar2D username={currentUser.username} costumeId={costumeId} />
+        <DashboardAvatar2D username={currentUser.username} config={currentUser.avatarConfig} costumeId={costumeId} />
         {role === 'ADMIN' && <div className="absolute top-1 right-1"><Shield size={12} className="text-red-600" /></div>}
       </div>
     );
@@ -456,22 +422,15 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
         {/* LEFT COLUMN (Sama seperti asli, tidak ada perubahan berarti) */}
         <div className="space-y-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
-            <div className="flex items-center gap-6 mb-8">
-              {renderAvatar()}
-              <div>
-                <h3 className="text-2xl font-black uppercase italic">{displayName}</h3>
-                {currentUser.voxTitle && <p className="text-[10px] font-black uppercase text-red-600 tracking-[0.2em] mb-1">{currentUser.voxTitle}</p>}
-                <div className="flex items-center gap-2"><span className="text-[10px] font-black uppercase tracking-widest opacity-50">{username}</span><span className="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">{role}</span></div>
-                {role === 'USER' && <button onClick={() => setShowAvatarSelector(true)} className="mt-2 text-[10px] font-black uppercase text-red-600 hover:underline">Ganti Avatar →</button>}
-              </div>
-            </div>
-            <AnimatePresence>
-              {showAvatarSelector && currentUser && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-black/5 dark:border-white/5">
-                  <AvatarSelector currentUser={currentUser} isDarkMode={isDarkMode} onSelect={handleSelectAvatar} />
-                </motion.div>
-              )}
-            </AnimatePresence>
+                <div className="flex items-center gap-6 mb-8">
+                  {renderAvatar()}
+                  <div>
+                    <h3 className="text-2xl font-black uppercase italic">{displayName}</h3>
+                    {currentUser.voxTitle && <p className="text-[10px] font-black uppercase text-red-600 tracking-[0.2em] mb-1">{currentUser.voxTitle}</p>}
+                    <div className="flex items-center gap-2"><span className="text-[10px] font-black uppercase tracking-widest opacity-50">{username}</span><span className="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">{role}</span></div>
+                    {role === 'USER' && <button onClick={() => (window as any).openAvatarLab()} className="mt-2 text-[10px] font-black uppercase text-red-600 hover:underline">Ganti Avatar →</button>}
+                  </div>
+                </div>
             <div className="space-y-4">
               {role === 'USER' && (
                 <div className="p-4 rounded-2xl bg-black/5 space-y-2">
@@ -479,8 +438,8 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
                   <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${expPercent}%` }} className="h-full bg-red-600" /></div>
                 </div>
               )}
-              <div className="flex justify-between items-center p-4 rounded-2xl bg-black/5"><div className="flex items-center gap-3"><Coins size={18} className="text-yellow-500" /><span className="text-xs font-bold uppercase">Koin Saya</span></div><span className="text-xs font-black uppercase text-yellow-500">{coins} Koin</span></div>
-              <div className="flex justify-between items-center p-4 rounded-2xl bg-black/5"><div className="flex items-center gap-3"><Snowflake size={18} className="text-blue-400" /><span className="text-xs font-bold uppercase">Streak Freeze</span></div><span className="text-xs font-black uppercase text-blue-400">{freezeCount} Tersedia</span></div>
+              <div className="flex justify-between items-center p-4 rounded-2xl bg-black/5"><div className="flex items-center gap-3"><Coins size={18} className="text-yellow-500" /><span className="text-xs font-bold uppercase">Koin Saya</span></div><span className="text-xs font-black uppercase text-yellow-500">{currentUser.coins || 0} Koin</span></div>
+              <div className="flex justify-between items-center p-4 rounded-2xl bg-black/5"><div className="flex items-center gap-3"><Snowflake size={18} className="text-blue-400" /><span className="text-xs font-bold uppercase">Streak Freeze</span></div><span className="text-xs font-black uppercase text-blue-400">{currentUser.streakFreezeCount || 0} Tersedia</span></div>
               <div className="flex justify-between items-center p-4 rounded-2xl bg-black/5"><div className="flex items-center gap-3"><Award size={18} className="text-red-600" /><span className="text-xs font-bold uppercase">Level Literasi</span></div><span className="text-xs font-black uppercase">{role === 'ADMIN' ? 'Super Admin' : learningProgress.percent === 100 ? 'Pakar Muda' : 'Warga Aktif'}</span></div>
               <div className="flex justify-between items-center p-4 rounded-2xl bg-black/5"><div className="flex items-center gap-3"><TrendingUp size={18} className="text-red-600" /><span className="text-xs font-bold uppercase">Status</span></div><span className="text-xs font-black uppercase text-green-500">Online</span></div>
               {role === 'USER' && (
@@ -515,7 +474,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
                 <div className="flex items-center gap-3 mb-6"><Sparkles size={20} className="text-yellow-500" /><h4 className="text-xs font-black uppercase tracking-widest">Daily Shop</h4></div>
-                <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20 flex items-center justify-between mb-4"><div className="flex items-center gap-4"><div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center"><Snowflake className="text-blue-400" /></div><div><p className="text-sm font-black uppercase">Streak Freeze</p><p className="text-[10px] font-bold text-blue-400 uppercase">50 Koin</p></div></div><button onClick={handleBuyFreeze} disabled={coins < 50} className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase transition-all ${coins >= 50 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}>Beli</button></div>
+                <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20 flex items-center justify-between mb-4"><div className="flex items-center gap-4"><div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center"><Snowflake className="text-blue-400" /></div><div><p className="text-sm font-black uppercase">Streak Freeze</p><p className="text-[10px] font-bold text-blue-400 uppercase">50 Koin</p></div></div><button onClick={handleBuyFreeze} disabled={(currentUser.coins || 0) < 50} className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase transition-all ${(currentUser.coins || 0) >= 50 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}>Beli</button></div>
                 <p className="text-[10px] font-medium opacity-50 italic">Gunakan Streak Freeze untuk menyelamatkan streak-mu jika lupa login sehari!</p>
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
