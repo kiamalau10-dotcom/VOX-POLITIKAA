@@ -19,7 +19,10 @@ import {
 } from '../firebase';
 
 const MountainTracker: React.FC<{ level: number, isDarkMode: boolean }> = ({ level, isDarkMode }) => {
-  const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // Dynamic window of 10 levels around current level
+  const startLevel = Math.max(1, Math.min(level - 4, 990));
+  const displayLevels = Array.from({ length: 10 }, (_, i) => startLevel + i);
+  
   return (
     <div className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-gray-50 border-black/5'}`}>
       <div className="flex items-center gap-3 mb-8">
@@ -29,10 +32,10 @@ const MountainTracker: React.FC<{ level: number, isDarkMode: boolean }> = ({ lev
       <div className="relative h-40 flex items-end justify-between px-4">
         {/* Mountain Path */}
         <div className="absolute bottom-4 left-0 right-0 h-1 bg-black/5 dark:bg-white/5" />
-        {levels.map((l) => {
+        {displayLevels.map((l) => {
           const isActive = l <= level;
           const isCurrent = l === level;
-          const height = 20 + (l * 10);
+          const height = 20 + ((l - startLevel + 1) * 10);
           return (
             <div key={l} className="relative flex flex-col items-center group">
               <motion.div 
@@ -60,7 +63,7 @@ const MountainTracker: React.FC<{ level: number, isDarkMode: boolean }> = ({ lev
         })}
       </div>
       <p className="text-center mt-6 text-[10px] font-black uppercase opacity-40 tracking-widest">
-        Daki terus untuk mencapai Puncak Demokrasi
+        Daki terus untuk mencapai Puncak Demokrasi (Target: 999)
       </p>
     </div>
   );
@@ -161,7 +164,7 @@ const Quiz: React.FC<{
     // As level increases, the pool shifts towards higher level questions.
     const filteredQuestions = ALL_QUESTIONS.filter(q => {
       const minLevel = Math.max(1, userLevel - 2);
-      const maxLevel = Math.min(10, userLevel + 1);
+      const maxLevel = Math.min(999, userLevel + 1);
       return q.level >= minLevel && q.level <= maxLevel;
     });
 
@@ -252,17 +255,20 @@ const Quiz: React.FC<{
           const userData = userDoc.data() as User;
           const updatedUser = { ...userData };
           
-          updatedUser.currentExp += expGained;
-          updatedUser.coins = (updatedUser.coins || 0) + coinsGained;
+          const currentExp = userData.currentExp || 0;
+          const currentLevel = userData.level || 1;
+          const currentCoins = userData.coins || 0;
+
+          updatedUser.currentExp = currentExp + expGained;
+          updatedUser.coins = currentCoins + coinsGained;
+          updatedUser.level = currentLevel;
           
           let leveledUp = false;
           const expNeeded = updatedUser.level * 100;
+          
           if (finalScore >= 80) {
             updatedUser.level += 1;
             leveledUp = true;
-            if (updatedUser.currentExp >= expNeeded) {
-              updatedUser.currentExp -= expNeeded;
-            }
           } else if (updatedUser.currentExp >= expNeeded) {
             updatedUser.level += 1;
             updatedUser.currentExp -= expNeeded;
