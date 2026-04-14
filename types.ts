@@ -108,6 +108,7 @@ export interface User {
   equippedCostumeId?: string;
   voxTitle?: string;
   uid?: string;
+  ownedItems?: string[];
   achievements?: {
     id: string;
     title: string;

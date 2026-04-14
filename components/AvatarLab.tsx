@@ -92,6 +92,7 @@ const Avatar2D = ({ username, costumeId }: { username: string, config: any, cost
 const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDarkMode, onClose }) => {
   const isAdmin = currentUser.username === 'super admin' || currentUser.displayName === 'Dekila';
   const userCoins = isAdmin ? Infinity : (currentUser.coins || 0);
+  const ownedItems = currentUser.ownedItems || [];
 
   const [config, setConfig] = useState(currentUser.avatarConfig || {
     gender: 'male',
@@ -102,34 +103,77 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
   const [equippedCostumeId, setEquippedCostumeId] = useState(currentUser.equippedCostumeId || 'none');
   const [voxTitle, setVoxTitle] = useState(currentUser.voxTitle || 'none');
 
-  const handleSelect = (category: string, option: any) => {
-    if (!isAdmin && option.price > userCoins) {
-      alert("VoxCoins tidak cukup!");
-      return;
+  const isItemOwned = (id: string, price: number) => {
+    if (price === 0 || isAdmin) return true;
+    return ownedItems.includes(id);
+  };
+
+  const calculateTotalCost = () => {
+    let total = 0;
+    
+    // Check avatar options
+    Object.entries(AVATAR_OPTIONS).forEach(([category, options]) => {
+      const selectedId = config[category];
+      const option = options.find((o: any) => o.id === selectedId);
+      if (option && option.price > 0 && !isItemOwned(option.id, option.price)) {
+        total += option.price;
+      }
+    });
+
+    // Check costume
+    const costume = COSTUMES.find(c => c.id === equippedCostumeId);
+    if (costume && costume.price > 0 && !isItemOwned(costume.id, costume.price)) {
+      total += costume.price;
     }
+
+    return total;
+  };
+
+  const handleSelect = (category: string, option: any) => {
     setConfig({ ...config, [category]: option.id });
   };
 
   const handleEquipCostume = (costume: any) => {
-    if (!isAdmin && costume.price > userCoins) {
-      alert("VoxCoins tidak cukup!");
-      return;
-    }
     setEquippedCostumeId(costume.id);
   };
 
   const handleSave = () => {
+    const totalCost = calculateTotalCost();
+    
+    if (!isAdmin && totalCost > userCoins) {
+      alert(`VoxCoins tidak cukup! Total biaya: 🪙${totalCost}`);
+      return;
+    }
+
+    // Collect newly purchased items
+    const newPurchases: string[] = [];
+    Object.entries(AVATAR_OPTIONS).forEach(([category, options]) => {
+      const selectedId = config[category];
+      const option = options.find((o: any) => o.id === selectedId);
+      if (option && option.price > 0 && !isItemOwned(option.id, option.price)) {
+        newPurchases.push(option.id);
+      }
+    });
+
+    const costume = COSTUMES.find(c => c.id === equippedCostumeId);
+    if (costume && costume.price > 0 && !isItemOwned(costume.id, costume.price)) {
+      newPurchases.push(costume.id);
+    }
+
     const updatedUser = {
       ...currentUser,
       avatarConfig: config,
       equippedCostumeId: equippedCostumeId,
       voxTitle: voxTitle === 'none' ? undefined : VOX_TITLES.find(t => t.id === voxTitle)?.label,
-      // Deduct coins if not admin (simplified logic for demo)
-      coins: isAdmin ? currentUser.coins : (currentUser.coins || 0)
+      coins: isAdmin ? currentUser.coins : (currentUser.coins || 0) - totalCost,
+      ownedItems: [...ownedItems, ...newPurchases]
     };
+
     onUpdateUser(updatedUser);
     onClose();
   };
+
+  const totalCost = calculateTotalCost();
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
@@ -165,9 +209,20 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
             )}
           </div>
 
-          <div className="absolute top-8 left-8 flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full shadow-lg shadow-red-600/20">
-            <span className="font-black">🪙 {isAdmin ? '∞' : (currentUser.coins || 0)}</span>
-            <span className="text-[8px] font-black uppercase opacity-70">VoxCoins</span>
+          <div className="absolute top-8 left-8 flex flex-col gap-2">
+            <div className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full shadow-lg shadow-red-600/20">
+              <span className="font-black">🪙 {isAdmin ? '∞' : (currentUser.coins || 0)}</span>
+              <span className="text-[8px] font-black uppercase opacity-70">VoxCoins</span>
+            </div>
+            {totalCost > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-yellow-500 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
+              >
+                Total Biaya: 🪙{totalCost}
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -190,21 +245,29 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
                 <div key={category}>
                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4">{category}</h4>
                   <div className="grid grid-cols-2 gap-2">
-                    {options.map((opt: any) => (
-                      <button
-                        key={opt.id}
-                        onClick={() => handleSelect(category, opt)}
-                        className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
-                          config[category] === opt.id
-                            ? 'border-red-600 bg-red-600/5'
-                            : isDarkMode ? 'border-white/5 bg-white/5' : 'border-black/5 bg-zinc-50'
-                        }`}
-                      >
-                        <span className="text-[10px] font-bold uppercase">{opt.label}</span>
-                        {opt.price > 0 && <span className="text-[8px] text-red-500">🪙{opt.price}</span>}
-                        {config[category] === opt.id && <Check size={10} className="text-red-600" />}
-                      </button>
-                    ))}
+                    {options.map((opt: any) => {
+                      const owned = isItemOwned(opt.id, opt.price);
+                      return (
+                        <button
+                          key={opt.id}
+                          onClick={() => handleSelect(category, opt)}
+                          className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
+                            config[category] === opt.id
+                              ? 'border-red-600 bg-red-600/5'
+                              : isDarkMode ? 'border-white/5 bg-white/5' : 'border-black/5 bg-zinc-50'
+                          }`}
+                        >
+                          <span className="text-[10px] font-bold uppercase">{opt.label}</span>
+                          {!owned && opt.price > 0 && (
+                            <span className="text-[8px] text-red-500 font-black">🪙{opt.price}</span>
+                          )}
+                          {owned && opt.price > 0 && (
+                            <span className="text-[8px] text-green-500 font-black uppercase">Owned</span>
+                          )}
+                          {config[category] === opt.id && <Check size={10} className="text-red-600" />}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -214,32 +277,38 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
             <div>
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4">Wardrobe Collection</h4>
               <div className="grid grid-cols-2 gap-4">
-                {COSTUMES.map((costume) => (
-                  <button
-                    key={costume.id}
-                    onClick={() => handleEquipCostume(costume)}
-                    className={`p-6 rounded-[2rem] border-2 transition-all flex flex-col items-center gap-3 text-center ${
-                      equippedCostumeId === costume.id
-                        ? 'border-red-600 bg-red-600/5'
-                        : isDarkMode ? 'border-white/5 bg-white/5 hover:border-white/20' : 'border-black/5 bg-zinc-50 hover:border-black/20'
-                    }`}
-                  >
-                    <div className="w-12 h-12 bg-red-600/10 rounded-2xl flex items-center justify-center text-2xl">
-                      {costume.icon}
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase mb-1">{costume.label}</p>
-                      {costume.price > 0 && (
-                        <p className="text-[10px] font-black text-red-600">🪙 {costume.price}</p>
+                {COSTUMES.map((costume) => {
+                  const owned = isItemOwned(costume.id, costume.price);
+                  return (
+                    <button
+                      key={costume.id}
+                      onClick={() => handleEquipCostume(costume)}
+                      className={`p-6 rounded-[2rem] border-2 transition-all flex flex-col items-center gap-3 text-center ${
+                        equippedCostumeId === costume.id
+                          ? 'border-red-600 bg-red-600/5'
+                          : isDarkMode ? 'border-white/5 bg-white/5 hover:border-white/20' : 'border-black/5 bg-zinc-50 hover:border-black/20'
+                      }`}
+                    >
+                      <div className="w-12 h-12 bg-red-600/10 rounded-2xl flex items-center justify-center text-2xl">
+                        {costume.icon}
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase mb-1">{costume.label}</p>
+                        {!owned && costume.price > 0 && (
+                          <p className="text-[10px] font-black text-red-600">🪙 {costume.price}</p>
+                        )}
+                        {owned && costume.price > 0 && (
+                          <p className="text-[10px] font-black text-green-500 uppercase">Owned</p>
+                        )}
+                      </div>
+                      {equippedCostumeId === costume.id ? (
+                        <span className="text-[8px] font-black bg-red-600 text-white px-2 py-1 rounded-full uppercase">Equipped</span>
+                      ) : (
+                        <span className="text-[8px] font-black opacity-30 uppercase">Select</span>
                       )}
-                    </div>
-                    {equippedCostumeId === costume.id ? (
-                      <span className="text-[8px] font-black bg-red-600 text-white px-2 py-1 rounded-full uppercase">Equipped</span>
-                    ) : (
-                      <span className="text-[8px] font-black opacity-30 uppercase">Select</span>
-                    )}
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -270,7 +339,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
               onClick={handleSave}
               className="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-all active:scale-95 shadow-2xl shadow-red-600/30"
             >
-              Confirm Identity
+              {totalCost > 0 ? `Purchase & Save (🪙${totalCost})` : 'Confirm Identity'}
             </button>
           </div>
         </div>

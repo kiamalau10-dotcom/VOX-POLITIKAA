@@ -16,7 +16,7 @@ import Quiz from './components/Quiz';
 import Dashboard from './components/Dashboard';
 import ProgramSection from './components/ProgramSection';
 import { MessageSquare, Send } from 'lucide-react';
-import { db, collection, addDoc, OperationType, handleFirestoreError } from './firebase';
+import { db, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import { CMSProvider, useCMS } from './components/CMSContext';
@@ -408,7 +408,7 @@ const AppContent: React.FC = () => {
           currentUser={currentUser}
           isDarkMode={isDarkMode}
           onClose={() => setIsAvatarLabOpen(false)}
-          onUpdateUser={(updatedUser) => {
+          onUpdateUser={async (updatedUser) => {
             setCurrentUser(updatedUser);
             localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
             localStorage.setItem('currentUser', JSON.stringify(updatedUser));
@@ -417,6 +417,20 @@ const AppContent: React.FC = () => {
             const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
             const updatedAllUsers = allUsers.map((u: any) => u.username === updatedUser.username ? updatedUser : u);
             localStorage.setItem('all_users', JSON.stringify(updatedAllUsers));
+
+            // Sync to Firestore
+            try {
+              const docId = updatedUser.username.replace('@', '');
+              await updateDoc(doc(db, 'users', docId), {
+                avatarConfig: updatedUser.avatarConfig,
+                equippedCostumeId: updatedUser.equippedCostumeId,
+                voxTitle: updatedUser.voxTitle || null,
+                coins: updatedUser.coins,
+                ownedItems: updatedUser.ownedItems || []
+              });
+            } catch (error) {
+              console.error("Error syncing avatar update to Firestore:", error);
+            }
           }}
         />
       )}
