@@ -40,15 +40,10 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
         try {
           const userCredential = await signInAnonymously(auth);
           uid = userCredential.user.uid;
-        } catch (err: any) {
-          console.error("Auth error during sign in: ", err);
-          if (err.code === 'auth/admin-restricted-operation') {
-            alert("Fitur login sedang dibatasi oleh sistem (Anonymous Auth disabled).");
-          } else {
-            alert(`Gagal menyiapkan sesi: ${err.message}`);
-          }
-          setIsLoading(false);
-          return;
+        } catch {
+          console.warn("Anonymous Auth is disabled, proceeding with custom session only.");
+          // We don't block anymore, just proceed with uid = ''
+          uid = '';
         }
       }
 

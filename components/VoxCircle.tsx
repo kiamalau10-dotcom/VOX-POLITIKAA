@@ -67,29 +67,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const handlePost = async () => {
     if (!newPost.trim() || !currentUser) return;
     
-    // Check for UID with a more graceful handling
-    if (!currentUser.uid) {
-      // Try to wait for auth to sync if it's just a race condition
-      setIsPosting(true);
-      let checks = 0;
-      const maxChecks = 5;
-      
-      const waitForUid = async (): Promise<string | null> => {
-        if (currentUser.uid) return currentUser.uid;
-        if (checks >= maxChecks) return null;
-        checks++;
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return waitForUid();
-      };
-
-      const uid = await waitForUid();
-      if (!uid) {
-        alert("Sesi autentikasi belum siap. Silakan muat ulang halaman atau pastikan koneksi internet stabil.");
-        setIsPosting(false);
-        return;
-      }
-    }
-
     setIsPosting(true);
     try {
       await addDoc(collection(db, 'posts'), {
@@ -102,7 +79,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         comments: [],
         role: currentUser.role,
         shares: 0,
-        authorId: currentUser.uid
+        authorId: currentUser.uid || 'unauthenticated'
       });
       setNewPost('');
     } catch (error) {
