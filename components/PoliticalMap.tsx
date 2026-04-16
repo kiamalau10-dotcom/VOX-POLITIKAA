@@ -16,9 +16,9 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
       priority: seats > 20 ? 'HIGH PRIORITY' : seats > 10 ? 'MEDIUM' : 'STABLE',
       riskIndex: (60 + (parseInt(selectedProvince.id) * 7 % 35)) + "%",
       growthPotential: (seats * 1.2).toFixed(1) + "%",
-      note: seats > 50 
+      note: selectedProvince.intelAnalysis || (seats > 50 
         ? "Battleground utama. Pergeseran 2% suara merubah konstelasi nasional." 
-        : "Wilayah kunci untuk penguatan basis massa akar rumput."
+        : "Wilayah kunci untuk penguatan basis massa akar rumput.")
     };
   }, [selectedProvince]);
 

@@ -39,6 +39,7 @@ export interface ProvinceData {
   dominantPartyPercent?: number; // Dominant party percentage
   governorPhoto?: string; // Photo of the governor
   isTrending?: boolean; // Trending status
+  intelAnalysis?: string; // Strategic intelligence analysis
 }
 
 export interface StrategicProgram {
