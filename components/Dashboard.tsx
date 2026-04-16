@@ -247,7 +247,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
   // --- Real-time feedbacks for admin ---
   useEffect(() => {
     if (role === 'ADMIN') {
-      const q = query(collection(db, 'feedbacks'), orderBy('timestamp', 'desc'), limit(50));
+      const q = query(collection(db, 'feedbacks'), orderBy('timestamp', 'desc'));
       const unsubscribe = onSnapshot(q, (snapshot) => { 
         setFeedbacks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Feedback))); 
       }, (error) => {
@@ -559,7 +559,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
                   <div className="flex items-center justify-between mb-8"><div className="flex items-center gap-3"><MessageSquare size={24} className="text-red-600" /><h3 className="text-2xl font-black uppercase italic">Feedback Pengguna</h3></div><span className="text-[10px] font-black uppercase opacity-50">{feedbacks.length} Pesan</span></div>
                   <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                    {feedbacks.slice().reverse().map((fb) => (
+                    {feedbacks.map((fb) => (
                       <div key={fb.id} className="p-4 rounded-2xl bg-black/5"><div className="flex justify-between items-start mb-2"><p className="text-[10px] font-black uppercase text-red-600">{fb.username}</p><p className="text-[8px] font-bold opacity-50 uppercase">{fb.date}</p></div><p className="text-xs font-medium italic">"{fb.message}"</p></div>
                     ))}
                   </div>

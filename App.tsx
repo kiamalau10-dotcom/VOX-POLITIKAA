@@ -16,7 +16,7 @@ import Quiz from './components/Quiz';
 import Dashboard from './components/Dashboard';
 import ProgramSection from './components/ProgramSection';
 import { MessageSquare, Send } from 'lucide-react';
-import { db, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError } from './firebase';
+import { db, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError, serverTimestamp } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import { CMSProvider, useCMS } from './components/CMSContext';
@@ -216,7 +216,7 @@ const AppContent: React.FC = () => {
         username: currentUser?.username || 'Anonymous',
         message: feedback,
         date: new Date().toISOString().split('T')[0],
-        timestamp: new Date().toISOString()
+        timestamp: serverTimestamp()
       });
       setIsSent(true);
       setFeedback('');
