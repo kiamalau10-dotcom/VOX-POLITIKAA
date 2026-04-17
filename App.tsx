@@ -212,16 +212,20 @@ const AppContent: React.FC = () => {
 
     const path = 'feedbacks';
     try {
+      const now = new Date();
       await addDoc(collection(db, path), {
         username: currentUser?.username || 'Anonymous',
+        displayName: currentUser?.displayName || 'Warga Anonim',
         message: feedback,
-        date: new Date().toISOString().split('T')[0],
+        date: now.toISOString().split('T')[0],
+        time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
         timestamp: serverTimestamp()
       });
       setIsSent(true);
       setFeedback('');
       setTimeout(() => setIsSent(false), 3000);
     } catch (error) {
+      console.error("Error sending feedback:", error);
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }, [feedback, currentUser]);

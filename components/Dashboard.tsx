@@ -560,8 +560,31 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
                   <div className="flex items-center justify-between mb-8"><div className="flex items-center gap-3"><MessageSquare size={24} className="text-red-600" /><h3 className="text-2xl font-black uppercase italic">Feedback Pengguna</h3></div><span className="text-[10px] font-black uppercase opacity-50">{feedbacks.length} Pesan</span></div>
                   <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {feedbacks.map((fb) => (
-                      <div key={fb.id} className="p-4 rounded-2xl bg-black/5"><div className="flex justify-between items-start mb-2"><p className="text-[10px] font-black uppercase text-red-600">{fb.username}</p><p className="text-[8px] font-bold opacity-50 uppercase">{fb.date}</p></div><p className="text-xs font-medium italic">"{fb.message}"</p></div>
+                      <div key={fb.id} className={`p-4 rounded-2xl border transition-all ${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-black/5 shadow-sm'}`}>
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-lg bg-red-600/10 flex items-center justify-center text-[8px] font-black text-red-600 uppercase">
+                              {(fb as any).displayName?.charAt(0) || fb.username.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-black uppercase text-red-600">{(fb as any).displayName || fb.username}</p>
+                              <p className="text-[8px] font-bold opacity-30 uppercase">@{fb.username}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[8px] font-bold opacity-50 uppercase">{fb.date}</p>
+                            <p className="text-[8px] font-black text-red-600 uppercase">{(fb as any).time || 'Baru'}</p>
+                          </div>
+                        </div>
+                        <p className="text-xs font-medium italic leading-relaxed">"{fb.message}"</p>
+                      </div>
                     ))}
+                    {feedbacks.length === 0 && (
+                      <div className="py-12 text-center opacity-30 italic">
+                        <MessageSquare size={32} className="mx-auto mb-4 opacity-20" />
+                        <p className="text-[10px] font-black uppercase tracking-widest">Belum ada feedback masuk.</p>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               </div>

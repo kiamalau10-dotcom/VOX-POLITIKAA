@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PARTIES_DATA } from '../constants';
-import { X, ExternalLink, Users } from 'lucide-react';
+import { X, Users } from 'lucide-react';
 import { PoliticalParty } from '../types';
 
 const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
@@ -176,12 +176,6 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                         <p className="font-black">{selectedParty.chairman}</p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="pt-8 border-t border-black/5 dark:border-white/5">
-                    <button className="w-full py-4 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-all flex items-center justify-center gap-2">
-                      <ExternalLink size={16} /> Kunjungi Website Resmi
-                    </button>
                   </div>
                 </div>
               </div>

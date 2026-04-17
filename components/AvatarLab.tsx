@@ -58,15 +58,42 @@ const AVATAR_OPTIONS = {
   ]
 };
 
-const Avatar2D = ({ username, config, costumeId }: { username: string, config: any, costumeId: string }) => {
-  // Construct a seed that changes when any option changes to make it reactive
-  const seed = `${username}-${config.gender || 'male'}-${config.hair || 'short'}-${config.eyes || 'black'}-${config.skin || 'light'}-${costumeId || 'none'}`;
-  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f8fafc,f1f5f9&radius=20`;
+const Avatar2D = ({ username, config }: { username: string, config: any }) => {
+  // Map our UI config to actual Dicebear Adventurer options
+  // For male characters, we force short hair and common male features
+  const isMale = config.gender === 'male';
+  
+  // Options for hair based on gender
+  const maleHair = ['short01', 'short02', 'short03', 'short04', 'short05'];
+  const femaleHair = ['long01', 'long02', 'long03', 'long04', 'long05', 'hijab01'];
+  
+  // Find skin color hex
+  const skinOption = AVATAR_OPTIONS.skin.find(s => s.id === config.skin);
+  const skinColor = skinOption ? skinOption.color.replace('#', '') : 'fce5d8';
+
+  // Construct query params
+  const params = new URLSearchParams({
+    seed: username,
+    skinColor: skinColor,
+  });
+
+  // If female and hair is hijab, force hijab
+  if (!isMale && config.hair === 'hijab') {
+    params.set('hair', 'hijab01');
+  } else {
+    // Standardize hair based on gender selection to prevent "male becoming female"
+    const hairPool = isMale ? maleHair : femaleHair;
+    // We can use a hash of the username/seed to deterministically pick from the pool
+    const hairIndex = username.length % hairPool.length;
+    params.set('hair', hairPool[hairIndex]);
+  }
+
+  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?${params.toString()}&backgroundColor=f8fafc,f1f5f9&radius=20`;
 
   return (
     <div className="w-64 h-64 relative">
       <motion.img
-        key={seed}
+        key={avatarUrl}
         src={avatarUrl}
         alt="Avatar Preview"
         className="w-full h-full object-contain drop-shadow-2xl"
@@ -199,7 +226,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
         <div className={`flex-1 relative border-r flex items-center justify-center ${
           isDarkMode ? 'bg-black/50 border-white/5' : 'bg-zinc-50 border-black/5'
         }`}>
-          <Avatar2D username={currentUser.username} config={config} costumeId={equippedCostumeId} />
+          <Avatar2D username={currentUser.username} config={config} />
 
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center pointer-events-none">
             <h2 className="text-3xl font-black uppercase italic text-red-600 tracking-tighter">Avatar Lab 2.0</h2>

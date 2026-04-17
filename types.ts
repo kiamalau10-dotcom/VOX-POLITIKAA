@@ -129,8 +129,11 @@ export interface Vote {
 export interface Feedback {
   id: string;
   username: string;
+  displayName?: string;
   message: string;
   date: string;
+  time?: string;
+  timestamp?: any;
 }
 
 export enum AppSection {

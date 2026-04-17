@@ -62,20 +62,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Sync UID to currentUser and Firestore if missing
+        // Aggressive sync: ensuring currentUser has UID and UID is linked to role in Firestore
         setCurrentUser(prev => {
-          if (prev && (!prev.uid || prev.uid !== user.uid)) {
+          if (prev) {
             const updatedUser = { ...prev, uid: user.uid };
             
-            // Update in storage
-            const storage = localStorage.getItem("isLoggedIn") === "true" ? localStorage : sessionStorage;
+            // 1. Sync local storage
+            const storage = (localStorage.getItem("isLoggedIn") === "true" || sessionStorage.getItem("isLoggedIn") === "true") ? localStorage : sessionStorage;
             storage.setItem("currentUser", JSON.stringify(updatedUser));
 
-            // Update in Firestore
-            const docId = prev.username.replace('@', '');
-            updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
+            // 2. Sync to Firestore 'users' collection (if UID changed)
+            if (prev.uid !== user.uid) {
+              const docId = prev.username.replace('@', '');
+              updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
+            }
             
-            // Update users_by_uid
+            // 3. Sync to 'users_by_uid' (always ensure this exists for security rules)
             setDoc(doc(db, 'users_by_uid', user.uid), {
               username: prev.username,
               role: prev.role
@@ -101,15 +103,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (docSnap.exists()) {
           const userData = docSnap.data() as User;
           
-          // STRICT ADMIN VALIDATION
+          // STRICT ADMIN VALIDATION (ONLY FOR NON-HARDCODED USERNAMES)
           const userEmail = auth.currentUser?.email;
           const isAdminEmail = userEmail === "devinapurba23@gmail.com" || userEmail === "kiamalau10@gmail.com";
+          const isHardcodedAdmin = userData.username.toLowerCase() === '@superadmin' || userData.username.toLowerCase() === 'superadmin';
           
-          if (userData.role === 'ADMIN' && !isAdminEmail && userData.username.toLowerCase() !== '@superadmin' && userData.username.toLowerCase() !== 'superadmin') {
-            console.error("Unauthorized admin access detected. Downgrading role.");
+          if (userData.role === 'ADMIN' && !isAdminEmail && !isHardcodedAdmin) {
+            console.error("Unauthorized admin access detected. Downgrading role locally.");
             userData.role = 'USER';
-            // Optionally update Firestore too
-            updateDoc(doc(db, 'users', docId), { role: 'USER' });
           }
 
           setCurrentUser(userData);

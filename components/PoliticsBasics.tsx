@@ -209,7 +209,7 @@ const tokohBangsa = [
     name: 'Susilo Bambang Yudhoyono',
     role: 'Presiden RI ke-6',
     period: '2004 – 2014',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/5/58/Presiden_Susilo_Bambang_Yudhoyono.jpg',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Presiden_Susilo_Bambang_Yudhoyono.jpg/800px-Presiden_Susilo_Bambang_Yudhoyono.jpg',
     contribution: 'Menjaga stabilitas ekonomi selama satu dekade dan menyelesaikan konflik Aceh melalui Perjanjian Helsinki.',
     bio: 'Presiden pertama yang dipilih langsung oleh rakyat; dikenal dengan gaya kepemimpinan yang santun dan terukur.',
     friendlyDesc: 'Pak SBY adalah presiden pertama yang dipilih langsung oleh rakyat dalam sejarah Indonesia. Beliau memimpin selama dua periode (10 tahun). Di masa beliau, Indonesia berhasil keluar dari pengawasan IMF dan melunasi utang-utangnya. Salah satu prestasi terbesarnya adalah perdamaian di Aceh melalui kesepakatan Helsinki tahun 2005, yang mengakhiri konflik bersenjata selama 30 tahun. Beliau juga sangat aktif di forum internasional, membawa Indonesia masuk ke dalam G20.',

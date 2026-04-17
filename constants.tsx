@@ -952,7 +952,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Progres pembangunan infrastruktur inti di IKN telah mencapai 85%, siap untuk upacara kemerdekaan mendatang.',
     date: '23 Feb 2026',
     category: 'Infrastruktur',
-    imageUrl: 'https://images.unsplash.com/photo-1540910419892-f03d98c32a73?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&h=400&fit=crop',
     url: 'https://nasional.tempo.co/'
   },
   {
@@ -961,7 +961,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Kebijakan baru ini bertujuan meningkatkan efisiensi dan keseimbangan kerja bagi aparatur sipil negara di wilayah perkotaan.',
     date: '22 Feb 2026',
     category: 'Pemerintahan',
-    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&h=400&fit=crop',
     url: 'https://www.metrotvnews.com/'
   },
   {
@@ -970,7 +970,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'KPU mulai mendistribusikan kotak suara dan surat suara ke wilayah kepulauan untuk menjamin hak pilih warga.',
     date: '21 Feb 2026',
     category: 'Politik',
-    imageUrl: 'https://images.unsplash.com/photo-1540910419892-f03d98c32a73?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1541872703-74c5e443d1fe?q=80&w=600&h=400&fit=crop',
     url: 'https://nasional.kompas.com/'
   },
   {
@@ -979,7 +979,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Indonesia memperkuat komitmen transisi energi dengan meresmikan PLTS terapung yang mampu melistriki ribuan rumah.',
     date: '20 Feb 2026',
     category: 'Lingkungan',
-    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1509391366360-fe5bb658589b?q=80&w=600&h=400&fit=crop',
     url: 'https://www.metrotvnews.com/'
   }
 ];
