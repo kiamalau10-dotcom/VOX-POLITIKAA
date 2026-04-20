@@ -110,6 +110,8 @@ export interface User {
   voxTitle?: string;
   uid?: string;
   ownedItems?: string[];
+  needsStreakProtection?: boolean;
+  previousStreak?: number;
   achievements?: {
     id: string;
     title: string;

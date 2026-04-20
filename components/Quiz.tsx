@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, XCircle, Trophy, ArrowRight, RotateCcw, ShieldAlert, Medal, Zap, Star, Mountain } from 'lucide-react';
 import { Question, User } from '../types';
 import { ALL_QUESTIONS } from '../services/quizData';
@@ -276,6 +276,7 @@ const Quiz: React.FC<{
           }
 
           const quizResult = {
+            uid: updatedUser.uid || currentUser?.uid || 'anonymous',
             quizId: `quiz_${Date.now()}`,
             score: finalScore,
             date: new Date().toISOString(),

@@ -898,7 +898,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Presiden Prabowo Subianto dalam pidatonya menegaskan bahwa hilirisasi industri adalah kunci utama bagi Indonesia untuk keluar dari jebakan pendapatan menengah.',
     date: '01 Mar 2026',
     category: 'Nasional',
-    imageUrl: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800',
     url: 'https://nasional.kompas.com/'
   },
   {
@@ -907,7 +907,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Wakil Presiden Gibran Rakabuming Raka memastikan pemerataan akses internet cepat di Papua dan Maluku untuk mendukung ekonomi kreatif digital.',
     date: '28 Feb 2026',
     category: 'Teknologi',
-    imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800',
     url: 'https://www.metrotvnews.com/'
   },
   {

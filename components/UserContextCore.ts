@@ -8,6 +8,7 @@ export interface UserContextType {
   setIsLoggedIn: (val: boolean) => void;
   logout: () => void;
   isLoading: boolean;
+  resolveStreak: (action: 'use' | 'buy' | 'reset') => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);

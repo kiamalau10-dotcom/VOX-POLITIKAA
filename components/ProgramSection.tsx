@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Zap, Users, Globe, TrendingUp, Landmark, Cpu, Factory, Utensils, X, ArrowRight } from 'lucide-react';
 import { STRATEGIC_PROGRAMS } from '../constants';
 import { StrategicProgram } from '../types';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { X, Check, ShoppingBag } from 'lucide-react';
 
 interface AvatarLabProps {
@@ -59,34 +59,48 @@ const AVATAR_OPTIONS = {
 };
 
 const Avatar2D = ({ username, config }: { username: string, config: any }) => {
+  // Construct query params
+  const params = new URLSearchParams({
+    seed: username,
+    flip: 'false',
+  });
+
   // Map our UI config to actual Dicebear Adventurer options
-  // For male characters, we force short hair and common male features
   const isMale = config.gender === 'male';
   
-  // Options for hair based on gender
+  // Options for hair based on gender to force visual distinction
   const maleHair = ['short01', 'short02', 'short03', 'short04', 'short05'];
-  const femaleHair = ['long01', 'long02', 'long03', 'long04', 'long05', 'hijab01'];
+  const femaleHair = ['long01', 'long02', 'long03', 'long04', 'long05'];
+
+  // Force certain parameters based on gender for maximum consistency
+  if (isMale) {
+    // Dicebear adventurer supports hair pools
+    params.set('hair', config.hair === 'hijab' ? 'short01' : maleHair[0]); // fallback if they somehow pick hijab as male
+    if (config.hair !== 'hijab') {
+      const hPool = maleHair;
+      const hIdx = Math.abs(username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % hPool.length;
+      params.set('hair', hPool[hIdx]);
+    }
+    params.set('features', 'none'); 
+  } else {
+    if (config.hair === 'hijab') {
+      params.set('hair', 'hijab01');
+    } else {
+      const hPool = femaleHair;
+      const hIdx = Math.abs(username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % hPool.length;
+      params.set('hair', hPool[hIdx]);
+    }
+  }
   
   // Find skin color hex
   const skinOption = AVATAR_OPTIONS.skin.find(s => s.id === config.skin);
   const skinColor = skinOption ? skinOption.color.replace('#', '') : 'fce5d8';
+  params.set('skinColor', skinColor);
 
-  // Construct query params
-  const params = new URLSearchParams({
-    seed: username,
-    skinColor: skinColor,
-  });
-
-  // If female and hair is hijab, force hijab
-  if (!isMale && config.hair === 'hijab') {
-    params.set('hair', 'hijab01');
-  } else {
-    // Standardize hair based on gender selection to prevent "male becoming female"
-    const hairPool = isMale ? maleHair : femaleHair;
-    // We can use a hash of the username/seed to deterministically pick from the pool
-    const hairIndex = username.length % hairPool.length;
-    params.set('hair', hairPool[hairIndex]);
-  }
+  // Find eyes color hex
+  const eyesOption = AVATAR_OPTIONS.eyes.find(e => e.id === config.eyes);
+  const eyesColor = eyesOption ? eyesOption.color.replace('#', '') : '000000';
+  params.set('eyesColor', eyesColor);
 
   const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?${params.toString()}&backgroundColor=f8fafc,f1f5f9&radius=20`;
 

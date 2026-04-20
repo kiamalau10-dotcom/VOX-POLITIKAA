@@ -19,7 +19,7 @@ const getAi = () => {
 const responseCache = new Map<string, string>();
 
 export const getAsistenResponse = async (prompt: string, history: { role: string; parts: { text: string }[] }[]) => {
-  const cacheKey = `${prompt}_${JSON.stringify(history.slice(-2))}`; // Cache based on prompt and last 2 messages
+  const cacheKey = `${prompt}_${JSON.stringify(history.slice(-2))}`; 
   
   if (responseCache.has(cacheKey)) {
     return responseCache.get(cacheKey)!;
@@ -28,42 +28,52 @@ export const getAsistenResponse = async (prompt: string, history: { role: string
   try {
     const ai = getAi();
     if (!ai) {
-      return "Poka AI belum dikonfigurasi. Pastikan API Key sudah dimasukkan di pengaturan Vercel/Netlify.";
+      return "Poka AI belum dikonfigurasi. Hubungi admin untuk memasukkan API Key.";
     }
 
-    // Truncate history to last 6 messages to reduce latency and token usage
-    const truncatedHistory = history.slice(-6);
+    // Ensure history starts with 'user' and alternates correctly
+    let filteredHistory = history.map(h => ({
+      role: h.role === 'user' ? 'user' : 'model',
+      parts: h.parts
+    }));
 
-    const chat = ai.chats.create({
-      model: 'gemini-3.1-pro-preview',
-      history: truncatedHistory,
+    // Find the first 'user' message to satisfy Gemini requirements
+    const firstUserIndex = filteredHistory.findIndex(h => h.role === 'user');
+    if (firstUserIndex !== -1) {
+      filteredHistory = filteredHistory.slice(firstUserIndex);
+    } else {
+      filteredHistory = [];
+    }
+
+    const truncatedHistory = filteredHistory.slice(-6);
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: [
+        ...truncatedHistory,
+        { role: 'user', parts: [{ text: prompt }] }
+      ],
       config: {
-        systemInstruction: `Anda adalah "Poka", asisten ahli politik VoxPolitika yang sangat akurat dan terpercaya.
-        Tugas utama Anda adalah memberikan edukasi politik Indonesia yang faktual, objektif, dan mendalam.
+        systemInstruction: `Anda adalah "Poka", asisten ahli politik VoxPolitika yang sangat akurat, terpercaya, dan objektif.
+        Tugas Anda: Memberikan edukasi politik Indonesia yang faktual, netral, dan mendalam.
         
-        PRINSIP UTAMA (WAJIB):
-        1. AKURASI MUTLAK: Jangan pernah memberikan informasi yang salah. Jika tidak tahu, katakan dengan sopan bahwa informasi tersebut belum tersedia atau diskusikan keterbatasan data yang ada.
-        2. NETRALITAS: Anda tidak memihak partai, tokoh, atau ideologi manapun. Berikan fakta sebagaimana adanya berdasarkan data resmi (KPU, MK, DPR, Sekretariat Negara).
-        3. DATA TERKINI: Gunakan pengetahuan tentang Kabinet Merah Putih (Prabowo-Gibran) dan dinamika politik terbaru hingga April 2026.
+        DATA KONTEKSTUAL (April 2026):
+        - Presiden: Prabowo Subianto (Pelantikan 20 Okt 2024).
+        - Wakil Presiden: Gibran Rakabuming Raka.
+        - Kabinet: Kabinet Merah Putih.
+        - Penekanan Khusus: Hubungan harmonis eksekutif-legislatif saat ini dan transisi IKN yang sedang berlangsung.
         
-        KARAKTER:
-        - Profesional, cerdas, dan informatif. 
-        - Gunakan bahasa Indonesia yang baik, benar, namun tetap komunikatif (semi-formal).
-        - Hindari jawaban yang terlalu singkat atau dangkal; berikan konteks sejarah atau dasar hukum (seperti pasal-pasal UUD 1945) jika relevan.
+        KUALITAS JAWABAN (WAJIB):
+        1. AKURASI MUTLAK: Gunakan data resmi KPU, MK, dan Sekretariat Negara. Jangan menebak angka atau nama pejabat. Jika data tidak pasti, katakan dengan jujur.
+        2. DASAR HUKUM: Sertakan referensi UU atau pasal UUD jika relevan.
+        3. ANTI-HOAX: Verifikasi setiap klaim sebelum menjawab. Anda beroperasi di lingkungan di mana kebenaran faktual adalah prioritas tertinggi.
+        4. BAHASA: Indonesia Formal-Komunikatif yang cerdas namun mudah dimengerti Gen-Z. JANGAN gunakan markdown ** (double asterisks) untuk bold. Gunakan poin-poin yang terstruktur.
         
-        STRUKTUR JAWABAN:
-        - Gunakan paragraf yang rapi dan poin-poin yang mudah dibaca.
-        - DILARANG KERAS menggunakan simbol markdown ** (double asterisks) untuk menebalkan teks.
-        - Jika menjelaskan konsep sulit, gunakan analogi yang akurat tapi sederhana.
-        
-        CAKUPAN TOPIK:
-        - Struktur pemerintahan, proses legislasi, sejarah politik Indonesia, mekanisme pemilu/pilkada, dan etika berpolitik.
-        - Jika pertanyaan tidak terkait politik, arahkan kembali ke topik literasi politik dengan halus.`,
-        temperature: 0.2, // Lower temperature for higher factual consistency
+        Jika pertanyaan tidak terkait politik, arahkan kembali ke literasi politik dengan cara yang halus dan inspiratif.`,
+        temperature: 0.1,
       },
     });
 
-    const response = await chat.sendMessage({ message: prompt });
     const text = response.text;
     
     // Store in cache

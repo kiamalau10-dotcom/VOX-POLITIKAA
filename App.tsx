@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppSection, User } from './types';
 import Auth from './components/Auth';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import Cabinet from './components/Cabinet';
-import Parties from './components/Parties';
-import PoliticalMap from './components/PoliticalMap';
-import PoliticsBasics from './components/PoliticsBasics';
-import ChatBot from './components/ChatBot';
-import News from './components/News';
-import VoxCircle from './components/VoxCircle';
-import AvatarLab from './components/AvatarLab';
-import Quiz from './components/Quiz';
-import Dashboard from './components/Dashboard';
-import ProgramSection from './components/ProgramSection';
+
+// Lazy load heavy components for performance
+const Cabinet = React.lazy(() => import('./components/Cabinet'));
+const Parties = React.lazy(() => import('./components/Parties'));
+const PoliticalMap = React.lazy(() => import('./components/PoliticalMap'));
+const PoliticsBasics = React.lazy(() => import('./components/PoliticsBasics'));
+const ChatBot = React.lazy(() => import('./components/ChatBot'));
+const News = React.lazy(() => import('./components/News'));
+const VoxCircle = React.lazy(() => import('./components/VoxCircle'));
+const AvatarLab = React.lazy(() => import('./components/AvatarLab'));
+const Quiz = React.lazy(() => import('./components/Quiz'));
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const ProgramSection = React.lazy(() => import('./components/ProgramSection'));
+import StreakProtectionModal from './components/StreakProtectionModal';
 import { MessageSquare, Send } from 'lucide-react';
-import { db, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError, serverTimestamp } from './firebase';
+import { db, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError, serverTimestamp, query, where, orderBy, onSnapshot } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import { CMSProvider, useCMS } from './components/CMSContext';
@@ -35,7 +38,8 @@ const Content = ({
   setFeedback, 
   handleSendFeedback, 
   isSent,
-  setIsQuizActive
+  setIsQuizActive,
+  userFeedbacks
 }: { 
   activeSection: AppSection, 
   currentUser: User | null, 
@@ -48,70 +52,105 @@ const Content = ({
   setFeedback: (val: string) => void,
   handleSendFeedback: (e: React.FormEvent) => void,
   isSent: boolean,
-  setIsQuizActive: (val: boolean) => void
+  setIsQuizActive: (val: boolean) => void,
+  userFeedbacks: any[]
 }) => {
-  switch (activeSection) {
-    case AppSection.HOME:
-      return (
-        <div className="space-y-20">
-          <Hero onStart={setActiveSection} isDarkMode={isDarkMode} />
-          <div id="vox-circle">
-            <VoxCircle currentUser={currentUser} isDarkMode={isDarkMode} />
-          </div>
-          <div id="news-section">
-            <News />
-          </div>
-        </div>
-      );
-    case AppSection.CABINET: return <Cabinet />;
-    case AppSection.PROGRAM: return <ProgramSection isDarkMode={isDarkMode} />;
-    case AppSection.PARTIES: return <Parties isDarkMode={isDarkMode} />;
-    case AppSection.MAP: return <PoliticalMap isDarkMode={isDarkMode} />;
-    case AppSection.BASICS: return <PoliticsBasics />;
-    case AppSection.AI: return <ChatBot />;
-    case AppSection.NEWS: return <News />;
-    case AppSection.QUIZ: return <Quiz isDarkMode={isDarkMode} currentUser={currentUser} onStateChange={setIsQuizActive} />;
-    case AppSection.DASHBOARD: 
-      if (!currentUser) {
-        setIsLoggedIn(false);
-        return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
-      }
-      return <Dashboard isDarkMode={isDarkMode} currentUser={currentUser} onLogout={handleLogout} />;
-    case AppSection.FEEDBACK:
-      return (
-        <div className="max-w-4xl mx-auto py-20 px-6">
-          <div className={`p-10 rounded-3xl border ${isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
-            <h2 className="text-3xl font-black mb-2 uppercase italic text-red-600">Feedback Dashboard</h2>
-            <p className={`mb-8 font-medium ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}>Suara Anda membangun demokrasi yang lebih baik.</p>
-            
-            <form onSubmit={handleSendFeedback} className="space-y-6">
-              <textarea 
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Tulis kritik atau saran Anda di sini..."
-                className={`w-full h-40 p-6 rounded-2xl outline-none transition-all border-2 ${
-                  isDarkMode ? 'bg-black border-white/10 focus:border-red-600' : 'bg-gray-50 border-gray-200 focus:border-red-600'
-                }`}
-                required
-              />
-              <button type="submit" className="flex items-center gap-3 bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition-all active:scale-95">
-                <Send size={20} /> KIRIM MASUKAN
-              </button>
-            </form>
+  return (
+    <React.Suspense fallback={<SectionLoader isDarkMode={isDarkMode} />}>
+      {(() => {
+        switch (activeSection) {
+          case AppSection.HOME:
+            return (
+              <div className="space-y-20">
+                <Hero onStart={setActiveSection} isDarkMode={isDarkMode} />
+                <div id="vox-circle">
+                  <VoxCircle currentUser={currentUser} isDarkMode={isDarkMode} />
+                </div>
+                <div id="news-section">
+                  <News />
+                </div>
+              </div>
+            );
+          case AppSection.CABINET: return <Cabinet />;
+          case AppSection.PROGRAM: return <ProgramSection isDarkMode={isDarkMode} />;
+          case AppSection.PARTIES: return <Parties isDarkMode={isDarkMode} />;
+          case AppSection.MAP: return <PoliticalMap isDarkMode={isDarkMode} />;
+          case AppSection.BASICS: return <PoliticsBasics />;
+          case AppSection.AI: return <ChatBot />;
+          case AppSection.NEWS: return <News />;
+          case AppSection.QUIZ: return <Quiz isDarkMode={isDarkMode} currentUser={currentUser} onStateChange={setIsQuizActive} />;
+          case AppSection.DASHBOARD: 
+            if (!currentUser) {
+              setIsLoggedIn(false);
+              return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
+            }
+            return <Dashboard isDarkMode={isDarkMode} currentUser={currentUser} onLogout={handleLogout} />;
+          case AppSection.FEEDBACK:
+            return (
+              <div className="max-w-4xl mx-auto py-20 px-6">
+                <div className={`p-10 rounded-3xl border ${isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
+                  <h2 className="text-3xl font-black mb-2 uppercase italic text-red-600">Feedback Dashboard</h2>
+                  <p className={`mb-8 font-medium ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}>Suara Anda membangun demokrasi yang lebih baik.</p>
+                  
+                  <form onSubmit={handleSendFeedback} className="space-y-6">
+                    <textarea 
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      placeholder="Tulis kritik atau saran Anda di sini..."
+                      className={`w-full h-40 p-6 rounded-2xl outline-none transition-all border-2 ${
+                        isDarkMode ? 'bg-black border-white/10 focus:border-red-600' : 'bg-gray-50 border-gray-200 focus:border-red-600'
+                      }`}
+                      required
+                    />
+                    <button type="submit" className="flex items-center gap-3 bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition-all active:scale-95">
+                      <Send size={20} /> KIRIM MASUKAN
+                    </button>
+                  </form>
 
-            <AnimatePresence>
-              {isSent && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-6 p-4 bg-green-500/10 border border-green-500 text-green-500 rounded-xl font-bold text-center">
-                  FEEDBACK BERHASIL TERKIRIM! TERIMA KASIH.
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      );
-    default: return <Hero onStart={setActiveSection} isDarkMode={isDarkMode} />;
-  }
+                  <AnimatePresence>
+                    {isSent && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-6 p-4 bg-green-500/10 border border-green-500 text-green-500 rounded-xl font-bold text-center">
+                        FEEDBACK BERHASIL TERKIRIM! TERIMA KASIH.
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <div className="mt-12 pt-8 border-t border-black/5 dark:border-white/5">
+                    <h3 className="text-xl font-black uppercase italic mb-6">Riwayat Feedback Anda</h3>
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                      {userFeedbacks.map((fb) => (
+                        <div key={fb.id} className={`p-4 rounded-xl border ${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-gray-50 border-black/5'}`}>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] font-black uppercase text-red-600">{fb.date} • {fb.time || 'Baru'}</span>
+                            <span className="text-[8px] font-bold opacity-30 uppercase">TERKIRIM</span>
+                          </div>
+                          <p className="text-xs font-medium italic opacity-80 leading-relaxed">"{fb.message}"</p>
+                        </div>
+                      ))}
+                      {userFeedbacks.length === 0 && (
+                        <p className="text-center py-8 text-[10px] font-bold uppercase opacity-30 italic">Belum ada feedback yang dikirim.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          default: return <Hero onStart={setActiveSection} isDarkMode={isDarkMode} />;
+        }
+      })()}
+    </React.Suspense>
+  );
 };
+
+const SectionLoader = ({ isDarkMode }: { isDarkMode: boolean }) => (
+  <div className={`h-[60vh] flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+    <motion.div 
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+      className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full"
+    />
+  </div>
+);
 
 const LegalModal: React.FC<{ 
   title: string; 
@@ -140,7 +179,7 @@ const LegalModal: React.FC<{
 
 const AppContent: React.FC = () => {
   const { isEditMode, setIsEditMode } = useCMS();
-  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading } = useUser();
+  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading, resolveStreak } = useUser();
   const [legalModal, setLegalModal] = useState<{ title: string; content: React.ReactNode } | null>(null);
   
   // --- STATE TEMA & NAVIGASI ---
@@ -155,12 +194,31 @@ const AppContent: React.FC = () => {
   // --- STATE FEEDBACK ---
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
+  const [userFeedbacks, setUserFeedbacks] = useState<any[]>([]);
   const [isAvatarLabOpen, setIsAvatarLabOpen] = useState(false);
 
   useEffect(() => {
     (window as any).openAvatarLab = () => setIsAvatarLabOpen(true);
     (window as any).setActiveSection = (section: AppSection) => setActiveSection(section);
   }, []);
+
+  // Fetch real-time feedback history ONLY for the logged-in user
+  useEffect(() => {
+    if (isLoggedIn && currentUser?.uid) {
+      const q = query(
+        collection(db, 'feedbacks'), 
+        where('uid', '==', currentUser.uid),
+        orderBy('timestamp', 'desc')
+      );
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const fbs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setUserFeedbacks(fbs);
+      }, (err) => {
+        console.warn("User feedbacks fetch error:", err);
+      });
+      return () => unsubscribe();
+    }
+  }, [isLoggedIn, currentUser?.uid]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -214,6 +272,7 @@ const AppContent: React.FC = () => {
     try {
       const now = new Date();
       await addDoc(collection(db, path), {
+        uid: currentUser?.uid || auth.currentUser?.uid || 'anonymous',
         username: currentUser?.username || 'Anonymous',
         displayName: currentUser?.displayName || 'Warga Anonim',
         message: feedback,
@@ -285,6 +344,7 @@ const AppContent: React.FC = () => {
               handleSendFeedback={handleSendFeedback}
               isSent={isSent}
               setIsQuizActive={setIsQuizActive}
+              userFeedbacks={userFeedbacks}
             />
           </motion.div>
         </AnimatePresence>
@@ -402,6 +462,17 @@ const AppContent: React.FC = () => {
             content={legalModal.content} 
             isDarkMode={isDarkMode} 
             onClose={() => setLegalModal(null)} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Streak Protection Modal */}
+      <AnimatePresence>
+        {currentUser && currentUser.needsStreakProtection && (
+          <StreakProtectionModal 
+            currentUser={currentUser}
+            isDarkMode={isDarkMode}
+            onResolve={resolveStreak}
           />
         )}
       </AnimatePresence>
