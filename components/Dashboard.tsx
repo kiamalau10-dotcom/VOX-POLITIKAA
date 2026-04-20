@@ -13,7 +13,6 @@ import {
   collection, 
   onSnapshot, 
   doc, 
-  updateDoc,
   deleteDoc, 
   getDocs,
   writeBatch,
@@ -171,7 +170,7 @@ const DashboardAvatar2D = ({ username, config }: { username: string, config: any
   return (
     <div className="w-full h-full p-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-zinc-800 dark:to-zinc-900 relative">
       <LazyLoadImage 
-        key={username} 
+        key={seed} 
         src={avatarUrl} 
         alt="Avatar" 
         className="w-full h-full object-contain drop-shadow-xl" 
@@ -275,13 +274,13 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
   // --- Real-time feedbacks for admin ---
   useEffect(() => {
     if (role === 'ADMIN') {
-      const q = collection(db, 'feedbacks');
+      const q = query(collection(db, 'feedbacks'), orderBy('timestamp', 'desc'));
       const unsubFeedbacks = onSnapshot(q, (snapshot) => {
         const fbs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Feedback));
-        // Sort manually to ensure BOTH existing and new feedback appear correctly
+        // Sort manually to ensure 'Baru' ones (NULL timestamp) appear at the top
         fbs.sort((a, b) => {
-          const tA = (a.timestamp?.seconds || (new Date(a.date).getTime() / 1000) || Date.now() / 1000);
-          const tB = (b.timestamp?.seconds || (new Date(b.date).getTime() / 1000) || Date.now() / 1000);
+          const tA = a.timestamp?.seconds || Date.now() / 1000;
+          const tB = b.timestamp?.seconds || Date.now() / 1000;
           return tB - tA;
         });
         setFeedbacks(fbs); 
@@ -321,10 +320,10 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
     const today = new Date().toISOString().split('T')[0];
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
     let newCount = streakData.count;
-    let currentFreeze = currentUser?.streakFreezeCount || 0;
+    let currentFreeze = freezeCount;
     if (streakData.lastLogin === yesterday) newCount += 1;
     else if (streakData.lastLogin !== today && streakData.lastLogin !== '') {
-      if (currentFreeze > 0) { currentFreeze -= 1; }
+      if (currentFreeze > 0) { currentFreeze -= 1; setFreezeCount(currentFreeze); }
       else newCount = 1;
     }
     setStreakData({ count: newCount, lastLogin: today });
@@ -333,14 +332,6 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
       const updatedUser = { ...currentUser, streak: newCount, lastLoginDate: today, streakFreezeCount: currentFreeze };
       localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-      
-      // SYNC TO FIRESTORE
-      const docId = updatedUser.username.replace('@', '');
-      updateDoc(doc(db, 'users', docId), {
-        streak: newCount,
-        lastLoginDate: today,
-        streakFreezeCount: currentFreeze
-      }).catch(err => console.error("Streak sync error:", err));
     }
     const phrases = ["Luar biasa! Pertahankan semangat literasi politikmu! 🔥", "Satu hari lagi lebih cerdas. Sampai jumpa besok, Pejuang Demokrasi! 🇮🇩", "Semangatmu membara! Jangan biarkan apinya padam besok ya!", "Keren! Konsistensi adalah kunci perubahan besar. Besok lanjut lagi!", "Kamu sudah lebih paham politik hari ini. Besok kita ulas materi baru!", "Jangan kasih kendor! Masa depan bangsa ada di tangan pemilih cerdas seperti kamu.", "Streak bertambah, wawasan meluas! Sampai ketemu di level berikutnya besok!"];
     setMotivation(phrases[Math.floor(Math.random() * phrases.length)]);
@@ -522,12 +513,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
                 <div className="flex items-center gap-3 mb-6"><AlertCircle size={20} className="text-red-600" /><h4 className="text-xs font-black uppercase tracking-widest">Analisis Nilai</h4></div>
                 <p className="text-xs font-medium italic mb-4">"{reportCard?.suggestion}"</p>
-                <button 
-                  onClick={() => (window as any).setActiveSection('basics')}
-                  className="text-[10px] font-black uppercase text-red-600 hover:underline"
-                >
-                  Pelajari Sekarang →
-                </button>
+                <button className="text-[10px] font-black uppercase text-red-600 hover:underline">Pelajari Sekarang →</button>
               </motion.div>
               <LiveVotes votes={liveVotes} totalVotes={globalStats.totalVotes} isDarkMode={isDarkMode} />
             </>

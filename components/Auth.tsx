@@ -128,23 +128,34 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
               streakFreezeCount: 99,
               uid: uid
             };
+            // Sync admin to Firestore if not exists
+            await setDoc(doc(db, 'users', docId), user, { merge: true });
+            
+            // CRITICAL: Store role by UID for security rules
+            if (uid) {
+              await setDoc(doc(db, 'users_by_uid', uid), {
+                username: user.username,
+                role: 'ADMIN'
+              });
+            }
           } else {
             user = savedUser!;
+            // Update UID if it's missing (for legacy users)
+            if (!user.uid || user.uid !== uid) {
+              user.uid = uid;
+              await updateDoc(doc(db, 'users', docId), { uid: uid });
+            }
+            
+            // CRITICAL: Store role by UID for security rules
+            if (uid) {
+              await setDoc(doc(db, 'users_by_uid', uid), {
+                username: user.username,
+                role: user.role
+              });
+            }
           }
-
-          // Ensure UID is set
-          if (uid) user.uid = uid;
-
-          // Sync to Firestore immediately so Admin can see them
-          await setDoc(doc(db, 'users', docId), user, { merge: true });
-
-          // Sync UID mapping for security rules
-          if (uid) {
-            await setDoc(doc(db, 'users_by_uid', uid), {
-              username: user.username,
-              role: user.role
-            }, { merge: true });
-          }
+          
+          // Streak Logic
           const today = new Date().toISOString().split('T')[0];
           const yesterdayDate = new Date();
           yesterdayDate.setDate(yesterdayDate.getDate() - 1);
@@ -153,10 +164,11 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           if (user.lastLoginDate === yesterday) {
             user.streak = (user.streak || 0) + 1;
           } else if (user.lastLoginDate !== today && user.lastLoginDate !== '') {
-            // DETECT BROKEN STREAK - NEW LOGIC
-            user.needsStreakProtection = true;
-            user.previousStreak = user.streak;
-            // We don't reset to 1 yet, we let UserContext handle the modal
+            if (user.streakFreezeCount && user.streakFreezeCount > 0) {
+              user.streakFreezeCount -= 1;
+            } else {
+              user.streak = 1;
+            }
           }
           user.lastLoginDate = today;
           (user as any).rememberMe = authData.rememberMe;
@@ -166,8 +178,6 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
             lastLoginDate: today, 
             streak: user.streak, 
             streakFreezeCount: user.streakFreezeCount || 0,
-            needsStreakProtection: user.needsStreakProtection || false,
-            previousStreak: user.previousStreak || 0,
             lastActive: new Date().toISOString()
           });
 

@@ -31,26 +31,15 @@ export const getAsistenResponse = async (prompt: string, history: { role: string
       return "Poka AI belum dikonfigurasi. Hubungi admin untuk memasukkan API Key.";
     }
 
-    // Ensure history starts with 'user' and alternates correctly
-    let filteredHistory = history.map(h => ({
+    const truncatedHistory = history.slice(-6).map(h => ({
       role: h.role === 'user' ? 'user' : 'model',
       parts: h.parts
     }));
 
-    // Find the first 'user' message to satisfy Gemini requirements
-    const firstUserIndex = filteredHistory.findIndex(h => h.role === 'user');
-    if (firstUserIndex !== -1) {
-      filteredHistory = filteredHistory.slice(firstUserIndex);
-    } else {
-      filteredHistory = [];
-    }
-
-    const truncatedHistory = filteredHistory.slice(-6);
-
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: [
-        ...truncatedHistory,
+        ...truncatedHistory.map(h => ({ role: h.role, parts: h.parts })),
         { role: 'user', parts: [{ text: prompt }] }
       ],
       config: {

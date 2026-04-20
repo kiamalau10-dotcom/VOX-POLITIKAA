@@ -17,7 +17,6 @@ const AvatarLab = React.lazy(() => import('./components/AvatarLab'));
 const Quiz = React.lazy(() => import('./components/Quiz'));
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const ProgramSection = React.lazy(() => import('./components/ProgramSection'));
-import StreakProtectionModal from './components/StreakProtectionModal';
 import { MessageSquare, Send } from 'lucide-react';
 import { db, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError, serverTimestamp, query, where, orderBy, onSnapshot } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -179,7 +178,7 @@ const LegalModal: React.FC<{
 
 const AppContent: React.FC = () => {
   const { isEditMode, setIsEditMode } = useCMS();
-  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading, resolveStreak } = useUser();
+  const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading } = useUser();
   const [legalModal, setLegalModal] = useState<{ title: string; content: React.ReactNode } | null>(null);
   
   // --- STATE TEMA & NAVIGASI ---
@@ -204,10 +203,10 @@ const AppContent: React.FC = () => {
 
   // Fetch real-time feedback history ONLY for the logged-in user
   useEffect(() => {
-    if (isLoggedIn && currentUser?.uid) {
+    if (isLoggedIn && currentUser?.username) {
       const q = query(
         collection(db, 'feedbacks'), 
-        where('uid', '==', currentUser.uid),
+        where('username', '==', currentUser.username),
         orderBy('timestamp', 'desc')
       );
       const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -218,7 +217,7 @@ const AppContent: React.FC = () => {
       });
       return () => unsubscribe();
     }
-  }, [isLoggedIn, currentUser?.uid]);
+  }, [isLoggedIn, currentUser?.username]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -272,7 +271,6 @@ const AppContent: React.FC = () => {
     try {
       const now = new Date();
       await addDoc(collection(db, path), {
-        uid: currentUser?.uid || auth.currentUser?.uid || 'anonymous',
         username: currentUser?.username || 'Anonymous',
         displayName: currentUser?.displayName || 'Warga Anonim',
         message: feedback,
@@ -462,17 +460,6 @@ const AppContent: React.FC = () => {
             content={legalModal.content} 
             isDarkMode={isDarkMode} 
             onClose={() => setLegalModal(null)} 
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Streak Protection Modal */}
-      <AnimatePresence>
-        {currentUser && currentUser.needsStreakProtection && (
-          <StreakProtectionModal 
-            currentUser={currentUser}
-            isDarkMode={isDarkMode}
-            onResolve={resolveStreak}
           />
         )}
       </AnimatePresence>

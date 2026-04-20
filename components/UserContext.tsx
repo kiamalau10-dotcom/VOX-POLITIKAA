@@ -36,30 +36,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const initAuth = async () => {
       // Only show loading if we don't have a user yet
-      if (!localStorage.getItem("currentUser") && !sessionStorage.getItem("currentUser")) {
-        setIsLoading(true);
-      }
+      if (!currentUser) setIsLoading(true);
       try {
         if (!auth.currentUser) {
           await signInAnonymously(auth);
         }
       } catch (err: any) {
+        // CRITICAL: If Anonymous Auth is disabled in console, stop retrying immediately
         if (err.code === 'auth/admin-restricted-operation') {
-          console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console.");
+          console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console. Please enable it under Authentication > Sign-in method.");
           setIsLoading(false);
           return;
         }
 
-        if (err.code === 'auth/too-many-requests') {
-          console.warn("Auth hammered. Waiting longer before retry...");
-          setTimeout(initAuth, 10000); 
-          return;
+        if (err.code === 'auth/network-request-failed') {
+          console.warn("Auth network request failed. This might be due to a transient connection issue or an ad-blocker. Retrying...");
+          // Don't alert here to avoid spamming the user, but log it.
         }
 
         console.error("Auth initialization error:", err);
         if (retryCount < maxRetries) {
           retryCount++;
-          setTimeout(initAuth, 3000); 
+          setTimeout(initAuth, 3000); // Retry after 3 seconds
           return;
         }
       } finally {
@@ -69,22 +67,26 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // Aggressive sync: ensuring currentUser has UID and UID is linked to role in Firestore
         setCurrentUser(prev => {
           if (prev) {
             const updatedUser = { ...prev, uid: user.uid };
-            const storage = (localStorage.getItem("isLoggedIn") === "true" || sessionStorage.getItem("isLoggedIn") === "true") ? localStorage : sessionStorage;
             
-            // Only update if UID actually changed or was missing
+            // 1. Sync local storage
+            const storage = (localStorage.getItem("isLoggedIn") === "true" || sessionStorage.getItem("isLoggedIn") === "true") ? localStorage : sessionStorage;
+            storage.setItem("currentUser", JSON.stringify(updatedUser));
+
+            // 2. Sync to Firestore 'users' collection (if UID changed)
             if (prev.uid !== user.uid) {
-              storage.setItem("currentUser", JSON.stringify(updatedUser));
               const docId = prev.username.replace('@', '');
               updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
-              
-              setDoc(doc(db, 'users_by_uid', user.uid), {
-                username: prev.username,
-                role: prev.role
-              }, { merge: true }).catch(e => console.error("Sync users_by_uid error:", e));
             }
+            
+            // 3. Sync to 'users_by_uid' (always ensure this exists for security rules)
+            setDoc(doc(db, 'users_by_uid', user.uid), {
+              username: prev.username,
+              role: prev.role
+            }, { merge: true }).catch(e => console.error("Sync users_by_uid error:", e));
 
             return updatedUser;
           }
@@ -95,9 +97,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         initAuth();
       }
     });
-
     return () => unsubscribe();
-  }, []); // Removed [currentUser] to break the loop
+  }, [currentUser]);
 
   // Sync currentUser from Firestore in real-time
   useEffect(() => {
@@ -107,22 +108,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (docSnap.exists()) {
           const userData = docSnap.data() as User;
           
-          // STRICT ADMIN VALIDATION: ONLY @superadmin CAN HAVE ADMIN ROLE
-          const isSuperAdmin = userData.username.toLowerCase() === '@superadmin' || userData.username.toLowerCase() === 'superadmin';
+          // STRICT ADMIN VALIDATION (ONLY FOR NON-HARDCODED USERNAMES)
+          const userEmail = auth.currentUser?.email;
+          const isAdminEmail = userEmail === "devinapurba23@gmail.com" || userEmail === "kiamalau10@gmail.com";
+          const isHardcodedAdmin = userData.username.toLowerCase() === '@superadmin' || userData.username.toLowerCase() === 'superadmin';
           
-          if (userData.role === 'ADMIN' && !isSuperAdmin) {
-            console.error("Unauthorized admin access detected for username:", userData.username);
+          // Only downgrade if they have an email from OAuth and it's NOT an admin email,
+          // OR if they are an admin but not hardcoded and don't have an admin email.
+          // This allows local admin accounts (like @superadmin) to work even on anonymous auth.
+          if (userData.role === 'ADMIN' && userEmail && !isAdminEmail && !isHardcodedAdmin) {
+            console.error("Unauthorized admin access detected for identifier:", userEmail);
             userData.role = 'USER';
           }
 
           setCurrentUser(userData);
           localStorage.setItem("currentUser", JSON.stringify(userData));
           localStorage.setItem(`user_data_${userData.username}`, JSON.stringify(userData));
-        } else if (currentUser) {
-          // If the document doesn't exist in Firestore but we have it locally, sync it!
-          // This ensures all users appear in the admin dashboard immediately after login.
-          console.log("Syncing local user to Firestore...");
-          setDoc(doc(db, 'users', docId), currentUser, { merge: true }).catch(err => console.error("Initial user sync error:", err));
         }
       }, (error) => {
         console.warn("User data sync error:", error);
@@ -130,7 +131,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       return () => unsubscribe();
     }
-  }, [isLoggedIn, currentUser]);
+  }, [isLoggedIn, currentUser?.username]);
 
   // Sync from storage for cross-tab or other component updates
   useEffect(() => {
@@ -153,53 +154,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sessionStorage.removeItem("currentUser");
   };
 
-  const resolveStreak = async (action: 'use' | 'buy' | 'reset') => {
-    if (!currentUser || !currentUser.username) return;
-    const docId = currentUser.username.replace('@', '');
-    const userRef = doc(db, 'users', docId);
-    
-    const updatedUser = { ...currentUser };
-    updatedUser.needsStreakProtection = false;
-
-    if (action === 'use') {
-      if (updatedUser.streakFreezeCount && updatedUser.streakFreezeCount > 0) {
-        updatedUser.streakFreezeCount -= 1;
-        updatedUser.streak = updatedUser.previousStreak || updatedUser.streak || 1;
-      } else {
-        updatedUser.streak = 1;
-      }
-    } else if (action === 'buy') {
-      const cost = 100;
-      if ((updatedUser.coins || 0) >= cost) {
-        updatedUser.coins = (updatedUser.coins || 0) - cost;
-        updatedUser.streak = updatedUser.previousStreak || updatedUser.streak || 1;
-      } else {
-        alert("Koin tidak cukup!");
-        return;
-      }
-    } else {
-      updatedUser.streak = 1;
-    }
-
-    updatedUser.previousStreak = 0;
-    
-    try {
-      await updateDoc(userRef, {
-        streak: updatedUser.streak,
-        streakFreezeCount: updatedUser.streakFreezeCount || 0,
-        coins: updatedUser.coins || 0,
-        needsStreakProtection: false,
-        previousStreak: 0
-      });
-      setCurrentUser(updatedUser);
-      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-    } catch (error) {
-      console.error("Error resolving streak:", error);
-    }
-  };
-
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading, resolveStreak }}>
+    <UserContext.Provider value={{ currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading }}>
       {children}
     </UserContext.Provider>
   );
