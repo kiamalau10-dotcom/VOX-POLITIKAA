@@ -486,80 +486,70 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Provinsi otonomi khusus berbasis syariat Islam di ujung Utara Sumatera.",
     issues: ["Implementasi Syariat Islam", "Dana Otsus", "Infrastruktur Barat-Selatan"],
     trivia: "Satu-satunya provinsi dengan partai politik lokal.",
-    dominantParty: "Partai Aceh", dominantPartyPercent: 45, isTrending: true,
-    intelAnalysis: "Stabilitas politik lokal sangat bergantung pada efektivitas penggunaan dana Otsus dan narasi kekhususan daerah."
+    dominantParty: "Partai Aceh", dominantPartyPercent: 45, isTrending: true
   },
   { 
     id: '2', name: 'Sumatera Utara', capital: 'Medan', governor: 'Bobby Nasution', party: 'Gerindra', population: '15.65 Juta', dprSeats: 30,
     details: "Pusat ekonomi Sumatera dengan keberagaman etnis yang sangat tinggi.",
     issues: ["Kriminalitas jalanan", "Perbaikan jalan", "Wisata Danau Toba"],
     trivia: "Jumlah pemilih terbesar di luar Pulau Jawa.",
-    dominantParty: "Golkar", dominantPartyPercent: 22,
-    intelAnalysis: "Heterogenitas etnis dan agama menjadikan wilayah ini barometer politik inklusi nasional."
+    dominantParty: "Golkar", dominantPartyPercent: 22
   },
   { 
     id: '3', name: 'Sumatera Barat', capital: 'Padang', governor: 'Mahyeldi Ansharullah', party: 'PKS', population: '5.86 Juta', dprSeats: 14,
     details: "Pusat budaya Minangkabau dengan tradisi intelektual politik yang kuat.",
     issues: ["Mitigasi bencana", "Ekonomi UMKM", "Pelestarian adat"],
     trivia: "Basis massa PKS terkuat di Sumatera.",
-    dominantParty: "PKS", dominantPartyPercent: 26,
-    intelAnalysis: "Kekuatan ideologis PKS yang dominan menuntut strategi pendekatan nilai-nilai konservatif yang modern."
+    dominantParty: "PKS", dominantPartyPercent: 26
   },
   { 
     id: '4', name: 'Riau', capital: 'Pekanbaru', governor: 'Abdul Wahid', party: 'PKB', population: '7.12 Juta', dprSeats: 13,
     details: "Lumbung energi nasional melalui minyak bumi dan perkebunan sawit.",
     issues: ["Karhutla", "Konflik agraria", "Hilirisasi industri"],
     trivia: "Provinsi dengan PDRB per kapita tertinggi di Sumatera.",
-    dominantParty: "Golkar", dominantPartyPercent: 19,
-    intelAnalysis: "Sentimen kedaulatan energi dan keberlanjutan sawit menjadi variabel kunci preferensi pemilih."
+    dominantParty: "Golkar", dominantPartyPercent: 19
   },
   { 
     id: '5', name: 'Jambi', capital: 'Jambi', governor: 'Al Haris', party: 'PAN', population: '3.79 Juta', dprSeats: 8,
     details: "Wilayah agraris dengan potensi perkebunan karet dan sawit masif.",
     issues: ["Logistik Batubara", "Restorasi lahan gambut", "Pendidikan"],
     trivia: "Rumah bagi Candi Muaro Jambi.",
-    dominantParty: "PAN", dominantPartyPercent: 18,
-    intelAnalysis: "Logistik batubara dan konflik agraria adalah isu sensitif yang dapat menggeser suara massa."
+    dominantParty: "PAN", dominantPartyPercent: 18
   },
   { 
     id: '6', name: 'Sumatera Selatan', capital: 'Palembang', governor: 'Herman Deru', party: 'NasDem', population: '8.89 Juta', dprSeats: 17,
     details: "Pusat pangan dan energi, bekas pusat Kerajaan Sriwijaya.",
     issues: ["Optimalisasi LRT", "Ketahanan pangan", "Tol Trans-Sumatera"],
     trivia: "Palembang adalah kota tertua di Indonesia.",
-    dominantParty: "Gerindra", dominantPartyPercent: 21,
-    intelAnalysis: "Pengaruh figur lokal dan sejarah kejayaan Sriwijaya masih sangat kuat dalam sosiologi pemilih."
+    dominantParty: "Gerindra", dominantPartyPercent: 21
   },
   { 
     id: '7', name: 'Bengkulu', capital: 'Bengkulu', governor: 'Rohidin Mersyah', party: 'Golkar', population: '2.11 Juta', dprSeats: 4,
     details: "Provinsi pesisir barat dengan sejarah kolonial Inggris yang kuat.",
     issues: ["Konektivitas", "Pengembangan pelabuhan", "Ekonomi pesisir"],
     trivia: "Tempat lahirnya Ibu Fatmawati.",
-    dominantParty: "Golkar", dominantPartyPercent: 24,
-    intelAnalysis: "Infrastruktur konektivitas menjadi aspirasi utama untuk memecah isolasi ekonomi pesisir."
+    dominantParty: "Golkar", dominantPartyPercent: 24
   },
   { 
     id: '8', name: 'Lampung', capital: 'Bandar Lampung', governor: 'Rahmat Mirzani Djausal', party: 'Gerindra', population: '9.46 Juta', dprSeats: 20,
     details: "Gerbang logistik Sumatera-Jawa dan pusat transmigrasi.",
     issues: ["Keamanan (Begal)", "Jalan rusak", "Swasembada Jagung"],
     trivia: "Titik nol Jalan Tol Trans Sumatera.",
-    dominantParty: "Gerindra", dominantPartyPercent: 23,
-    intelAnalysis: "Sebagai gerbang Sumatera, isu keamanan dan perbaikan jalan adalah determiner utama kepuasan publik."
+    dominantParty: "Gerindra", dominantPartyPercent: 23
   },
   { 
     id: '9', name: 'Kepulauan Bangka Belitung', capital: 'Pangkalpinang', governor: 'Erzaldi Rosman', party: 'Gerindra', population: '1.53 Juta', dprSeats: 3,
     details: "Provinsi kepulauan penghasil timah terbesar di dunia.",
     issues: ["Reklamasi tambang", "Pariwisata bahari", "Ekonomi non-timah"],
     trivia: "Inspirasi lokasi novel Laskar Pelangi.",
-    dominantParty: "Gerindra", dominantPartyPercent: 20,
-    intelAnalysis: "Diversifikasi ekonomi pasca-timah dan pengembangan pariwisata bahari adalah prioritas intelijen."
+    dominantParty: "Gerindra", dominantPartyPercent: 20
   },
   { 
     id: '10', name: 'Kepulauan Riau', capital: 'Tanjungpinang', governor: 'Ansar Ahmad', party: 'Golkar', population: '2.31 Juta', dprSeats: 4,
     details: "Pusat industri manufaktur perbatasan Singapura.",
     issues: ["Kedaulatan maritim", "Transportasi antar-pulau", "Batam-Bintan Bridge"],
     trivia: "Memiliki lebih dari 2.400 pulau.",
-    dominantParty: "Golkar", dominantPartyPercent: 21,
-    intelAnalysis: "Posisi geografis perbatasan menuntut fokus pada kedaulatan maritim dan investasi industri manufaktur."
+    dominantParty: "Golkar", dominantPartyPercent: 21
   },
 
   // --- JAWA ---
@@ -568,48 +558,42 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Pusat ekonomi nasional dan barometer politik.",
     issues: ["Polusi udara", "Banjir", "Transisi pasca-IKN"],
     trivia: "Status Daerah Khusus Jakarta (DKJ).",
-    dominantParty: "PKS", dominantPartyPercent: 28, isTrending: true,
-    intelAnalysis: "Transisi status Jakarta pasca-IKN menciptakan dinamika baru dalam perebutan pengaruh politik ekonomi."
+    dominantParty: "PKS", dominantPartyPercent: 28, isTrending: true
   },
   { 
     id: '12', name: 'Jawa Barat', capital: 'Bandung', governor: 'Dedi Mulyadi', party: 'Gerindra', population: '50.48 Juta', dprSeats: 91,
     details: "Provinsi populasi terbesar, battleground utama Pemilu.",
     issues: ["Pengangguran", "Sampah", "Kesenjangan"],
     trivia: "Pemilih terbanyak di Indonesia.",
-    dominantParty: "Gerindra", dominantPartyPercent: 32, isTrending: true,
-    intelAnalysis: "Populasi raksasa menjadikannya battleground paling krusial. Pergeseran sentimen di sini menentukan pemenang nasional."
+    dominantParty: "Gerindra", dominantPartyPercent: 32, isTrending: true
   },
   { 
     id: '13', name: 'Banten', capital: 'Serang', governor: 'Airin Rachmi Diany', party: 'Golkar', population: '12.59 Juta', dprSeats: 22,
     details: "Pusat industri manufaktur dan gerbang udara.",
     issues: ["Pengangguran industri", "Korupsi", "Infrastruktur Banten Selatan"],
     trivia: "Gerbang utama udara Indonesia (Soekarno-Hatta).",
-    dominantParty: "Gerindra", dominantPartyPercent: 22,
-    intelAnalysis: "Dominasi klan politik lokal dan isu pengangguran di sektor industri menjadi tantangan stabilisasi."
+    dominantParty: "Gerindra", dominantPartyPercent: 22
   },
   { 
     id: '14', name: 'Jawa Tengah', capital: 'Semarang', governor: 'Ahmad Luthfi', party: 'Gerindra', population: '38.07 Juta', dprSeats: 77,
     details: "Basis massa tradisional dan pusat kebudayaan Jawa.",
     issues: ["Banjir Rob", "Kemiskinan Eks-Karesidenan Solo", "Industrialisasi"],
     trivia: "Pusat gravitasi politik Jawa.",
-    dominantParty: "PDI-P", dominantPartyPercent: 34,
-    intelAnalysis: "Basis tradisional PDI-P yang kuat memerlukan strategi penetrasi berbasis pemberdayaan desa dan umkm."
+    dominantParty: "PDI-P", dominantPartyPercent: 34
   },
   { 
     id: '15', name: 'DI Yogyakarta', capital: 'Yogyakarta', governor: 'Sri Sultan Hamengkubuwono X', party: 'Independen', population: '3.80 Juta', dprSeats: 8,
     details: "Daerah Istimewa dengan sistem monarki konstitusional.",
     issues: ["Sampah", "Harga tanah", "Klithih"],
     trivia: "Gubernur dijabat oleh Sultan yang bertakhta.",
-    dominantParty: "PDI-P", dominantPartyPercent: 24,
-    intelAnalysis: "Keseimbangan antara modernisasi pendidikan dan pelestarian monarki adalah kunci stabilitas wilayah."
+    dominantParty: "PDI-P", dominantPartyPercent: 24
   },
   { 
     id: '16', name: 'Jawa Timur', capital: 'Surabaya', governor: 'Khofifah Indar Parawansa', party: 'Independen/NU', population: '41.81 Juta', dprSeats: 87,
     details: "Pusat industri Timur Indonesia dan basis massa NU.",
     issues: ["Disparitas Madura", "Infrastruktur desa", "Gunung Berapi"],
     trivia: "Lumbung suara PKB dan PDI-P.",
-    dominantParty: "PKB", dominantPartyPercent: 25,
-    intelAnalysis: "Pengaruh kyai dan jaringan pesantren merupakan variabel mutlak dalam pemenangan suara di tingkat akar rumput."
+    dominantParty: "PKB", dominantPartyPercent: 25
   },
 
   // --- BALI & NUSA TENGGARA ---
@@ -618,24 +602,21 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Pusat pariwisata internasional.",
     issues: ["Over-tourism", "Kelangkaan air", "Adat vs Modernisasi"],
     trivia: "Basis terkuat PDI-P di Indonesia.",
-    dominantParty: "PDI-P", dominantPartyPercent: 52,
-    intelAnalysis: "Ketahanan industri pariwisata terhadap isu global dan pelestarian adat adalah fokus utama stabilitas."
+    dominantParty: "PDI-P", dominantPartyPercent: 52
   },
   { 
     id: '18', name: 'Nusa Tenggara Barat', capital: 'Mataram', governor: 'Lalu Muhamad Iqbal', party: 'Independen', population: '5.51 Juta', dprSeats: 11,
     details: "Pusat wisata olahraga dan pertanian.",
     issues: ["Sirkuit Mandalika", "PMI Ilegal", "Kekeringan"],
     trivia: "Hub wisata halal Indonesia.",
-    dominantParty: "Gerindra", dominantPartyPercent: 20,
-    intelAnalysis: "Narasi sport-tourism (Mandalika) dan pemberdayaan PMI adalah isu strategis untuk penggalangan massa."
+    dominantParty: "Gerindra", dominantPartyPercent: 20
   },
   { 
     id: '19', name: 'Nusa Tenggara Timur', capital: 'Kupang', governor: 'Melkiades Laka Lena', party: 'Golkar', population: '5.56 Juta', dprSeats: 13,
     details: "Wilayah kepulauan dengan potensi wisata alam unik.",
     issues: ["Stunting", "Krisis air", "Konektivitas"],
     trivia: "Gerbang batas darat Timor Leste.",
-    dominantParty: "PDI-P", dominantPartyPercent: 21,
-    intelAnalysis: "Optimalisasi sumber daya laut dan penanganan stunting menjadi agenda prioritas pemerintah daerah."
+    dominantParty: "PDI-P", dominantPartyPercent: 21
   },
 
   // --- KALIMANTAN ---
@@ -644,40 +625,35 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Berbatasan darat dengan Malaysia, pusat bauksit.",
     issues: ["Perbatasan", "Infrastruktur", "Karhutla"],
     trivia: "Dilalui garis khatulistiwa.",
-    dominantParty: "PDI-P", dominantPartyPercent: 23,
-    intelAnalysis: "Manajemen harmoni sosial antar etnis di wilayah perbatasan adalah kunci stabilitas intelijen."
+    dominantParty: "PDI-P", dominantPartyPercent: 23
   },
   { 
     id: '21', name: 'Kalimantan Tengah', capital: 'Palangkaraya', governor: 'Sugianto Sabran', party: 'PDI-P', population: '2.77 Juta', dprSeats: 6,
     details: "Konservasi orangutan dan Food Estate.",
     issues: ["Food Estate", "Lahan Gambut", "Banjir"],
     trivia: "Ibu kota masa depan rancangan Bung Karno.",
-    dominantParty: "PDI-P", dominantPartyPercent: 25,
-    intelAnalysis: "Keberhasilan Food Estate dan pencegahan Karhutla sangat menentukan penilaian kinerja pusat."
+    dominantParty: "PDI-P", dominantPartyPercent: 25
   },
   { 
     id: '22', name: 'Kalimantan Selatan', capital: 'Banjarbaru', governor: 'Muhidin', party: 'PAN', population: '4.22 Juta', dprSeats: 11,
     details: "Pusat batubara dan budaya religius.",
     issues: ["Lubang tambang", "Ibu kota Banjarbaru", "Konektivitas"],
     trivia: "Pusat perdagangan batu permata (Martapura).",
-    dominantParty: "Golkar", dominantPartyPercent: 22,
-    intelAnalysis: "Transisi ekonomi dari batubara ke sektor berkelanjutan mulai menjadi perhatian pemilih muda."
+    dominantParty: "Golkar", dominantPartyPercent: 22
   },
   { 
     id: '23', name: 'Kalimantan Timur', capital: 'Samarinda', governor: 'Isran Noor', party: 'Independen', population: '3.94 Juta', dprSeats: 8,
     details: "Lokasi IKN, pusat migas dan batubara.",
     issues: ["IKN", "Hilirisasi", "Lingkungan"],
     trivia: "Provinsi terkaya di Kalimantan.",
-    dominantParty: "Golkar", dominantPartyPercent: 23, isTrending: true,
-    intelAnalysis: "Akselerasi pembangunan IKN menciptakan potensi gesekan lahan sekaligus peluang ekonomi masif."
+    dominantParty: "Golkar", dominantPartyPercent: 23, isTrending: true
   },
   { 
     id: '24', name: 'Kalimantan Utara', capital: 'Tanjung Selor', governor: 'Zainal Arifin Paliwang', party: 'Gerindra', population: '0.74 Juta', dprSeats: 3,
     details: "Provinsi termuda di Kalimantan, energi hijau.",
     issues: ["Kawasan Industri Hijau", "PLTA Kayan", "Perbatasan"],
     trivia: "Provinsi dengan populasi paling sedikit.",
-    dominantParty: "Gerindra", dominantPartyPercent: 24,
-    intelAnalysis: "Pengembangan Kawasan Industri Hijau dan PLTA Kayan merupakan proyek strategis kedaulatan energi."
+    dominantParty: "Gerindra", dominantPartyPercent: 24
   },
 
   // --- SULAWESI ---
@@ -686,48 +662,42 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Pusat ekonomi Pasifik dan wisata bahari.",
     issues: ["Gerbang Pasifik", "Toleransi", "Infrastruktur"],
     trivia: "Sering disebut 'The Land of Smiling People'.",
-    dominantParty: "PDI-P", dominantPartyPercent: 38,
-    intelAnalysis: "Sebagai hub Pasifik, toleransi beragama dan stabilitas keamanan perbatasan utara sangat krusial."
+    dominantParty: "PDI-P", dominantPartyPercent: 38
   },
   { 
     id: '26', name: 'Sulawesi Tengah', capital: 'Palu', governor: 'Rusdy Mastura', party: 'Gerindra', population: '3.08 Juta', dprSeats: 7,
     details: "Penghasil nikel dan wilayah pemulihan bencana.",
     issues: ["Nikel", "Likuifaksi", "Konflik agraria"],
     trivia: "Pusat industri nikel Morowali.",
-    dominantParty: "Golkar", dominantPartyPercent: 20,
-    intelAnalysis: "Industri nikel Morowali membawa dampak ekonomi besar namun menuntut manajemen konflik lingkungan yang ketat."
+    dominantParty: "Golkar", dominantPartyPercent: 20
   },
   { 
     id: '27', name: 'Sulawesi Selatan', capital: 'Makassar', governor: 'Andi Sudirman Sulaiman', party: 'Independen', population: '9.22 Juta', dprSeats: 24,
     details: "Hub transportasi udara dan laut Timur Indonesia.",
     issues: ["KA Trans-Sulawesi", "Ekonomi Makassar", "Pertanian"],
     trivia: "Gerbang utama Indonesia Timur.",
-    dominantParty: "NasDem", dominantPartyPercent: 19,
-    intelAnalysis: "Konektivitas kereta api Trans-Sulawesi merupakan simbol kemajuan yang sangat diminati konstituen."
+    dominantParty: "NasDem", dominantPartyPercent: 19
   },
   { 
     id: '28', name: 'Sulawesi Tenggara', capital: 'Kendari', governor: 'Andap Budhi Revianto', party: 'Pj (Pemerintah)', population: '2.70 Juta', dprSeats: 6,
     details: "Lumbung aspal dan nikel nasional.",
     issues: ["Smelter", "Wakatobi", "Aspal Buton"],
     trivia: "Memiliki aspal alam terbaik di dunia.",
-    dominantParty: "NasDem", dominantPartyPercent: 18,
-    intelAnalysis: "Hilirisasi aspal Buton dan pengembangan Wakatobi menjadi komoditas politik yang menjanjikan."
+    dominantParty: "NasDem", dominantPartyPercent: 18
   },
   { 
     id: '29', name: 'Gorontalo', capital: 'Gorontalo', governor: 'Rudy Salahuddin', party: 'Pj (Pemerintah)', population: '1.20 Juta', dprSeats: 3,
     details: "Provinsi agraris Serambi Madinah.",
     issues: ["Jagung", "Kemiskinan", "Pendidikan"],
     trivia: "Provinsi paling aman di Sulawesi.",
-    dominantParty: "Golkar", dominantPartyPercent: 25,
-    intelAnalysis: "Fokus pada swasembada jagung dan pengentasan kemiskinan di wilayah agraris."
+    dominantParty: "Golkar", dominantPartyPercent: 25
   },
   { 
     id: '30', name: 'Sulawesi Barat', capital: 'Mamuju', governor: 'Bahtiar Baharuddin', party: 'Pj (Pemerintah)', population: '1.45 Juta', dprSeats: 4,
     details: "Penghasil kakao terbesar.",
     issues: ["Kakao", "Gempa", "Infrastruktur"],
     trivia: "Memiliki tradisi bahari Sandeq.",
-    dominantParty: "Golkar", dominantPartyPercent: 21,
-    intelAnalysis: "Peningkatan nilai tambah komoditas kakao dan mitigasi bencana gempa adalah prioritas daerah."
+    dominantParty: "Golkar", dominantPartyPercent: 21
   },
 
   // --- MALUKU & PAPUA ---
@@ -736,64 +706,56 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Provinsi kepulauan kekayaan rempah.",
     issues: ["Blok Masela", "LIN", "Konektivitas"],
     trivia: "Negeri Para Raja.",
-    dominantParty: "PDI-P", dominantPartyPercent: 22,
-    intelAnalysis: "Blok Masela dan Lumbung Ikan Nasional merupakan harapan besar yang menanti realisasi konkret."
+    dominantParty: "PDI-P", dominantPartyPercent: 22
   },
   { 
     id: '32', name: 'Maluku Utara', capital: 'Sofifi', governor: 'Al Yasin Ali', party: 'PDI-P', population: '1.31 Juta', dprSeats: 3,
     details: "Investasi nikel dunia dan kesultanan.",
     issues: ["Nikel Weda Bay", "Ibu Kota Sofifi", "Pertambangan"],
     trivia: "Pertumbuhan ekonomi fenomenal.",
-    dominantParty: "PDI-P", dominantPartyPercent: 20,
-    intelAnalysis: "Booming investasi nikel harus diimbangi dengan pemerataan manfaat ekonomi bagi masyarakat lokal."
+    dominantParty: "PDI-P", dominantPartyPercent: 20
   },
   { 
     id: '33', name: 'Papua', capital: 'Jayapura', governor: 'Ridwan Rumasukun', party: 'Pj (Pemerintah)', population: '1.03 Juta', dprSeats: 3,
     details: "Pusat pemerintahan tanah Papua.",
     issues: ["Otsus", "Keamanan", "Pendidikan"],
     trivia: "Ibu kota paling timur (Jayapura).",
-    dominantParty: "PDI-P", dominantPartyPercent: 18,
-    intelAnalysis: "Optimalisasi dana Otsus dan peningkatan kualitas SDM melalui pendidikan adalah kunci perdamaian."
+    dominantParty: "PDI-P", dominantPartyPercent: 18
   },
   { 
     id: '34', name: 'Papua Barat', capital: 'Manokwari', governor: 'Ali Baham Temongmere', party: 'Pj (Pemerintah)', population: '0.56 Juta', dprSeats: 3,
     details: "Konservasi alam Raja Ampat.",
     issues: ["Konservasi", "Pariwisata", "Otsus"],
     trivia: "Pusat penelitian burung Cendrawasih.",
-    dominantParty: "Golkar", dominantPartyPercent: 22,
-    intelAnalysis: "Pengembangan ekowisata Raja Ampat dan konservasi hutan lindung menjadi identitas politik wilayah."
+    dominantParty: "Golkar", dominantPartyPercent: 22
   },
   { 
     id: '35', name: 'Papua Tengah', capital: 'Nabire', governor: 'Ribka Haluk', party: 'Pj (Pemerintah)', population: '1.43 Juta', dprSeats: 3,
     details: "Lokasi tambang emas Grasberg.",
     issues: ["Tambang", "Pembangunan DOB", "Keamanan"],
     trivia: "Gunung tertinggi di Indonesia.",
-    dominantParty: "PDI-P", dominantPartyPercent: 19,
-    intelAnalysis: "Distribusi manfaat tambang Grasberg dan stabilitas di wilayah pegunungan tengah sangat dinamis."
+    dominantParty: "PDI-P", dominantPartyPercent: 19
   },
   { 
     id: '36', name: 'Papua Selatan', capital: 'Merauke', governor: 'Apolo Safanpo', party: 'Pj (Pemerintah)', population: '0.52 Juta', dprSeats: 3,
     details: "Lumbung pangan Timur.",
     issues: ["Food Estate Merauke", "Perbatasan", "Sagu"],
     trivia: "Titik nol Kilometer Timur Indonesia.",
-    dominantParty: "PDI-P", dominantPartyPercent: 24,
-    intelAnalysis: "Visi Merauke sebagai lumbung pangan Indonesia Timur memerlukan dukungan infrastruktur irigasi masif."
+    dominantParty: "PDI-P", dominantPartyPercent: 24
   },
   { 
     id: '37', name: 'Papua Pegunungan', capital: 'Wamena', governor: 'Velix Wanggai', party: 'Pj (Pemerintah)', population: '1.43 Juta', dprSeats: 3,
     details: "Satu-satunya provinsi Landlocked (tanpa laut).",
     issues: ["Kesejahteraan", "Akses Logistik", "Budaya"],
     trivia: "Festival Budaya Lembah Baliem.",
-    dominantParty: "PDI-P", dominantPartyPercent: 26,
-    intelAnalysis: "Adaptasi budaya dalam pembangunan dan peningkatan akses logistik udara adalah tantangan utama."
+    dominantParty: "PDI-P", dominantPartyPercent: 26
   },
   { 
     id: '38', name: 'Papua Barat Daya', capital: 'Sorong', governor: 'Mohammad Musa\'ad', party: 'Pj (Pemerintah)', population: '0.61 Juta', dprSeats: 3,
     details: "Gerbang utama Papua industri migas.",
     issues: ["Kawasan Ekonomi Khusus", "Pariwisata", "Migas"],
     trivia: "Provinsi paling bungsu (ke-38).",
-    dominantParty: "Golkar", dominantPartyPercent: 21,
-    intelAnalysis: "Status sebagai provinsi baru menuntut percepatan pembentukan birokrasi yang bersih dan melayani."
+    dominantParty: "Golkar", dominantPartyPercent: 21
   }
 ];
 
@@ -898,7 +860,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Presiden Prabowo Subianto dalam pidatonya menegaskan bahwa hilirisasi industri adalah kunci utama bagi Indonesia untuk keluar dari jebakan pendapatan menengah.',
     date: '01 Mar 2026',
     category: 'Nasional',
-    imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=600&h=400&fit=crop',
     url: 'https://nasional.kompas.com/'
   },
   {
@@ -907,7 +869,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Wakil Presiden Gibran Rakabuming Raka memastikan pemerataan akses internet cepat di Papua dan Maluku untuk mendukung ekonomi kreatif digital.',
     date: '28 Feb 2026',
     category: 'Teknologi',
-    imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&h=400&fit=crop',
     url: 'https://www.metrotvnews.com/'
   },
   {
@@ -952,7 +914,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Progres pembangunan infrastruktur inti di IKN telah mencapai 85%, siap untuk upacara kemerdekaan mendatang.',
     date: '23 Feb 2026',
     category: 'Infrastruktur',
-    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1540910419892-f03d98c32a73?q=80&w=600&h=400&fit=crop',
     url: 'https://nasional.tempo.co/'
   },
   {
@@ -961,7 +923,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Kebijakan baru ini bertujuan meningkatkan efisiensi dan keseimbangan kerja bagi aparatur sipil negara di wilayah perkotaan.',
     date: '22 Feb 2026',
     category: 'Pemerintahan',
-    imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=600&h=400&fit=crop',
     url: 'https://www.metrotvnews.com/'
   },
   {
@@ -970,7 +932,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'KPU mulai mendistribusikan kotak suara dan surat suara ke wilayah kepulauan untuk menjamin hak pilih warga.',
     date: '21 Feb 2026',
     category: 'Politik',
-    imageUrl: 'https://images.unsplash.com/photo-1541872703-74c5e443d1fe?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1540910419892-f03d98c32a73?q=80&w=600&h=400&fit=crop',
     url: 'https://nasional.kompas.com/'
   },
   {
@@ -979,7 +941,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Indonesia memperkuat komitmen transisi energi dengan meresmikan PLTS terapung yang mampu melistriki ribuan rumah.',
     date: '20 Feb 2026',
     category: 'Lingkungan',
-    imageUrl: 'https://images.unsplash.com/photo-1509391366360-fe5bb658589b?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=600&h=400&fit=crop',
     url: 'https://www.metrotvnews.com/'
   }
 ];

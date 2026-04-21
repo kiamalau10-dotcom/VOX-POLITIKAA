@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { X, Check, ShoppingBag } from 'lucide-react';
 
 interface AvatarLabProps {
@@ -58,56 +58,15 @@ const AVATAR_OPTIONS = {
   ]
 };
 
-const Avatar2D = ({ username, config }: { username: string, config: any }) => {
-  // Construct query params
-  const params = new URLSearchParams({
-    seed: username,
-    flip: 'false',
-  });
-
-  // Map our UI config to actual Dicebear Adventurer options
-  const isMale = config.gender === 'male';
-  
-  // Options for hair based on gender to force visual distinction
-  const maleHair = ['short01', 'short02', 'short03', 'short04', 'short05'];
-  const femaleHair = ['long01', 'long02', 'long03', 'long04', 'long05'];
-
-  // Force certain parameters based on gender for maximum consistency
-  if (isMale) {
-    // Dicebear adventurer supports hair pools
-    params.set('hair', config.hair === 'hijab' ? 'short01' : maleHair[0]); // fallback if they somehow pick hijab as male
-    if (config.hair !== 'hijab') {
-      const hPool = maleHair;
-      const hIdx = Math.abs(username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % hPool.length;
-      params.set('hair', hPool[hIdx]);
-    }
-    params.set('features', 'none'); 
-  } else {
-    if (config.hair === 'hijab') {
-      params.set('hair', 'hijab01');
-    } else {
-      const hPool = femaleHair;
-      const hIdx = Math.abs(username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % hPool.length;
-      params.set('hair', hPool[hIdx]);
-    }
-  }
-  
-  // Find skin color hex
-  const skinOption = AVATAR_OPTIONS.skin.find(s => s.id === config.skin);
-  const skinColor = skinOption ? skinOption.color.replace('#', '') : 'fce5d8';
-  params.set('skinColor', skinColor);
-
-  // Find eyes color hex
-  const eyesOption = AVATAR_OPTIONS.eyes.find(e => e.id === config.eyes);
-  const eyesColor = eyesOption ? eyesOption.color.replace('#', '') : '000000';
-  params.set('eyesColor', eyesColor);
-
-  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?${params.toString()}&backgroundColor=f8fafc,f1f5f9&radius=20`;
+const Avatar2D = ({ username, config, costumeId }: { username: string, config: any, costumeId: string }) => {
+  // Construct a seed that changes when any option changes to make it reactive
+  const seed = `${username}-${config.gender || 'male'}-${config.hair || 'short'}-${config.eyes || 'black'}-${config.skin || 'light'}-${costumeId || 'none'}`;
+  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f8fafc,f1f5f9&radius=20`;
 
   return (
     <div className="w-64 h-64 relative">
       <motion.img
-        key={avatarUrl}
+        key={seed}
         src={avatarUrl}
         alt="Avatar Preview"
         className="w-full h-full object-contain drop-shadow-2xl"
@@ -240,7 +199,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
         <div className={`flex-1 relative border-r flex items-center justify-center ${
           isDarkMode ? 'bg-black/50 border-white/5' : 'bg-zinc-50 border-black/5'
         }`}>
-          <Avatar2D username={currentUser.username} config={config} />
+          <Avatar2D username={currentUser.username} config={config} costumeId={equippedCostumeId} />
 
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center pointer-events-none">
             <h2 className="text-3xl font-black uppercase italic text-red-600 tracking-tighter">Avatar Lab 2.0</h2>

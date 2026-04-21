@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, ArrowLeft, ChevronRight, Award,
   Scale, Landmark, Users, Search,
@@ -2503,60 +2503,87 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
 };
 
 // ============================================================
-// 13. MAIN COMPONENT
+// 11. PROFILE ROOM — EXPANDED WITH FRIENDLY DESC
 // ============================================================
-// ==================== SUB-COMPONENTS (MEMOIZED) ====================
-const SidebarItem = React.memo(({ module, activeId, onClick, isDarkMode }: any) => (
-  <button
-    onClick={() => onClick(module.id)}
-    className={`w-full flex items-center gap-4 p-5 rounded-3xl transition-all duration-500 mb-3 group relative overflow-hidden ${
-      activeId === module.id
-        ? 'bg-red-600 text-white shadow-2xl shadow-red-600/30 scale-[1.02]'
-        : isDarkMode ? 'hover:bg-white/5 text-white/60' : 'hover:bg-black/5 text-black/60'
-    }`}
-  >
-    <span className="text-2xl group-hover:scale-125 transition-transform">{module.icon}</span>
-    <div className="text-left">
-      <h4 className="font-black text-[10px] uppercase tracking-widest mb-1">{module.title}</h4>
-      <p className="text-[8px] font-bold opacity-50 uppercase truncate w-40">{module.desc}</p>
-    </div>
-    {activeId === module.id && (
-      <motion.div layoutId="active-pill" className="absolute right-4 w-1.5 h-1.5 bg-white rounded-full" />
-    )}
-  </button>
-));
+const ProfileRoom = ({ tokoh, onBack }) => {
+  return (
+    <motion.div
+      initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+      transition={{ type: 'spring', damping: 25 }}
+      className="fixed inset-0 z-[300] bg-white dark:bg-zinc-950 overflow-y-auto"
+    >
+      <nav className="sticky top-0 z-10 bg-white/90 dark:bg-black/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b-2 border-black dark:border-white/20">
+        <button onClick={onBack} className="flex items-center gap-2 font-black uppercase text-xs hover:text-red-600">
+          <ArrowLeft className="w-4 h-4" /> Kembali
+        </button>
+        <span className="font-black text-red-600 uppercase text-xs tracking-widest">{tokoh.name}</span>
+      </nav>
 
-const TokohGridCard = React.memo(({ tokoh, onClick }: any) => (
-  <motion.div
-    whileHover={{ scale: 1.05 }}
-    onClick={() => onClick(tokoh)}
-    className="group cursor-pointer relative h-[280px] md:h-[320px] rounded-[1.5rem] overflow-hidden bg-black border-4 border-black shadow-[6px_6px_0px_0px_rgba(220,38,38,1)]"
-  >
-    <img
-      src={tokoh.image}
-      className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-110 transition-all duration-500"
-      alt={tokoh.name} referrerPolicy="no-referrer"
-      onError={(e) => { e.currentTarget.src = `https://via.placeholder.com/400x500?text=${tokoh.name}`; }}
-    />
-    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end">
-      <h4 className="text-sm font-black text-white uppercase leading-none mb-1">{tokoh.name}</h4>
-      <p className="text-red-400 font-black text-[10px] uppercase leading-tight">{tokoh.role}</p>
-    </div>
-  </motion.div>
-));
+      <div className="max-w-5xl mx-auto py-16 px-6">
+        <div className="flex flex-col md:flex-row gap-12">
+          <div className="flex-1">
+            <div className="sticky top-32 space-y-6">
+              <img
+                src={tokoh.image} alt={tokoh.name} referrerPolicy="no-referrer"
+                className="w-full aspect-[3/4] object-cover object-top rounded-[2.5rem] border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_rgba(220,38,38,1)]"
+                onError={(e) => { e.currentTarget.src = `https://via.placeholder.com/600x800?text=${tokoh.name}`; }}
+              />
+              <div className="bg-zinc-100 dark:bg-zinc-900 p-5 rounded-2xl">
+                <p className="text-[10px] font-black text-red-600 uppercase mb-1">Masa Pengabdian</p>
+                <p className="text-xl font-black italic">{tokoh.period}</p>
+              </div>
+              {tokoh.pencapaianKunci && (
+                <div className="bg-black text-white p-5 rounded-2xl">
+                  <p className="text-[10px] font-black text-red-400 uppercase mb-3">Pencapaian Kunci</p>
+                  <ul className="space-y-2">
+                    {tokoh.pencapaianKunci.map((p, i) => (
+                      <li key={i} className="flex gap-2 text-xs">
+                        <Star className="text-yellow-400 w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                        <span className="opacity-80">{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
 
-const GlossaryItem = React.memo(({ term, data, isDarkMode }: any) => (
-  <div className={`p-8 rounded-3xl border transition-all hover:scale-[1.02] ${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-zinc-50 border-black/5'}`}>
-    <h4 className="text-2xl font-black italic text-red-600 uppercase tracking-tighter mb-4">{term}</h4>
-    <p className="text-xs font-medium leading-relaxed mb-6 opacity-70">{data.definition}</p>
-    <div className={`p-4 rounded-xl border-l-4 border-red-600 ${isDarkMode ? 'bg-red-600/5' : 'bg-red-600/10'}`}>
-      <span className="text-[8px] font-black uppercase text-red-600 block mb-1">Contoh dalam Kalimat:</span>
-      <p className="text-[10px] italic font-medium opacity-60">"{data.example}"</p>
-    </div>
-  </div>
-));
+          <div className="flex-[1.5] space-y-10">
+            <div>
+              <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none mb-2">{tokoh.name}</h1>
+              <p className="text-xl font-black text-red-600 uppercase mb-2">{tokoh.role}</p>
+              <p className="text-base opacity-50 font-medium italic">{tokoh.bio}</p>
+            </div>
 
-const ModuleCard = React.memo(({ mod, completedModules, setActiveModule }: any) => (
+            <div className="bg-black text-white p-8 rounded-[2rem]">
+              <p className="text-[10px] font-black text-red-400 uppercase flex items-center gap-2 mb-4">
+                <Award className="w-3.5 h-3.5" /> Kontribusi Terbesar
+              </p>
+              <p className="text-2xl font-black italic leading-tight">"{tokoh.contribution}"</p>
+            </div>
+
+            {tokoh.friendlyDesc && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <BookOpen className="text-red-600 w-5 h-5" />
+                  <h3 className="font-black uppercase text-sm tracking-widest">Cerita Seru</h3>
+                </div>
+                <div className="p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl border-l-4 border-red-600">
+                  <p className="text-base leading-relaxed opacity-80">{tokoh.friendlyDesc}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// ============================================================
+// 12. MODULE CARD
+// ============================================================
+const ModuleCard = ({ mod, completedModules, setActiveModule }) => (
   <motion.div
     whileHover={{ scale: 1.02, y: -4 }}
     onClick={() => setActiveModule(mod)}
@@ -2579,83 +2606,11 @@ const ModuleCard = React.memo(({ mod, completedModules, setActiveModule }: any) 
       Pelajari <ChevronRight size={10} />
     </div>
   </motion.div>
-));
+);
 
-const ProfileRoom = React.memo(({ tokoh, onBack }: any) => {
-  return (
-    <motion.div
-      initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-      transition={{ type: 'spring', damping: 25 }}
-      className="fixed inset-0 z-[300] bg-white dark:bg-zinc-950 overflow-y-auto"
-    >
-      <nav className="sticky top-0 z-10 bg-white/90 dark:bg-black/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b-2 border-black dark:border-white/20">
-        <button onClick={onBack} className="flex items-center gap-2 font-black uppercase text-xs hover:text-red-600 text-black dark:text-white">
-          <ArrowLeft className="w-4 h-4" /> Kembali
-        </button>
-        <span className="font-black text-red-600 uppercase text-xs tracking-widest">{tokoh.name}</span>
-      </nav>
-
-      <div className="max-w-5xl mx-auto py-16 px-6">
-        <div className="flex flex-col md:flex-row gap-12">
-          <div className="flex-1">
-            <div className="sticky top-32 space-y-6">
-              <img
-                src={tokoh.image} alt={tokoh.name} referrerPolicy="no-referrer"
-                className="w-full aspect-[3/4] object-cover object-top rounded-[2.5rem] border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_rgba(220,38,38,1)]"
-                onError={(e) => { e.currentTarget.src = `https://via.placeholder.com/600x800?text=${tokoh.name}`; }}
-              />
-              <div className="bg-zinc-100 dark:bg-zinc-900 p-5 rounded-2xl">
-                <p className="text-[10px] font-black text-red-600 uppercase mb-1">Masa Pengabdian</p>
-                <p className="text-xl font-black italic dark:text-white">{tokoh.period}</p>
-              </div>
-              {tokoh.pencapaianKunci && (
-                <div className="bg-black text-white p-5 rounded-2xl">
-                  <p className="text-[10px] font-black text-red-400 uppercase mb-3">Pencapaian Kunci</p>
-                  <ul className="space-y-2">
-                    {tokoh.pencapaianKunci.map((p: string, i: number) => (
-                      <li key={i} className="flex gap-2 text-xs">
-                        <Star className="text-yellow-400 w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                        <span className="opacity-80">{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex-[1.5] space-y-12">
-             <div className="space-y-2">
-               <h2 className="text-5xl md:text-7xl font-black uppercase italic italic text-black dark:text-white">{tokoh.name}</h2>
-               <p className="text-red-600 font-extrabold uppercase tracking-[0.2em]">{tokoh.role}</p>
-             </div>
-             
-             <div className="p-8 bg-red-600 text-white rounded-[2.5rem] relative overflow-hidden">
-                <Quote className="absolute -top-4 -left-4 w-20 h-20 opacity-10" />
-                <p className="text-xl font-black italic relative z-10">"{tokoh.contribution}"</p>
-             </div>
-
-             {tokoh.friendlyDesc && (
-               <div className="space-y-6">
-                  <div className="flex items-center gap-2 border-b-2 border-black dark:border-white/20 pb-2">
-                    <BookOpen className="w-5 h-5 text-red-600" />
-                    <h3 className="font-black uppercase text-xs tracking-[0.2em] text-black dark:text-white">Narasi Pengabdian</h3>
-                  </div>
-                  <p className="text-lg font-medium leading-relaxed opacity-80 text-black dark:text-white whitespace-pre-line">{tokoh.friendlyDesc}</p>
-               </div>
-             )}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-});
-
-SidebarItem.displayName = 'SidebarItem';
-TokohGridCard.displayName = 'TokohGridCard';
-GlossaryItem.displayName = 'GlossaryItem';
-ModuleCard.displayName = 'ModuleCard';
-ProfileRoom.displayName = 'ProfileRoom';
-
+// ============================================================
+// 13. MAIN COMPONENT
+// ============================================================
 const PoliticsBasics = () => {
   const [activeModule, setActiveModule] = useState(null);
   const [activeTokoh, setActiveTokoh] = useState(null);
@@ -2794,7 +2749,23 @@ const PoliticsBasics = () => {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {tokohBangsa.map(tokoh => (
-                <TokohGridCard key={tokoh.id} tokoh={tokoh} onClick={setActiveTokoh} />
+                <motion.div
+                  key={tokoh.id}
+                  whileHover={{ scale: 1.05 }}
+                  onClick={() => setActiveTokoh(tokoh)}
+                  className="group cursor-pointer relative h-[280px] md:h-[320px] rounded-[1.5rem] overflow-hidden bg-black border-4 border-black shadow-[6px_6px_0px_0px_rgba(220,38,38,1)]"
+                >
+                  <img
+                    src={tokoh.image}
+                    className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-110 transition-all duration-500"
+                    alt={tokoh.name} referrerPolicy="no-referrer"
+                    onError={(e) => { e.currentTarget.src = `https://via.placeholder.com/400x500?text=${tokoh.name}`; }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end">
+                    <h4 className="text-sm font-black text-white uppercase leading-none mb-1">{tokoh.name}</h4>
+                    <p className="text-red-400 font-black text-[10px] uppercase leading-tight">{tokoh.role}</p>
+                  </div>
+                </motion.div>
               ))}
             </div>
           </section>

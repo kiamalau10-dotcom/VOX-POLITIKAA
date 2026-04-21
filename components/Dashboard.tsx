@@ -1,10 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, History, TrendingUp, MessageSquare, Users, Award, LogOut, Flame, BookOpen, CheckCircle2, AlertCircle, Sparkles, Trash2, Coins, Snowflake } from 'lucide-react';
 import { User, Feedback, Vote } from '../types';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
 import { useCMS } from './CMSContext';
 import { useUser } from './useUser';
 
@@ -148,37 +146,12 @@ const AdminStatsPlatform: React.FC<{ stats: any; liveStats?: any; isDarkMode: bo
   );
 };
 
-const DashboardAvatar2D = ({ username, config }: { username: string, config: any }) => {
-  const isMale = config?.gender === 'male';
-  const maleHair = ['short01', 'short02', 'short03', 'short04', 'short05'];
-  const femaleHair = ['long01', 'long02', 'long03', 'long04', 'long05', 'hijab01'];
-  
-  const hairPool = isMale ? maleHair : femaleHair;
-  const hairIndex = Math.abs(username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % hairPool.length;
-  const hair = isMale ? hairPool[hairIndex] : (config?.hair === 'hijab' ? 'hijab01' : hairPool[hairIndex]);
-
-  const params = new URLSearchParams({
-    seed: username,
-    hair: hair,
-  });
-
-  if (config?.skin === 'light') params.set('skinColor', 'fce5d8');
-  if (config?.skin === 'medium') params.set('skinColor', 'e0ac69');
-  if (config?.skin === 'dark') params.set('skinColor', '8d5524');
-
-  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?${params.toString()}&backgroundColor=f8fafc,f1f5f9&radius=20`;
+const DashboardAvatar2D = ({ username, config, costumeId }: { username: string, config: any, costumeId: string }) => {
+  const seed = `${username}-${config?.gender || 'male'}-${config?.hair || 'short'}-${config?.eyes || 'black'}-${config?.skin || 'light'}-${costumeId || 'none'}`;
+  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f8fafc,f1f5f9&radius=20`;
   return (
     <div className="w-full h-full p-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-zinc-800 dark:to-zinc-900 relative">
-      <LazyLoadImage 
-        key={seed} 
-        src={avatarUrl} 
-        alt="Avatar" 
-        className="w-full h-full object-contain drop-shadow-xl" 
-        effect="opacity"
-        wrapperClassName="w-full h-full"
-        referrerPolicy="no-referrer" 
-        onError={(e: any) => { e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`; }} 
-      />
+      <motion.img key={seed} src={avatarUrl} alt="Avatar" className="w-full h-full object-contain drop-shadow-xl" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`; }} />
       <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900 animate-pulse" />
     </div>
   );
@@ -240,7 +213,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
 
   // --- Real-time Users List (admin only) ---
   useEffect(() => {
-    if (role === 'ADMIN' && username) {
+    if (role === 'ADMIN' && currentUser) {
       const unsubscribeUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
         const users = snapshot.docs.map(doc => doc.data() as User);
         setUsersList(users);
@@ -257,11 +230,11 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
       });
       return () => { unsubscribeUsers(); unsubscribePostsCount(); };
     }
-  }, [role, username]);
+  }, [role, currentUser]);
 
   // --- Real-time quiz history for admin ---
   useEffect(() => {
-    if (!username || role !== 'ADMIN') return;
+    if (!currentUser || role !== 'ADMIN') return;
     const q = query(collection(db, 'quiz_results'), orderBy('date', 'desc'), limit(50));
     const unsubscribe = onSnapshot(q, (snapshot) => { 
       setAdminQuizHistory(snapshot.docs.map(doc => doc.data())); 
@@ -269,39 +242,32 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
       console.warn("Quiz history fetch error:", error);
     });
     return () => unsubscribe();
-  }, [username, role]);
+  }, [currentUser, role]);
 
   // --- Real-time feedbacks for admin ---
   useEffect(() => {
     if (role === 'ADMIN') {
-      const q = query(collection(db, 'feedbacks'), orderBy('timestamp', 'desc'));
-      const unsubFeedbacks = onSnapshot(q, (snapshot) => {
-        const fbs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Feedback));
-        // Sort manually to ensure 'Baru' ones (NULL timestamp) appear at the top
-        fbs.sort((a, b) => {
-          const tA = a.timestamp?.seconds || Date.now() / 1000;
-          const tB = b.timestamp?.seconds || Date.now() / 1000;
-          return tB - tA;
-        });
-        setFeedbacks(fbs); 
+      const q = query(collection(db, 'feedbacks'), orderBy('timestamp', 'desc'), limit(50));
+      const unsubscribe = onSnapshot(q, (snapshot) => { 
+        setFeedbacks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Feedback))); 
       }, (error) => {
         console.warn("Feedbacks fetch error:", error);
       });
-      return () => unsubFeedbacks();
+      return () => unsubscribe();
     }
   }, [role]);
 
   // --- Real-time user's own posts ---
   useEffect(() => {
-    if (!username || role === 'ADMIN') return;
-    const q = query(collection(db, 'posts'), where('username', '==', username), orderBy('timestamp', 'desc'));
+    if (!currentUser || role === 'ADMIN') return;
+    const q = query(collection(db, 'posts'), where('username', '==', currentUser.username), orderBy('timestamp', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => { 
       setMyPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))); 
     }, (error) => {
       console.warn("My posts fetch error:", error);
     });
     return () => unsubscribe();
-  }, [username, role]);
+  }, [currentUser, role]);
 
   // --- Real-time all posts for admin ---
   useEffect(() => {
@@ -425,9 +391,10 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
   const expPercent = Math.min(100, (currentExp / expNeeded) * 100);
 
   const renderAvatar = () => {
+    const costumeId = currentUser.equippedCostumeId || 'none';
     return (
       <div className="w-24 h-24 bg-red-600/10 rounded-3xl overflow-hidden border-2 border-red-600/20 shadow-xl relative group">
-        <DashboardAvatar2D username={currentUser.username} config={currentUser.avatarConfig} />
+        <DashboardAvatar2D username={currentUser.username} config={currentUser.avatarConfig} costumeId={costumeId} />
         {role === 'ADMIN' && <div className="absolute top-1 right-1"><Shield size={12} className="text-red-600" /></div>}
       </div>
     );
@@ -592,32 +559,9 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
                   <div className="flex items-center justify-between mb-8"><div className="flex items-center gap-3"><MessageSquare size={24} className="text-red-600" /><h3 className="text-2xl font-black uppercase italic">Feedback Pengguna</h3></div><span className="text-[10px] font-black uppercase opacity-50">{feedbacks.length} Pesan</span></div>
                   <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                    {feedbacks.map((fb) => (
-                      <div key={fb.id} className={`p-4 rounded-2xl border transition-all ${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-black/5 shadow-sm'}`}>
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-lg bg-red-600/10 flex items-center justify-center text-[8px] font-black text-red-600 uppercase">
-                              {(fb as any).displayName?.charAt(0) || fb.username.charAt(0)}
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-black uppercase text-red-600">{(fb as any).displayName || fb.username}</p>
-                              <p className="text-[8px] font-bold opacity-30 uppercase">@{fb.username}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-[8px] font-bold opacity-50 uppercase">{fb.date}</p>
-                            <p className="text-[8px] font-black text-red-600 uppercase">{(fb as any).time || 'Baru'}</p>
-                          </div>
-                        </div>
-                        <p className="text-xs font-medium italic leading-relaxed">"{fb.message}"</p>
-                      </div>
+                    {feedbacks.slice().reverse().map((fb) => (
+                      <div key={fb.id} className="p-4 rounded-2xl bg-black/5"><div className="flex justify-between items-start mb-2"><p className="text-[10px] font-black uppercase text-red-600">{fb.username}</p><p className="text-[8px] font-bold opacity-50 uppercase">{fb.date}</p></div><p className="text-xs font-medium italic">"{fb.message}"</p></div>
                     ))}
-                    {feedbacks.length === 0 && (
-                      <div className="py-12 text-center opacity-30 italic">
-                        <MessageSquare size={32} className="mx-auto mb-4 opacity-20" />
-                        <p className="text-[10px] font-black uppercase tracking-widest">Belum ada feedback masuk.</p>
-                      </div>
-                    )}
                   </div>
                 </motion.div>
               </div>

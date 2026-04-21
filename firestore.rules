@@ -11,9 +11,9 @@ service cloud.firestore {
       return isAuthenticated() && 
         (
           (exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && 
-           get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role.upper() == 'ADMIN') ||
-          (request.auth.token.email_verified == true && 
-           request.auth.token.email in ["kiamalau10@gmail.com", "devinapurba23@gmail.com", "larissasiahaan@gmail.com"])
+           (get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role in ['ADMIN', 'admin'])) ||
+          (request.auth.token.email == "kiamalau10@gmail.com" && request.auth.token.email_verified == true) ||
+          (request.auth.token.email == "devinapurba23@gmail.com")
         );
     }
 

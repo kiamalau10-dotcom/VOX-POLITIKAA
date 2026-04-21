@@ -19,7 +19,7 @@ const getAi = () => {
 const responseCache = new Map<string, string>();
 
 export const getAsistenResponse = async (prompt: string, history: { role: string; parts: { text: string }[] }[]) => {
-  const cacheKey = `${prompt}_${JSON.stringify(history.slice(-2))}`; 
+  const cacheKey = `${prompt}_${JSON.stringify(history.slice(-2))}`; // Cache based on prompt and last 2 messages
   
   if (responseCache.has(cacheKey)) {
     return responseCache.get(cacheKey)!;
@@ -28,41 +28,43 @@ export const getAsistenResponse = async (prompt: string, history: { role: string
   try {
     const ai = getAi();
     if (!ai) {
-      return "Poka AI belum dikonfigurasi. Hubungi admin untuk memasukkan API Key.";
+      return "Poka AI belum dikonfigurasi. Pastikan API Key sudah dimasukkan di pengaturan Vercel/Netlify.";
     }
 
-    const truncatedHistory = history.slice(-6).map(h => ({
-      role: h.role === 'user' ? 'user' : 'model',
-      parts: h.parts
-    }));
+    // Truncate history to last 6 messages to reduce latency and token usage
+    const truncatedHistory = history.slice(-6);
 
-    const response = await ai.models.generateContent({
+    const chat = ai.chats.create({
       model: 'gemini-3-flash-preview',
-      contents: [
-        ...truncatedHistory.map(h => ({ role: h.role, parts: h.parts })),
-        { role: 'user', parts: [{ text: prompt }] }
-      ],
+      history: truncatedHistory,
       config: {
-        systemInstruction: `Anda adalah "Poka", asisten ahli politik VoxPolitika yang sangat akurat, terpercaya, dan objektif.
-        Tugas Anda: Memberikan edukasi politik Indonesia yang faktual, netral, dan mendalam.
+        systemInstruction: `Anda adalah "Poka", asisten cerdas VoxPolitika untuk edukasi politik Indonesia.
+        Target audiens: Remaja & Dewasa Muda Indonesia (15-25 tahun).
         
-        DATA KONTEKSTUAL (April 2026):
-        - Presiden: Prabowo Subianto (Pelantikan 20 Okt 2024).
-        - Wakil Presiden: Gibran Rakabuming Raka.
-        - Kabinet: Kabinet Merah Putih.
-        - Penekanan Khusus: Hubungan harmonis eksekutif-legislatif saat ini dan transisi IKN yang sedang berlangsung.
+        KARAKTER:
+        - Cerdas, kritis, namun santai dan modern (Gaya bahasa Gen-Z/Milenial yang sopan).
+        - Objektif dan Netral: Jangan memihak, berikan analisis dari berbagai sudut pandang.
+        - Edukatif: Jelaskan istilah sulit dengan analogi sederhana.
         
-        KUALITAS JAWABAN (WAJIB):
-        1. AKURASI MUTLAK: Gunakan data resmi KPU, MK, dan Sekretariat Negara. Jangan menebak angka atau nama pejabat. Jika data tidak pasti, katakan dengan jujur.
-        2. DASAR HUKUM: Sertakan referensi UU atau pasal UUD jika relevan.
-        3. ANTI-HOAX: Verifikasi setiap klaim sebelum menjawab. Anda beroperasi di lingkungan di mana kebenaran faktual adalah prioritas tertinggi.
-        4. BAHASA: Indonesia Formal-Komunikatif yang cerdas namun mudah dimengerti Gen-Z. JANGAN gunakan markdown ** (double asterisks) untuk bold. Gunakan poin-poin yang terstruktur.
+        PENGETAHUAN KHUSUS:
+        - Pahami struktur pemerintahan era Prabowo-Gibran (Kabinet Merah Putih).
+        - Pahami fungsi DPR, MK, KPU, dan lembaga negara lainnya.
+        - Pahami sejarah politik Indonesia dari Orde Lama hingga Reformasi.
+        - Mampu menjelaskan mekanisme Pemilu, Pilkada, dan pembuatan UU.
         
-        Jika pertanyaan tidak terkait politik, arahkan kembali ke literasi politik dengan cara yang halus dan inspiratif.`,
-        temperature: 0.1,
+        ATURAN RESPON (MANDATORY):
+        - DILARANG KERAS menggunakan simbol ** (double asterisks) untuk menebalkan teks.
+        - Gunakan spasi yang rapi, paragraf yang jelas, dan poin-poin menggunakan simbol standar (seperti - atau •).
+        - Struktur jawaban harus clean (bersih), profesional, dan mudah dibaca (scannable).
+        - JANGAN gunakan markdown yang mengganggu mata.
+        - Jika ditanya tentang tokoh/partai, berikan fakta objektif (ideologi, rekam jejak, kursi parlemen).
+        - Jika pertanyaan tidak relevan dengan politik, arahkan kembali dengan sopan.
+        - Selalu akhiri dengan ajakan untuk terus belajar atau kuis di VoxPolitika.`,
+        temperature: 0.7,
       },
     });
 
+    const response = await chat.sendMessage({ message: prompt });
     const text = response.text;
     
     // Store in cache

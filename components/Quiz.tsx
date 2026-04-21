@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, Trophy, ArrowRight, RotateCcw, ShieldAlert, Medal, Zap, Star, Mountain } from 'lucide-react';
 import { Question, User } from '../types';
 import { ALL_QUESTIONS } from '../services/quizData';
@@ -109,10 +109,12 @@ const Quiz: React.FC<{
   const [achievement, setAchievement] = useState<{ title: string, icon: string } | null>(null);
 
   useEffect(() => {
-    if (!currentUser?.username) return;
+    if (!currentUser) return;
     const path = 'users';
     // Fetch more to filter admins in memory if needed, 
     // but better to fetch only users if possible.
+    // Firestore doesn't support where('role', '!=', 'ADMIN') without index + orderBy role.
+    // We'll fetch top 20 and filter.
     const q = query(
       collection(db, path),
       orderBy('level', 'desc'),
@@ -128,10 +130,11 @@ const Quiz: React.FC<{
       setLeaderboardData(users);
     }, (error) => {
       console.warn("Leaderboard fetch error:", error);
+      // Don't throw here to avoid "Uncaught Error" in async listener
     });
 
     return () => unsubscribe();
-  }, [currentUser?.username]); // Use stable username as dependency
+  }, [currentUser]);
 
   useEffect(() => {
     if (onStateChange) {

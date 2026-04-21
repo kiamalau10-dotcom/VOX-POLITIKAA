@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Award, Flame, MessageSquare, Shield } from 'lucide-react';
 import { useRealtimeProfile } from '../hooks/useRealtimeProfile';
 

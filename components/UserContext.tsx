@@ -29,52 +29,69 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return !hasUser; // Only show global loading if we don't have a cached user
   });
 
-  // Initialize Firebase Auth & Listen for State Changes
+  // Initialize Firebase Auth
   useEffect(() => {
-    let isInitialLoad = true;
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    const initAuth = async () => {
+      // Only show loading if we don't have a user yet
+      if (!currentUser) setIsLoading(true);
+      try {
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
+      } catch (err: any) {
+        // CRITICAL: If Anonymous Auth is disabled in console, stop retrying immediately
+        if (err.code === 'auth/admin-restricted-operation') {
+          console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console. Please enable it under Authentication > Sign-in method.");
+          setIsLoading(false);
+          return;
+        }
+
+        console.error("Auth initialization error:", err);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(initAuth, 2000); // Retry after 2 seconds
+          return;
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Aggressive sync: ensuring currentUser has UID and UID is linked to role in Firestore
+        // Sync UID to currentUser and Firestore if missing
         setCurrentUser(prev => {
-          if (prev) {
-            if (prev.uid === user.uid) return prev; // Avoid unnecessary updates
-
+          if (prev && (!prev.uid || prev.uid !== user.uid)) {
             const updatedUser = { ...prev, uid: user.uid };
             
-            // 1. Sync local storage
-            const remembered = localStorage.getItem("isLoggedIn") === "true";
-            const storage = remembered ? localStorage : sessionStorage;
+            // Update in storage
+            const storage = localStorage.getItem("isLoggedIn") === "true" ? localStorage : sessionStorage;
             storage.setItem("currentUser", JSON.stringify(updatedUser));
 
-            // 2. Sync to Firestore (Silent background updates)
+            // Update in Firestore
             const docId = prev.username.replace('@', '');
-            updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(() => {});
+            updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
             
+            // Update users_by_uid
             setDoc(doc(db, 'users_by_uid', user.uid), {
               username: prev.username,
               role: prev.role
-            }, { merge: true }).catch(() => {});
+            }, { merge: true }).catch(e => console.error("Sync users_by_uid error:", e));
 
             return updatedUser;
           }
           return prev;
         });
         setIsLoading(false);
-      } else if (isInitialLoad) {
-        // Initial attempt at anonymous login if no user
-        signInAnonymously(auth).catch((err) => {
-          if (err.code === 'auth/admin-restricted-operation') {
-            console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console.");
-          }
-          setIsLoading(false);
-        });
+      } else {
+        initAuth();
       }
-      isInitialLoad = false;
     });
-
     return () => unsubscribe();
-  }, []); // EMPTY dependency array to prevent loops
+  }, [currentUser]);
 
   // Sync currentUser from Firestore in real-time
   useEffect(() => {
@@ -84,17 +101,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (docSnap.exists()) {
           const userData = docSnap.data() as User;
           
-          // STRICT ADMIN VALIDATION (ONLY FOR NON-HARDCODED USERNAMES)
+          // STRICT ADMIN VALIDATION
           const userEmail = auth.currentUser?.email;
           const isAdminEmail = userEmail === "devinapurba23@gmail.com" || userEmail === "kiamalau10@gmail.com";
-          const isHardcodedAdmin = userData.username.toLowerCase() === '@superadmin' || userData.username.toLowerCase() === 'superadmin';
           
-          // Only downgrade if they have an email from OAuth and it's NOT an admin email,
-          // OR if they are an admin but not hardcoded and don't have an admin email.
-          // This allows local admin accounts (like @superadmin) to work even on anonymous auth.
-          if (userData.role === 'ADMIN' && userEmail && !isAdminEmail && !isHardcodedAdmin) {
-            console.error("Unauthorized admin access detected for identifier:", userEmail);
+          if (userData.role === 'ADMIN' && !isAdminEmail && userData.username.toLowerCase() !== '@superadmin' && userData.username.toLowerCase() !== 'superadmin') {
+            console.error("Unauthorized admin access detected. Downgrading role.");
             userData.role = 'USER';
+            // Optionally update Firestore too
+            updateDoc(doc(db, 'users', docId), { role: 'USER' });
           }
 
           setCurrentUser(userData);

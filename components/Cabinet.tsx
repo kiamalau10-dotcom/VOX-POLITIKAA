@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CABINET_DATA } from '../constants'; // Pastikan data di sini sudah berisi 50 entri
 import { Minister } from '../types';
 import { Search, X } from 'lucide-react';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
 
 const Cabinet: React.FC = () => {
   const [selectedMinister, setSelectedMinister] = useState<Minister | null>(null);
@@ -53,13 +51,11 @@ const Cabinet: React.FC = () => {
               }`}
             >
               <div className="relative overflow-hidden h-64">
-                  <LazyLoadImage 
+                  <img 
                     src={person.image} 
                     alt={person.name} 
                     referrerPolicy="no-referrer"
-                    effect="blur"
-                    wrapperClassName="w-full h-full"
-                    onError={(e: any) => {
+                    onError={(e) => {
                       e.currentTarget.src = 'https://via.placeholder.com/400x600?text=' + person.name;
                     }}
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" 
@@ -97,13 +93,11 @@ const Cabinet: React.FC = () => {
             >
               <div className="flex flex-col md:flex-row h-full">
                 <div className="w-full md:w-2/5 h-80 md:h-auto">
-                  <LazyLoadImage 
+                  <img 
                     src={selectedMinister.image} 
                     alt={selectedMinister.name} 
                     referrerPolicy="no-referrer"
-                    effect="blur"
-                    wrapperClassName="w-full h-full"
-                    onError={(e: any) => {
+                    onError={(e) => {
                       e.currentTarget.src = 'https://via.placeholder.com/400x600?text=' + selectedMinister.name;
                     }}
                     className="w-full h-full object-cover" 

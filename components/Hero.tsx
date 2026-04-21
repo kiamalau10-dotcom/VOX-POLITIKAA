@@ -1,5 +1,5 @@
-import React, { useRef, Suspense, useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import React, { useRef, Suspense } from 'react';
+import { motion } from 'framer-motion';
 import { AppSection } from '../types';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
@@ -15,16 +15,16 @@ const AnimatedShape = () => {
   
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.getElapsedTime() * 0.15;
-      meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.2;
+      meshRef.current.rotation.x = state.clock.getElapsedTime() * 0.2;
+      meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.3;
     }
   });
 
   return (
-    <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.3}>
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
       <mesh ref={meshRef}>
-        <torusKnotGeometry args={[1, 0.3, 64, 16]} />
-        <meshPhongMaterial color="#dc2626" specular="#ffffff" shininess={100} />
+        <torusKnotGeometry args={[1, 0.3, 128, 32]} />
+        <meshStandardMaterial color="#dc2626" roughness={0.3} metalness={0.8} />
       </mesh>
     </Float>
   );
@@ -33,39 +33,20 @@ const AnimatedShape = () => {
 import Editable from './Editable';
 
 const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div ref={containerRef} className="min-h-screen bg-transparent relative flex flex-col items-center justify-center overflow-hidden px-6">
+    <div className="min-h-screen bg-transparent relative flex flex-col items-center justify-center overflow-hidden px-6">
       
       {/* BACKGROUND CANVAS */}
       <div className="absolute inset-0 z-0 opacity-60">
-        {isVisible && (
-          <Suspense fallback={null}>
-            <Canvas camera={{ position: [0, 0, 5], fov: 45 }} gl={{ antialias: false, powerPreference: "high-performance" }}>
-              <ambientLight intensity={0.5} />
-              <pointLight position={[10, 10, 10]} intensity={1} />
-              <AnimatedShape />
-              <OrbitControls enableZoom={false} enablePan={false} />
-            </Canvas>
-          </Suspense>
-        )}
+        <Suspense fallback={null}>
+          <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
+            <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+            <AnimatedShape />
+            <OrbitControls enableZoom={false} enablePan={false} />
+          </Canvas>
+        </Suspense>
       </div>
 
       {/* CONTENT */}
