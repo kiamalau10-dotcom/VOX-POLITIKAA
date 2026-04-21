@@ -240,7 +240,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
 
   // --- Real-time Users List (admin only) ---
   useEffect(() => {
-    if (role === 'ADMIN' && currentUser) {
+    if (role === 'ADMIN' && username) {
       const unsubscribeUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
         const users = snapshot.docs.map(doc => doc.data() as User);
         setUsersList(users);
@@ -257,11 +257,11 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
       });
       return () => { unsubscribeUsers(); unsubscribePostsCount(); };
     }
-  }, [role, currentUser]);
+  }, [role, username]);
 
   // --- Real-time quiz history for admin ---
   useEffect(() => {
-    if (!currentUser || role !== 'ADMIN') return;
+    if (!username || role !== 'ADMIN') return;
     const q = query(collection(db, 'quiz_results'), orderBy('date', 'desc'), limit(50));
     const unsubscribe = onSnapshot(q, (snapshot) => { 
       setAdminQuizHistory(snapshot.docs.map(doc => doc.data())); 
@@ -269,7 +269,7 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
       console.warn("Quiz history fetch error:", error);
     });
     return () => unsubscribe();
-  }, [currentUser, role]);
+  }, [username, role]);
 
   // --- Real-time feedbacks for admin ---
   useEffect(() => {
@@ -293,15 +293,15 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
 
   // --- Real-time user's own posts ---
   useEffect(() => {
-    if (!currentUser || role === 'ADMIN') return;
-    const q = query(collection(db, 'posts'), where('username', '==', currentUser.username), orderBy('timestamp', 'desc'));
+    if (!username || role === 'ADMIN') return;
+    const q = query(collection(db, 'posts'), where('username', '==', username), orderBy('timestamp', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => { 
       setMyPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))); 
     }, (error) => {
       console.warn("My posts fetch error:", error);
     });
     return () => unsubscribe();
-  }, [currentUser, role]);
+  }, [username, role]);
 
   // --- Real-time all posts for admin ---
   useEffect(() => {

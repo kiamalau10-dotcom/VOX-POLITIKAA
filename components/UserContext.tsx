@@ -29,76 +29,52 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return !hasUser; // Only show global loading if we don't have a cached user
   });
 
-  // Initialize Firebase Auth
+  // Initialize Firebase Auth & Listen for State Changes
   useEffect(() => {
-    let retryCount = 0;
-    const maxRetries = 3;
-
-    const initAuth = async () => {
-      // Only show loading if we don't have a user yet
-      if (!currentUser) setIsLoading(true);
-      try {
-        if (!auth.currentUser) {
-          await signInAnonymously(auth);
-        }
-      } catch (err: any) {
-        // CRITICAL: If Anonymous Auth is disabled in console, stop retrying immediately
-        if (err.code === 'auth/admin-restricted-operation') {
-          console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console. Please enable it under Authentication > Sign-in method.");
-          setIsLoading(false);
-          return;
-        }
-
-        if (err.code === 'auth/network-request-failed') {
-          console.warn("Auth network request failed. This might be due to a transient connection issue or an ad-blocker. Retrying...");
-          // Don't alert here to avoid spamming the user, but log it.
-        }
-
-        console.error("Auth initialization error:", err);
-        if (retryCount < maxRetries) {
-          retryCount++;
-          setTimeout(initAuth, 3000); // Retry after 3 seconds
-          return;
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    let isInitialLoad = true;
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Aggressive sync: ensuring currentUser has UID and UID is linked to role in Firestore
         setCurrentUser(prev => {
           if (prev) {
+            if (prev.uid === user.uid) return prev; // Avoid unnecessary updates
+
             const updatedUser = { ...prev, uid: user.uid };
             
             // 1. Sync local storage
-            const storage = (localStorage.getItem("isLoggedIn") === "true" || sessionStorage.getItem("isLoggedIn") === "true") ? localStorage : sessionStorage;
+            const remembered = localStorage.getItem("isLoggedIn") === "true";
+            const storage = remembered ? localStorage : sessionStorage;
             storage.setItem("currentUser", JSON.stringify(updatedUser));
 
-            // 2. Sync to Firestore 'users' collection (if UID changed)
-            if (prev.uid !== user.uid) {
-              const docId = prev.username.replace('@', '');
-              updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
-            }
+            // 2. Sync to Firestore (Silent background updates)
+            const docId = prev.username.replace('@', '');
+            updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(() => {});
             
-            // 3. Sync to 'users_by_uid' (always ensure this exists for security rules)
             setDoc(doc(db, 'users_by_uid', user.uid), {
               username: prev.username,
               role: prev.role
-            }, { merge: true }).catch(e => console.error("Sync users_by_uid error:", e));
+            }, { merge: true }).catch(() => {});
 
             return updatedUser;
           }
           return prev;
         });
         setIsLoading(false);
-      } else {
-        initAuth();
+      } else if (isInitialLoad) {
+        // Initial attempt at anonymous login if no user
+        signInAnonymously(auth).catch((err) => {
+          if (err.code === 'auth/admin-restricted-operation') {
+            console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console.");
+          }
+          setIsLoading(false);
+        });
       }
+      isInitialLoad = false;
     });
+
     return () => unsubscribe();
-  }, [currentUser]);
+  }, []); // EMPTY dependency array to prevent loops
 
   // Sync currentUser from Firestore in real-time
   useEffect(() => {

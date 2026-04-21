@@ -169,14 +169,15 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       })) as Post[];
       setPosts(fetchedPosts);
     }, (error) => {
-      // Only handle error if it's not a permission error during initial load for guests
-      if (currentUser) {
-        handleFirestoreError(error, OperationType.LIST, path);
+      // Avoid logging errors for unauthenticated users as they might be blocked by rules
+      if (auth.currentUser) {
+        // We log it but don't handleFirestoreError which throws/alerts as it's a background listener
+        console.warn("VoxCircle fetch error:", error.message);
       }
     });
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, []); // Only run once on mount
 
   const handlePost = async () => {
     if (!newPost.trim() || !currentUser) return;
