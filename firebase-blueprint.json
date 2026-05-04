@@ -2,45 +2,57 @@
   "entities": {
     "User": {
       "title": "User Profile",
-      "description": "Stores user progress, social data, and settings.",
+      "description": "User profile and progress data.",
       "type": "object",
       "properties": {
-        "username": { "type": "string", "description": "Unique @username" },
+        "username": { "type": "string" },
         "displayName": { "type": "string" },
+        "password": { "type": "string" },
         "role": { "type": "string", "enum": ["ADMIN", "USER"] },
         "level": { "type": "number" },
         "currentExp": { "type": "number" },
         "streak": { "type": "number" },
-        "lastLoginDate": { "type": "string", "format": "date" },
+        "lastLoginDate": { "type": "string" },
+        "progress": { "type": "object" },
+        "quizHistory": { "type": "array" },
         "coins": { "type": "number" },
         "streakFreezeCount": { "type": "number" },
-        "followers": { "type": "array", "items": { "type": "string" } },
-        "following": { "type": "array", "items": { "type": "string" } },
-        "equippedCostumeId": { "type": "string" },
-        "voxTitle": { "type": "string" },
-        "lastActive": { "type": "string", "format": "date-time" }
+        "uid": { "type": "string" },
+        "lastActive": { "type": "string" }
       },
       "required": ["username", "displayName", "role"]
     },
-    "Post": {
-      "title": "Social Post",
-      "description": "A post in the Vox Circle feed.",
+    "UserByUid": {
+      "title": "User UID Mapping",
+      "description": "Mapping from Firebase Auth UID to username and role for security rules.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
+        "username": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "USER"] }
+      },
+      "required": ["username", "role"]
+    },
+    "Post": {
+      "title": "VoxCircle Post",
+      "description": "A post in the VoxCircle social feed.",
+      "type": "object",
+      "properties": {
         "username": { "type": "string" },
         "displayName": { "type": "string" },
+        "avatarConfig": { "type": "object" },
         "content": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "likes": { "type": "array", "items": { "type": "string" } },
-        "comments": { "type": "array", "items": { "type": "object" } },
-        "shares": { "type": "number" }
+        "timestamp": { "type": "object" },
+        "likes": { "type": "array" },
+        "comments": { "type": "array" },
+        "role": { "type": "string", "enum": ["ADMIN", "USER"] },
+        "shares": { "type": "number" },
+        "authorId": { "type": "string" }
       },
       "required": ["username", "content", "timestamp"]
     },
     "GlobalStats": {
-      "title": "Global Analytics",
-      "description": "Aggregated stats for the admin dashboard.",
+      "title": "Global Statistics",
+      "description": "Aggregated application statistics.",
       "type": "object",
       "properties": {
         "totalUsers": { "type": "number" },
@@ -48,94 +60,24 @@
         "totalVotes": { "type": "number" },
         "totalQuizzesTaken": { "type": "number" }
       }
-    },
-    "Follow": {
-      "title": "User Follow Relation",
-      "description": "Stores follow relationships between users.",
-      "type": "object",
-      "properties": {
-        "followerId": { "type": "string" },
-        "followingId": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["followerId", "followingId", "timestamp"]
-    },
-    "Vote": {
-      "title": "User Vote/Voice",
-      "description": "Stores real-time votes or voices from users.",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "username": { "type": "string" },
-        "type": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userId", "username", "timestamp"]
     }
   },
   "firestore": {
-    "/users/{userId}": {
+    "users/{username}": {
       "schema": "User",
-      "description": "User profile data."
+      "description": "Collection of user profiles."
     },
-    "/users_by_uid/{uid}": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "username": { "type": "string" },
-          "role": { "type": "string" }
-        }
-      },
-      "description": "Mapping from Firebase UID to username and role for security rules."
+    "users_by_uid/{uid}": {
+      "schema": "UserByUid",
+      "description": "Security mapping for role validation."
     },
-    "/posts/{postId}": {
+    "posts/{postId}": {
       "schema": "Post",
-      "description": "Vox Circle posts."
+      "description": "VoxCircle feed posts."
     },
-    "/feedbacks/{feedbackId}": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "uid": { "type": "string" },
-          "username": { "type": "string" },
-          "displayName": { "type": "string" },
-          "message": { "type": "string" },
-          "date": { "type": "string" },
-          "timestamp": { "type": "object" }
-        }
-      },
-      "description": "User feedback messages."
-    },
-    "/quiz_results/{resultId}": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "uid": { "type": "string" },
-          "username": { "type": "string" },
-          "score": { "type": "number" },
-          "topic": { "type": "string" },
-          "date": { "type": "string" },
-          "timestamp": { "type": "object" }
-        }
-      },
-      "description": "User quiz performance history."
-    },
-    "/settings/{docId}": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "voxStudioEnabled": { "type": "boolean" }
-        }
-      },
-      "description": "Global application settings."
-    },
-    "/stats/global": {
+    "stats/global": {
       "schema": "GlobalStats",
       "description": "Global application statistics."
-    },
-    "/votes/{voteId}": {
-      "schema": "Vote",
-      "description": "Real-time user votes."
     }
   }
 }

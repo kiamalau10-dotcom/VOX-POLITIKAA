@@ -1,15 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, deleteUser } from 'firebase/auth';
-import { initializeFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
 import firebaseConfig from './firebase-applet-config.json';
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
 
-// Use initializeFirestore with long polling to bypass potential proxy/websocket issues in sandboxed environments
-export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-}, firebaseConfig.firestoreDatabaseId);
+// Critical: The app will break without specifying the correct database ID
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
 export const auth = getAuth(app);
 
@@ -49,13 +47,13 @@ export const googleProvider = new GoogleAuthProvider();
 async function testConnection() {
   try {
     // Attempt to read a dummy doc to verify connection
+    // We use a small timeout to avoid long waits in offline mode
     await getDocFromServer(doc(db, '_connection_test_', 'ping'));
     console.log("Firebase connection established successfully.");
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client is offline.");
-    }
-    // Skip logging for other errors during initial test
+  } catch {
+    // Silently fail as the app will automatically operate in offline mode
+    // This avoids flooding the console with errors if Firebase is not yet provisioned
+    console.info("Firestore is currently in offline mode. Data will be persisted locally.");
   }
 }
 

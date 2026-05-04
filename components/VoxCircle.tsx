@@ -151,6 +151,42 @@ const PostCard = React.memo(({ post, currentUser, isDarkMode, onLike, onCommentT
   );
 });
 
+// Data awal untuk seeding jika database kosong
+const INITIAL_POSTS: Post[] = [
+  {
+    id: 'seed-1',
+    username: '@superadmin',
+    displayName: 'Dekila (Admin)',
+    content: 'Selamat datang di VoxCircle! Tempat di mana gagasan politik bertemu dengan inovasi. Mari berdiskusi dengan cerdas dan santun demi Indonesia Emas 2045.',
+    timestamp: { toDate: () => new Date('2025-05-01T08:00:00Z') },
+    likes: ['@hizkia', '@devina'],
+    comments: [
+      { username: '@warga_aktif', text: 'Keren banget platformnya!', timestamp: '2025-05-01T08:30:00Z' }
+    ],
+    role: 'ADMIN'
+  },
+  {
+    id: 'seed-2',
+    username: '@warga_politik',
+    displayName: 'Andi Politika',
+    content: 'Apa pendapat kalian tentang target pertumbuhan ekonomi 8%? Ambisius tapi menarik untuk dikawal!',
+    timestamp: { toDate: () => new Date('2025-05-02T10:00:00Z') },
+    likes: ['@superadmin'],
+    comments: [],
+    role: 'USER'
+  },
+  {
+    id: 'seed-3',
+    username: '@gen_emas',
+    displayName: 'Siti Literasi',
+    content: 'Digitalisasi birokrasi lewat INA Digital bakal jadi game changer buat kita yang males antre di kantor pemerintahan. Setuju?',
+    timestamp: { toDate: () => new Date('2025-05-03T14:20:00Z') },
+    likes: ['@superadmin', '@warga_politik'],
+    comments: [],
+    role: 'USER'
+  }
+];
+
 const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = ({ currentUser, isDarkMode }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [newPost, setNewPost] = useState('');
@@ -160,26 +196,40 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Ambil data postingan
   useEffect(() => {
     const path = 'posts';
     const q = query(collection(db, path), orderBy('timestamp', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedPosts = snapshot.docs.map(doc => ({
+      let fetchedPosts = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Post[];
+      
+      // Jika kosong, pakai seed data
+      if (fetchedPosts.length === 0) {
+        fetchedPosts = INITIAL_POSTS;
+      }
+      
       setPosts(fetchedPosts);
+      setIsInitialLoad(false);
     }, (error) => {
+      // Offline fallback
+      if (isInitialLoad) {
+        setPosts(INITIAL_POSTS);
+        setIsInitialLoad(false);
+      }
+      
       // Only handle error if it's not a permission error during initial load for guests
       if (currentUser) {
-        handleFirestoreError(error, OperationType.LIST, path);
+        console.warn("VoxCircle fetch inhibited:", error);
       }
     });
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, [currentUser, isInitialLoad]);
 
   const handlePost = async () => {
     if (!newPost.trim() || !currentUser) return;

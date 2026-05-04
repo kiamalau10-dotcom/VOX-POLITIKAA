@@ -389,21 +389,37 @@ const AppContent: React.FC = () => {
                     onClick={() => setLegalModal({
                       title: 'Siapa Kami?',
                       content: (
-                        <>
-                          <p>Selamat datang di VoxPolitika! Kami adalah tim kecil dengan visi besar dari SMA Unggul Del, yang terdiri dari Devina Purba, Hizkia Malau, dan Larissa Siahaan. Awalnya, VoxPolitika lahir dari sebuah riset dan kompetisi penelitian. Namun, kami sadar bahwa data riset saja tidak cukup. Kami ingin menciptakan sesuatu yang impactful—sebuah alat yang bisa digunakan oleh khalayak luas untuk memahami dunia politik dengan cara yang jauh lebih seru.</p>
-                          <p className="font-bold text-red-600">Mengapa VoxPolitika?</p>
-                          <ul className="list-disc pl-4 space-y-2">
-                            <li>One-Stop Learning Hub: Nggak perlu muter-muter cari referensi.</li>
-                            <li>Lawan Hoaks Politik: Kami bantu kamu membedakan fakta dan "gorengan".</li>
-                            <li>Wadah Diskusi Netral: Ruang aman buat tukar pikiran.</li>
-                            <li>Interaktif & Simpel: Konten segar cocok buat Gen Z.</li>
-                          </ul>
-                        </>
+                        <div className="space-y-6">
+                          <p className="text-2xl font-black text-red-600 tracking-tighter leading-tight mb-6">
+                            MENHUBUNGKAN GAGASAN,<br />MENCERDASKAN PILIHAN.
+                          </p>
+                          
+                          <p className="font-medium text-lg leading-relaxed">
+                            Selamat datang di <span className="text-red-600 font-bold">VoxPolitika</span>! Kami adalah tim kecil dengan visi besar dari <span className="underline decoration-red-600 underline-offset-4 font-bold">SMA Unggul Del</span> yang digerakkan oleh <span className="text-red-600">Devina Purba</span>, <span className="text-red-600">Hizkia Malau</span>, dan <span className="text-red-600">Larissa Siahaan</span>.
+                          </p>
+
+                          <div className={`p-8 border-l-8 border-red-600 rounded-r-3xl italic font-medium ${isDarkMode ? 'bg-white/5' : 'bg-red-50'}`}>
+                            <p className="mb-4">"VoxPolitika lahir dari sebuah keresahan di meja riset. Melalui kompetisi penelitian yang kami ikuti, kami menyadari bahwa data angka saja tidak cukup untuk membawa perubahan."</p>
+                            <p>Kami percaya bahwa literasi politik harus bersifat inklusif, mudah diakses, dan berdampak nyata. Karena itulah, kami mentransformasi hasil riset tersebut menjadi sebuah platform interaktif yang dirancang khusus untuk membantu khalayak luas memahami dinamika politik dengan cara yang lebih segar.</p>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 mt-8">
+                            <div className={`p-4 rounded-2xl border ${isDarkMode ? 'border-white/10 bg-white/5' : 'border-black/5 bg-gray-50'}`}>
+                              <span className="block text-[10px] font-black uppercase text-red-600 mb-1">Misi Kami</span>
+                              <p className="text-xs font-bold leading-tight">Inklusivitas & Literasi Digital</p>
+                            </div>
+                            <div className={`p-4 rounded-2xl border ${isDarkMode ? 'border-white/10 bg-white/5' : 'border-black/5 bg-gray-50'}`}>
+                              <span className="block text-[10px] font-black uppercase text-red-600 mb-1">Target</span>
+                              <p className="text-xs font-bold leading-tight">Generasi Emas Indonesia 2045</p>
+                            </div>
+                          </div>
+                        </div>
                       )
                     })}
-                    className="hover:text-red-600 transition-colors"
+                    className="hover:text-red-600 transition-colors flex items-center gap-2 group"
                   >
                     About Us
+                    <span className="bg-red-600 text-white text-[8px] px-1.5 py-0.5 rounded-full scale-0 group-hover:scale-100 transition-transform origin-left">BARU</span>
                   </button>
                 </li>
                 <li>

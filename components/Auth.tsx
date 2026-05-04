@@ -8,7 +8,6 @@ import {
   doc, 
   getDoc, 
   setDoc, 
-  updateDoc, 
   increment
 } from '../firebase';
 
@@ -161,7 +160,8 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           };
           if (uid) syncData.uid = uid;
 
-          await updateDoc(doc(db, 'users', docId), syncData);
+          // Use setDoc with merge to allow recovery if Firestore record was lost but local exists
+          await setDoc(doc(db, 'users', docId), syncData, { merge: true });
 
           // Sync UID mapping for security rules
           if (uid) {

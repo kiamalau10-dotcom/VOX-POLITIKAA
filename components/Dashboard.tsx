@@ -221,6 +221,10 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
     const statsRef = doc(db, 'stats', 'global');
     const unsubscribe = onSnapshot(statsRef, (docSnap) => { 
       if (docSnap.exists()) setGlobalStats(docSnap.data() as any); 
+      else {
+        // Seed initial stats if missing
+        setDoc(statsRef, { totalUsers: 1, activeUsers: 1, totalVotes: 0, totalQuizzesTaken: 0 }, { merge: true });
+      }
     }, (error) => {
       console.warn("Stats fetch error:", error);
     });
