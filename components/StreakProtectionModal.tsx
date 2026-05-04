@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Zap, Snowflake, Coins, RefreshCw, AlertTriangle } from 'lucide-react';
 import { User } from '../types';
 

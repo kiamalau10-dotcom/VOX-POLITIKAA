@@ -43,7 +43,8 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                   <img 
                     src={program.images?.[0]} 
                     alt={program.title} 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-110 group-hover:scale-100"
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 transform-gpu group-hover:scale-110"
+                    style={{ imageRendering: 'auto' }}
                     referrerPolicy="no-referrer"
                     onError={(e) => {
                       e.currentTarget.src = `https://via.placeholder.com/800x600?text=${encodeURIComponent(program.title)}`;
@@ -98,7 +99,8 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                   <img 
                     src={selectedProgram.images?.[0]} 
                     alt={selectedProgram.title} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transform-gpu"
+                    style={{ imageRendering: 'auto' }}
                     referrerPolicy="no-referrer"
                     onError={(e) => {
                       e.currentTarget.src = `https://via.placeholder.com/1200x800?text=${encodeURIComponent(selectedProgram.title)}`;
@@ -121,8 +123,50 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                     <div className="lg:col-span-2 space-y-8">
                       <section className="space-y-4">
                         <h4 className="text-xl font-black uppercase italic text-red-600">Detail Program</h4>
-                        <p className="text-lg font-medium leading-relaxed opacity-80">{selectedProgram.details}</p>
+                        <p className="text-lg font-medium leading-relaxed opacity-80 whitespace-pre-line">{selectedProgram.details}</p>
                       </section>
+
+                      {selectedProgram.points && (
+                        <section className="space-y-6">
+                          <h4 className="text-xl font-black uppercase italic text-red-600">
+                            {selectedProgram.points.length} {selectedProgram.id === 'asta-cita' ? 'Poin Utama' : 'Fokus Utama'} {selectedProgram.title}
+                          </h4>
+                          <div className={`overflow-hidden rounded-2xl border-2 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-red-600 text-white">
+                                  <th className="p-4 uppercase font-black italic text-[10px]">No</th>
+                                  <th className="p-4 uppercase font-black italic text-[10px]">Fokus Utama</th>
+                                  <th className="p-4 uppercase font-black italic text-[10px]">Penjabaran Singkat</th>
+                                </tr>
+                              </thead>
+                              <tbody className="font-bold text-xs">
+                                {selectedProgram.points.map((point) => (
+                                  <tr key={point.no} className="border-b border-black/5 dark:border-white/5 hover:bg-red-500/5 transition-colors">
+                                    <td className="p-4">{point.no}</td>
+                                    <td className="p-4 text-red-600">{point.focus}</td>
+                                    <td className="p-4 opacity-70 leading-relaxed">{point.explanation}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </section>
+                      )}
+
+                      {selectedProgram.quickWins && (
+                        <section className="space-y-6">
+                          <h4 className="text-xl font-black uppercase italic text-red-600">Fokus Strategis (Quick Wins)</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {selectedProgram.quickWins.map((win, idx) => (
+                              <div key={idx} className={`p-6 rounded-2xl border-2 ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-black/10'}`}>
+                                <h5 className="font-black text-red-600 uppercase italic mb-2 tracking-tight">{win.title}</h5>
+                                <p className="text-xs font-medium opacity-70 leading-relaxed">{win.explanation}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      )}
 
                       <section className="space-y-4">
                         <h4 className="text-xl font-black uppercase italic text-red-600">Dampak Strategis</h4>
@@ -164,14 +208,6 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                     </div>
 
                     <aside className="space-y-6">
-                      <div className={`p-6 rounded-3xl border-2 ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-black/5'}`}>
-                        <h5 className="text-sm font-black uppercase italic mb-4">Visualisasi Data</h5>
-                        <div className="aspect-square bg-red-600 rounded-2xl flex items-center justify-center text-white">
-                          <TrendingUp size={48} />
-                        </div>
-                        <p className="mt-4 text-[10px] font-bold uppercase opacity-50 text-center">Proyeksi Pertumbuhan 2026</p>
-                      </div>
-                      
                       <div className="bg-black dark:bg-white p-6 rounded-3xl text-white dark:text-black">
                         <Globe size={32} className="mb-4 text-red-600" />
                         <h5 className="text-sm font-black uppercase italic mb-2">Indonesia Emas</h5>

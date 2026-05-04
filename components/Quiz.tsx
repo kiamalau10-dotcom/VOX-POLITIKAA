@@ -276,6 +276,7 @@ const Quiz: React.FC<{
           }
 
           const quizResult = {
+            uid: updatedUser.uid || currentUser?.uid || 'anonymous',
             quizId: `quiz_${Date.now()}`,
             score: finalScore,
             date: new Date().toISOString(),

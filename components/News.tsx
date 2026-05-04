@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { NEWS_DATA } from '../constants';
 import { ExternalLink, ArrowRight } from 'lucide-react';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 const News: React.FC = () => {
   const newsUrl = 'https://www.cnnindonesia.com/nasional/politik';
@@ -38,12 +40,13 @@ const News: React.FC = () => {
               className="group cursor-pointer bg-white dark:bg-zinc-900/30 border-2 border-black/10 dark:border-white/5 hover:border-red-600 dark:hover:border-red-600 rounded-[2.5rem] p-5 transition-all shadow-xl"
             >
               <div className="relative rounded-[2rem] overflow-hidden mb-6 aspect-video">
-                <img 
+                <LazyLoadImage 
                   src={item.imageUrl} 
                   alt={item.title} 
                   className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" 
                   referrerPolicy="no-referrer"
-                  onError={(e) => {
+                  effect="blur"
+                  onError={(e: any) => {
                     e.currentTarget.src = `https://via.placeholder.com/600x400?text=${encodeURIComponent(item.title)}`;
                   }}
                 />

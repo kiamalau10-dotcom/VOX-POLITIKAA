@@ -1,29 +1,73 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PROVINCES_DATA } from '../constants';
 import { ProvinceData } from '../types';
 import { MapPin, X, Info, Award, PieChart, Activity } from 'lucide-react';
 
+const ProvinceButton = React.memo(({ prov, isSelected, isDarkMode, onClick }: { 
+  prov: ProvinceData, 
+  isSelected: boolean, 
+  isDarkMode: boolean,
+  onClick: (prov: ProvinceData) => void 
+}) => (
+  <motion.button
+    key={prov.id}
+    onClick={() => onClick(prov)}
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
+      isSelected 
+        ? 'bg-red-600 text-white border-red-600 shadow-xl' 
+        : isDarkMode ? 'bg-zinc-900/30 border-white/5 hover:border-red-600/50' : 'bg-white border-black/5 hover:border-red-600/50 shadow-sm'
+    }`}
+  >
+    <div className="flex justify-between items-start">
+      <h5 className="font-black text-[10px] uppercase tracking-tight truncate w-full">{prov.name}</h5>
+      {prov.isTrending && <Activity size={10} className="text-yellow-500 animate-pulse shrink-0" />}
+    </div>
+    <p className={`text-[8px] font-bold uppercase ${isSelected ? 'opacity-80' : 'opacity-50'} mt-1`}>{prov.capital}</p>
+    {prov.isTrending && (
+      <span className="absolute -right-4 -top-4 bg-yellow-500 text-black text-[6px] font-black px-6 py-1 rotate-45 uppercase">Trending</span>
+    )}
+  </motion.button>
+));
+
 const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
-  const [selectedProvince, setSelectedProvince] = useState<ProvinceData | null>(null);
-  const [show3DMap, setShow3DMap] = useState(false);
-  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [selectedProvince, setSelectedProvince] = React.useState<ProvinceData | null>(null);
+  const [show3DMap, setShow3DMap] = React.useState(false);
+  const [showAnalysis, setShowAnalysis] = React.useState(false);
+
+  const handleSelectProvince = React.useCallback((prov: ProvinceData) => {
+    setSelectedProvince(prov);
+  }, []);
 
   const strategicAnalysis = useMemo(() => {
     if (!selectedProvince) return null;
     const seats = selectedProvince.dprSeats;
+    const regionId = parseInt(selectedProvince.id);
+    
+    // Generate unique fallback notes based on province characteristics if intelAnalysis is empty
+    const generateUniqueNote = () => {
+      if (seats > 50) return `Battleground utama nasional dengan ${seats} kursi. Pergeseran tipis suara di sini akan merubah konstelasi koalisi pusat.`;
+      if (selectedProvince.dominantPartyPercent && selectedProvince.dominantPartyPercent > 40) 
+        return `Benteng pertahanan kuat ${selectedProvince.dominantParty}. Fokus pada pemeliharaan basis tradisional.`;
+      if (regionId % 5 === 0) return "Wilayah strategis untuk penetrasi pemilih muda dan sektor kreatif urban.";
+      if (regionId % 5 === 1) return "Kunci penguatan basis massa akar rumput di sektor agraris dan pedesaan.";
+      if (regionId % 5 === 2) return "Pusat pertumbuhan industri baru yang menuntut stabilitas politik pro-investasi.";
+      if (regionId % 5 === 3) return "Wilayah dengan volatilitas tinggi, memerlukan pendekatan kearifan lokal yang mendalam.";
+      return "Sektor krusial untuk stabilisasi narasi nasional dan integrasi pembangunan daerah.";
+    };
+
     return {
       priority: seats > 20 ? 'HIGH PRIORITY' : seats > 10 ? 'MEDIUM' : 'STABLE',
-      riskIndex: (60 + (parseInt(selectedProvince.id) * 7 % 35)) + "%",
+      riskIndex: (60 + (regionId * 7 % 35)) + "%",
       growthPotential: (seats * 1.2).toFixed(1) + "%",
-      note: seats > 50 
-        ? "Battleground utama. Pergeseran 2% suara merubah konstelasi nasional." 
-        : "Wilayah kunci untuk penguatan basis massa akar rumput."
+      note: selectedProvince.intelAnalysis || generateUniqueNote()
     };
   }, [selectedProvince]);
 
   return (
-    <div className={`min-h-screen py-20 px-6 font-sans overflow-x-hidden transition-colors duration-700 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-zinc-50 text-black'}`}>
+    <div className={`min-h-screen py-20 px-6 font-sans overflow-x-hidden transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-zinc-50 text-black'}`}>
       <div className="max-w-7xl mx-auto">
         
         <header className="mb-16 relative">
@@ -46,24 +90,13 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
                 <h3 className="text-xl font-black uppercase tracking-widest mb-6">Pilih Provinsi</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
                     {PROVINCES_DATA.map((prov) => (
-                    <motion.button
+                      <ProvinceButton 
                         key={prov.id}
-                        onClick={() => setSelectedProvince(prov)}
-                        className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
-                        selectedProvince?.id === prov.id 
-                        ? 'bg-red-600 text-white border-red-600 shadow-xl' 
-                        : isDarkMode ? 'bg-zinc-900/30 border-white/5 hover:border-red-600/50' : 'bg-white border-black/5 hover:border-red-600/50 shadow-sm'
-                        }`}
-                    >
-                        <div className="flex justify-between items-start">
-                        <h5 className="font-black text-[10px] uppercase tracking-tight truncate w-full">{prov.name}</h5>
-                        {prov.isTrending && <Activity size={10} className="text-yellow-500 animate-pulse shrink-0" />}
-                        </div>
-                        <p className={`text-[8px] font-bold uppercase ${selectedProvince?.id === prov.id ? 'opacity-80' : 'opacity-50'} mt-1`}>{prov.capital}</p>
-                        {prov.isTrending && (
-                        <span className="absolute -right-4 -top-4 bg-yellow-500 text-black text-[6px] font-black px-6 py-1 rotate-45 uppercase">Trending</span>
-                        )}
-                    </motion.button>
+                        prov={prov}
+                        isSelected={selectedProvince?.id === prov.id}
+                        isDarkMode={isDarkMode}
+                        onClick={handleSelectProvince}
+                      />
                     ))}
                 </div>
             </div>

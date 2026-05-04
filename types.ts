@@ -39,6 +39,7 @@ export interface ProvinceData {
   dominantPartyPercent?: number; // Dominant party percentage
   governorPhoto?: string; // Photo of the governor
   isTrending?: boolean; // Trending status
+  intelAnalysis?: string; // Strategic intelligence analysis
 }
 
 export interface StrategicProgram {
@@ -51,6 +52,8 @@ export interface StrategicProgram {
   details?: string;
   images?: string[];
   impact?: string;
+  points?: { no: number; focus: string; explanation: string }[];
+  quickWins?: { title: string; explanation: string }[];
 }
 
 export interface NewsItem {
@@ -109,6 +112,8 @@ export interface User {
   voxTitle?: string;
   uid?: string;
   ownedItems?: string[];
+  needsStreakProtection?: boolean;
+  previousStreak?: number;
   achievements?: {
     id: string;
     title: string;
@@ -128,8 +133,11 @@ export interface Vote {
 export interface Feedback {
   id: string;
   username: string;
+  displayName?: string;
   message: string;
   date: string;
+  time?: string;
+  timestamp?: any;
 }
 
 export enum AppSection {

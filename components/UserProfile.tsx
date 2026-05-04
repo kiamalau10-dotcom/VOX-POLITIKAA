@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Award, Flame, MessageSquare, Shield } from 'lucide-react';
 import { useRealtimeProfile } from '../hooks/useRealtimeProfile';
+import { getAvatarUrl } from '../services/avatarService';
 
 interface UserProfileProps {
   targetUsername: string;
@@ -36,7 +37,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
       <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
         <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-red-600/20 shadow-2xl bg-white relative group">
           <img 
-            src={profile.equippedCostumeId || `https://api.dicebear.com/9.x/adventurer/svg?seed=${targetUsername.replace('@', '')}&backgroundColor=f8fafc,f1f5f9&radius=20`}
+            src={getAvatarUrl(targetUsername, profile.avatarConfig)}
             alt={targetUsername}
             className="w-full h-full object-contain"
             referrerPolicy="no-referrer"

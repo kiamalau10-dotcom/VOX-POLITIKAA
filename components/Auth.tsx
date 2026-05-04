@@ -128,34 +128,13 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
               streakFreezeCount: 99,
               uid: uid
             };
-            // Sync admin to Firestore if not exists
-            await setDoc(doc(db, 'users', docId), user, { merge: true });
-            
-            // CRITICAL: Store role by UID for security rules
-            if (uid) {
-              await setDoc(doc(db, 'users_by_uid', uid), {
-                username: user.username,
-                role: 'ADMIN'
-              });
-            }
           } else {
             user = savedUser!;
-            // Update UID if it's missing (for legacy users)
-            if (!user.uid || user.uid !== uid) {
-              user.uid = uid;
-              await updateDoc(doc(db, 'users', docId), { uid: uid });
-            }
-            
-            // CRITICAL: Store role by UID for security rules
-            if (uid) {
-              await setDoc(doc(db, 'users_by_uid', uid), {
-                username: user.username,
-                role: user.role
-              });
-            }
           }
-          
-          // Streak Logic
+
+          // Ensure UID is set
+          if (uid) user.uid = uid;
+
           const today = new Date().toISOString().split('T')[0];
           const yesterdayDate = new Date();
           yesterdayDate.setDate(yesterdayDate.getDate() - 1);
@@ -164,22 +143,37 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
           if (user.lastLoginDate === yesterday) {
             user.streak = (user.streak || 0) + 1;
           } else if (user.lastLoginDate !== today && user.lastLoginDate !== '') {
-            if (user.streakFreezeCount && user.streakFreezeCount > 0) {
-              user.streakFreezeCount -= 1;
-            } else {
-              user.streak = 1;
-            }
+            // DETECT BROKEN STREAK
+            user.needsStreakProtection = true;
+            user.previousStreak = user.streak;
           }
           user.lastLoginDate = today;
           (user as any).rememberMe = authData.rememberMe;
-          
-          // Sync to Firestore
-          await updateDoc(doc(db, 'users', docId), { 
-            lastLoginDate: today, 
-            streak: user.streak, 
+
+          // Sync essential fields only to avoid permission leaks
+          const syncData: any = {
+            lastLoginDate: today,
+            streak: user.streak,
             streakFreezeCount: user.streakFreezeCount || 0,
+            needsStreakProtection: user.needsStreakProtection || false,
+            previousStreak: user.previousStreak || 0,
             lastActive: new Date().toISOString()
-          });
+          };
+          if (uid) syncData.uid = uid;
+
+          await updateDoc(doc(db, 'users', docId), syncData);
+
+          // Sync UID mapping for security rules
+          if (uid) {
+            try {
+              await setDoc(doc(db, 'users_by_uid', uid), {
+                username: user.username,
+                role: user.role
+              }, { merge: true });
+            } catch (err) {
+              console.warn("UID map sync failed (expected if non-auth):", err);
+            }
+          }
 
           localStorage.setItem(`user_data_${user.username}`, JSON.stringify(user));
           onLogin(user);
@@ -200,7 +194,7 @@ const Auth: React.FC<AuthProps> = ({ isDarkMode, onLogin }) => {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center transition-colors duration-700 ${isDarkMode ? 'bg-black text-white' : 'bg-gray-100 text-black'}`}>
+    <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${isDarkMode ? 'bg-black text-white' : 'bg-gray-100 text-black'}`}>
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }} 

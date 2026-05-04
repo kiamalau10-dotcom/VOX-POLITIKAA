@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PARTIES_DATA } from '../constants';
-import { X, ExternalLink, Users } from 'lucide-react';
+import { X, Users } from 'lucide-react';
 import { PoliticalParty } from '../types';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
   const [selectedParty, setSelectedParty] = useState<PoliticalParty | null>(null);
@@ -29,12 +31,14 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                   className="group p-8 bg-zinc-50 dark:bg-zinc-900 rounded-[2rem] border-2 border-black/5 dark:border-white/5 flex flex-col md:flex-row items-center gap-8 transition-all hover:border-red-600/50 cursor-pointer"
                 >
                   <div className="w-48 h-48 flex-shrink-0 bg-white dark:bg-white p-4 rounded-2xl shadow-inner flex items-center justify-center overflow-hidden">
-                    <img 
+                    <LazyLoadImage 
                       src={party.logo} 
                       alt={party.abbreviation} 
                       referrerPolicy="no-referrer"
+                      effect="blur"
+                      wrapperClassName="w-full h-full flex items-center justify-center"
                       className="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-500"
-                      onError={(e) => {
+                      onError={(e: any) => {
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${party.abbreviation}&background=random&size=256`;
                       }}
                     />
@@ -125,12 +129,14 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
               <div className="flex flex-col md:flex-row gap-12">
                 <div className="flex-1">
                   <div className="w-full aspect-square bg-white p-8 rounded-[2rem] shadow-2xl flex items-center justify-center">
-                    <img 
+                    <LazyLoadImage 
                       src={selectedParty.logo} 
                       alt={selectedParty.abbreviation} 
                       referrerPolicy="no-referrer"
+                      effect="blur"
+                      wrapperClassName="w-full h-full flex items-center justify-center"
                       className="w-full h-full object-contain" 
-                      onError={(e) => {
+                      onError={(e: any) => {
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${selectedParty.abbreviation}&background=random&size=256`;
                       }}
                     />
@@ -176,12 +182,6 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                         <p className="font-black">{selectedParty.chairman}</p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="pt-8 border-t border-black/5 dark:border-white/5">
-                    <button className="w-full py-4 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-all flex items-center justify-center gap-2">
-                      <ExternalLink size={16} /> Kunjungi Website Resmi
-                    </button>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Check, ShoppingBag } from 'lucide-react';
+import { getAvatarUrl } from '../services/avatarService';
 
 interface AvatarLabProps {
   currentUser: any;
@@ -58,15 +59,13 @@ const AVATAR_OPTIONS = {
   ]
 };
 
-const Avatar2D = ({ username, config, costumeId }: { username: string, config: any, costumeId: string }) => {
-  // Construct a seed that changes when any option changes to make it reactive
-  const seed = `${username}-${config.gender || 'male'}-${config.hair || 'short'}-${config.eyes || 'black'}-${config.skin || 'light'}-${costumeId || 'none'}`;
-  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f8fafc,f1f5f9&radius=20`;
+const Avatar2D = ({ username, config }: { username: string, config: any }) => {
+  const avatarUrl = getAvatarUrl(username, config);
 
   return (
     <div className="w-64 h-64 relative">
       <motion.img
-        key={seed}
+        key={avatarUrl}
         src={avatarUrl}
         alt="Avatar Preview"
         className="w-full h-full object-contain drop-shadow-2xl"
@@ -199,7 +198,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
         <div className={`flex-1 relative border-r flex items-center justify-center ${
           isDarkMode ? 'bg-black/50 border-white/5' : 'bg-zinc-50 border-black/5'
         }`}>
-          <Avatar2D username={currentUser.username} config={config} costumeId={equippedCostumeId} />
+          <Avatar2D username={currentUser.username} config={config} />
 
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center pointer-events-none">
             <h2 className="text-3xl font-black uppercase italic text-red-600 tracking-tighter">Avatar Lab 2.0</h2>

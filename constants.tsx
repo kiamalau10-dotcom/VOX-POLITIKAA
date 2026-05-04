@@ -1,5 +1,12 @@
 import { Minister, PoliticalParty, ProvinceData, NewsItem, Quiz, StrategicProgram } from './types';
 
+import astaCitaImg from './src/assets/images/regenerated_image_1777864246646.jpg';
+import hilirisasiImg from './src/assets/images/regenerated_image_1777864049014.jpg';
+import makanGratisImg from './src/assets/images/regenerated_image_1777851845322.jpg';
+import danantaraImg from './src/assets/images/regenerated_image_1777851846449.jpg';
+import inaDigitalImg from './src/assets/images/regenerated_image_1777851847184.jpg';
+import swasembadaImg from './src/assets/images/regenerated_image_1777851847996.jpg';
+
 export const CABINET_DATA: Minister[] = [
   {
     id: 'pres',
@@ -418,9 +425,25 @@ export const STRATEGIC_PROGRAMS: StrategicProgram[] = [
     progress: 0,
     status: 'Visi Utama',
     icon: 'Shield',
-    details: 'Asta Cita mencakup: 1. Memperkokoh ideologi Pancasila, 2. Memantapkan sistem pertahanan keamanan, 3. Meningkatkan lapangan kerja, 4. Memperkuat pembangunan SDM, 5. Melanjutkan hilirisasi, 6. Membangun dari desa, 7. Memperkuat reformasi politik/hukum, 8. Menyelaraskan kehidupan yang harmonis dengan lingkungan.',
-    images: ['https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&q=80&w=800'],
-    impact: 'Transformasi struktural menuju Indonesia Emas 2045.'
+    details: `Asta Cita adalah delapan misi utama yang diusung oleh pasangan Presiden dan Wakil Presiden Indonesia periode 2024–2029, Prabowo Subianto dan Gibran Rakabuming Raka. Secara etimologi, "Asta" berarti delapan dan "Cita" berarti keinginan atau tujuan. Program ini dirancang sebagai peta jalan untuk melanjutkan pembangunan nasional menuju visi Indonesia Emas 2045.`,
+    points: [
+      { no: 1, focus: 'Ideologi & Demokrasi', explanation: 'Memperkokoh ideologi Pancasila, demokrasi, dan hak asasi manusia (HAM).' },
+      { no: 2, focus: 'Kemandirian Bangsa', explanation: 'Memantapkan sistem pertahanan keamanan negara dan mendorong kemandirian bangsa melalui swasembada pangan, energi, air, ekonomi kreatif, ekonomi hijau, dan ekonomi biru.' },
+      { no: 3, focus: 'Lapangan Kerja', explanation: 'Meningkatkan lapangan kerja yang berkualitas, mendorong kewirausahaan, mengembangkan industri kreatif, dan melanjutkan pembangunan infrastruktur.' },
+      { no: 4, focus: 'SDM & Pendidikan', explanation: 'Memperkuat pembangunan sumber daya manusia (SDM), sains, teknologi, pendidikan, kesehatan, prestasi olahraga, kesetaraan gender, serta penguatan peran perempuan, pemuda, dan penyandang disabilitas.' },
+      { no: 5, focus: 'Hilirisasi & Industri', explanation: 'Melanjutkan hilirisasi dan industrialisasi untuk meningkatkan nilai tambah di dalam negeri.' },
+      { no: 6, focus: 'Pembangunan Desa', explanation: 'Membangun dari desa dan dari bawah untuk pemerataan ekonomi dan pemberantasan kemiskinan.' },
+      { no: 7, focus: 'Reformasi Hukum', explanation: 'Memperkuat reformasi politik, hukum, dan birokrasi, serta memperkuat pencegahan dan pemberantasan korupsi dan narkoba.' },
+      { no: 8, focus: 'Lingkungan & Budaya', explanation: 'Memperkuat penyelarasan kehidupan yang harmonis dengan lingkungan, alam, dan budaya, serta peningkatan toleransi antarumat beragama untuk mewujudkan masyarakat yang adil dan makmur.' }
+    ],
+    quickWins: [
+      { title: 'Makan Siang Gratis', explanation: 'Pemberian makan siang dan susu gratis di sekolah serta bantuan gizi untuk ibu hamil dan balita.' },
+      { title: 'Pemeriksaan Kesehatan Gratis', explanation: 'Penurunan kasus TBC dan pembangunan rumah sakit berkualitas di daerah.' },
+      { title: 'Peningkatan Produktivitas Pertanian', explanation: 'Pencetakan sawah baru dan penguatan stok pangan nasional.' },
+      { title: 'Beasiswa', explanation: 'Penguatan program beasiswa santri dan peningkatan kualitas pendidikan vokasi.' }
+    ],
+    images: [astaCitaImg],
+    impact: 'Secara keseluruhan, Asta Cita menekankan pada keberlanjutan program-program strategis dari pemerintahan sebelumnya (seperti hilirisasi dan pembangunan infrastruktur) dengan tambahan fokus yang kuat pada ketahanan pangan dan kualitas gizi SDM.'
   },
   {
     id: 'hilirisasi',
@@ -429,53 +452,88 @@ export const STRATEGIC_PROGRAMS: StrategicProgram[] = [
     progress: 0,
     status: 'Prioritas Ekonomi',
     icon: 'Factory',
-    details: 'Fokus pada pengolahan nikel, bauksit, tembaga, dan komoditas perkebunan/perikanan. Target investasi hilirisasi mencapai US$ 545,3 Miliar hingga 2040 di 21 komoditas strategis.',
-    images: ['https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800'],
-    impact: 'Peningkatan PDB dan penciptaan jutaan lapangan kerja berkualitas.'
+    details: `Hilirisasi Industri adalah strategi ekonomi nasional untuk meningkatkan nilai tambah komoditas dengan mengolah bahan mentah menjadi produk setengah jadi atau barang jadi sebelum diekspor. Secara sederhana, hilirisasi berarti "bergerak ke arah hilir" (pemrosesan), sehingga Indonesia tidak lagi hanya menjual "tanah dan air" (bahan mentah). Strategi ini menjadi pilar utama dalam transformasi ekonomi untuk melepaskan ketergantungan pada ekspor komoditas mentah dan mewujudkan visi Indonesia Emas 2045.`,
+    points: [
+      { no: 1, focus: 'Mineral & Logam', explanation: 'Mengolah nikel, bauksit, tembaga, dan timah di dalam negeri untuk industri baterai kendaraan listrik (EV) dan baja.' },
+      { no: 2, focus: 'Minyak & Gas Bumi', explanation: 'Memperkuat industri petrokimia dan mengolah gas menjadi produk turunan seperti pupuk atau metanol untuk mengurangi impor.' },
+      { no: 3, focus: 'Perkebunan (CPO)', explanation: 'Mengolah minyak sawit mentah menjadi produk bernilai tinggi seperti oleokimia, produk pangan, hingga bahan bakar nabati (biofuel).' },
+      { no: 4, focus: 'Kelautan & Perikanan', explanation: 'Membangun industri pengolahan hasil laut (seperti pengalengan ikan atau pengolahan rumput laut) untuk kebutuhan pangan dan farmasi.' },
+      { no: 5, focus: 'Kehutanan', explanation: 'Meningkatkan pengolahan kayu dan hasil hutan menjadi produk furnitur, kertas, dan turunan selulosa dengan standar ekspor global.' },
+      { no: 6, focus: 'Infrastruktur Smelter', explanation: 'Mempercepat pembangunan fasilitas pemurnian (smelter) di berbagai wilayah strategis untuk mendukung proses pengolahan mineral.' },
+      { no: 7, focus: 'Transfer Teknologi', explanation: 'Mewajibkan adanya adopsi teknologi tinggi dari investor asing agar tenaga kerja lokal mampu mengoperasikan industri manufaktur modern.' },
+      { no: 8, focus: 'Penciptaan Lapangan Kerja', explanation: 'Membuka jutaan peluang kerja baru di sektor manufaktur yang membutuhkan keahlian teknis dan manajerial yang lebih tinggi.' }
+    ],
+    images: [hilirisasiImg],
+    impact: 'Penciptaan nilai tambah ekonomi nasional, pengurangan ketergantungan ekspor bahan mentah, dan pembukaan jutaan lapangan kerja sektor manufaktur.'
   },
   {
     id: 'makan-gratis',
     title: 'Makan Bergizi Gratis',
     description: 'Program gizi nasional untuk anak sekolah, balita, dan ibu hamil.',
-    progress: 0,
-    status: 'Transformasi Sosial',
+    progress: 5,
+    status: 'Program Prioritas',
     icon: 'Utensils',
-    details: 'Dikelola oleh Badan Gizi Nasional. Menargetkan 82,9 juta penerima manfaat. Menggunakan 5.885 unit Satuan Pelayanan Pemenuhan Gizi (SPPG) di seluruh Indonesia. Anggaran diproyeksikan mencapai Rp 335 Triliun.',
-    images: ['https://images.unsplash.com/photo-1547573854-74d2a71d0826?auto=format&fit=crop&q=80&w=800'],
-    impact: 'Penurunan angka stunting dan peningkatan kualitas SDM sejak dini.'
+    details: `Makan Bergizi Gratis (MBG) adalah program investasi masa depan Indonesia yang bertujuan untuk menciptakan generasi yang lebih sehat, cerdas, dan produktif. Program ini bukan sekadar memberikan makanan, tetapi merupakan langkah strategis untuk memutus rantai kemiskinan dan masalah stunting (tengkes) di tanah air. Sebagai salah satu program prioritas menuju Indonesia Emas 2045, MBG dirancang untuk menyentuh langsung kebutuhan dasar masyarakat di seluruh pelosok negeri.`,
+    points: [
+      { no: 1, focus: 'Sasaran Luas', explanation: 'Mencakup anak sekolah (PAUD sampai SMA), santri di pesantren, balita, hingga ibu hamil dan menyusui untuk memastikan gizi terjaga sejak dalam kandungan.' },
+      { no: 2, focus: 'Standar Nutrisi', explanation: 'Menu disusun berdasarkan standar kesehatan yang ketat (karbohidrat, protein hewani, sayur, dan buah) guna mendukung perkembangan kognitif dan fisik anak.' },
+      { no: 3, focus: 'Pemberdayaan Lokal', explanation: 'Bahan baku makanan wajib dibeli dari petani, peternak, dan nelayan lokal. Hal ini memastikan bahan makanan tetap segar sekaligus menghidupkan ekonomi desa.' },
+      { no: 4, focus: 'Sistem Unit Pelayanan', explanation: 'Distribusi dilakukan melalui "Unit Pelayanan" atau dapur umum di tiap wilayah yang melibatkan UMKM dan koperasi lokal untuk memasak dan mengelola logistik.' },
+      { no: 5, focus: 'Dampak Ekonomi', explanation: 'Menciptakan jutaan lapangan kerja baru, mulai dari tenaga juru masak, kurir pengantar makanan, hingga peningkatan permintaan hasil panen rakyat.' }
+    ],
+    images: [makanGratisImg],
+    impact: 'Peningkatan kualitas kesehatan SDM, pencegahan stunting secara masif, dan penguatan ekonomi kerakyatan melalui sektor pangan.'
   },
   {
     id: 'danantara',
     title: 'BPI Danantara',
-    description: 'Super-holding investasi strategis untuk mengelola aset negara secara profesional.',
-    progress: 0,
-    status: 'Rekayasa Kelembagaan',
+    description: 'Sovereign Wealth Fund raksasa untuk transformasi ekonomi nasional.',
+    progress: 10,
+    status: 'Lanskap Investasi Baru',
     icon: 'Landmark',
-    details: 'Badan Pengelola Investasi Daya Anagata Nusantara (Danantara) dirancang sebagai Sovereign Wealth Fund (SWF) raksasa dengan target kelolaan aset US$ 1 Triliun, mengonsolidasikan BUMN besar seperti BRI, Mandiri, Telkom, dan Pertamina.',
-    images: ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'],
-    impact: 'Efisiensi pengelolaan aset negara dan peningkatan daya saing investasi global.'
+    details: `BPI Danantara (Badan Pengelola Investasi Daya Anagata Nusantara) adalah lembaga baru yang diluncurkan pada 2025 untuk mengelola kekayaan dan investasi negara dalam skala besar. Berbeda dengan lembaga pengelola aset biasa, Danantara berfungsi sebagai "Sovereign Wealth Fund" yang mengonsolidasikan aset BUMN besar—seperti Bank Mandiri, BRI, Pertamina, dan Telkom—agar dapat diinvestasikan kembali secara profesional ke proyek strategis nasional untuk keuntungan jangka panjang.`,
+    points: [
+      { no: 1, focus: 'Fungsi Utama', explanation: 'Mengelola aset negara (terutama BUMN) dan menginvestasikan dana ke proyek strategis demi meningkatkan nilai ekonomi nasional.' },
+      { no: 2, focus: 'Skala Raksasa', explanation: 'Memiliki dana awal US$ 20 Miliar dengan potensi total aset kelolaan mencapai US$ 900 Miliar (Rp 14.000 Triliun), memposisikannya sebagai salah satu yang terbesar di dunia.' },
+      { no: 3, focus: 'Sektor Prioritas', explanation: 'Membiayai energi terbarukan, hilirisasi sumber daya alam, teknologi AI, infrastruktur manufaktur, dan ketahanan pangan.' },
+      { no: 4, focus: 'Visi Strategis', explanation: 'Meningkatkan pertumbuhan ekonomi hingga target 8%, menarik investasi global, dan meletakkan fondasi Indonesia Emas 2045.' }
+    ],
+    images: [danantaraImg],
+    impact: 'Menciptakan lapangan kerja baru, mempercepat industrialisasi, dan memperkuat posisi tawar ekonomi Indonesia di kancah global.'
   },
   {
     id: 'ina-digital',
     title: 'INA Digital',
     description: 'Transformasi digital birokrasi melalui satu portal layanan terpadu.',
-    progress: 0,
-    status: 'Efisiensi Birokrasi',
+    progress: 15,
+    status: 'Integrasi Nasional',
     icon: 'Cpu',
-    details: 'Konsolidasi >27.000 aplikasi pemerintah menjadi satu portal nasional. Fokus pada 9 layanan esensial termasuk kesehatan, pendidikan, dan bantuan sosial. Menggunakan Single Sign-On (SSO) dan Digital ID.',
-    images: ['https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800'],
-    impact: 'Penghematan anggaran Rp 6,2 Triliun per tahun dan pelayanan publik yang lebih cepat.'
+    details: `INA Digital adalah program strategis pemerintah untuk menyatukan layanan digital dalam satu sistem terintegrasi yang dikelola oleh GovTech Indonesia. Dengan menghubungkan lebih dari 27.000 aplikasi pemerintah yang sebelumnya terpisah-pisah, INA Digital hadir untuk menyederhanakan akses layanan publik menjadi lebih efisien, transparan, dan berbasis kebutuhan masyarakat (citizen-centric). Program ini bertujuan untuk menciptakan lompatan besar dalam transformasi digital nasional menuju Indonesia Emas 2045.`,
+    points: [
+      { no: 1, focus: 'Integrasi Layanan', explanation: 'Menyatukan puluhan ribu aplikasi pemerintah yang terfragmentasi ke dalam satu ekosistem GovTech Indonesia yang terintegrasi.' },
+      { no: 2, focus: 'Satu Portal Nasional', explanation: 'Menyediakan satu pintu akses untuk semua layanan publik guna mengurangi kerumitan birokrasi dan pengulangan input data oleh masyarakat.' },
+      { no: 3, focus: 'Efisiensi Birokrasi', explanation: 'Menghilangkan tumpang tindih fungsi aplikasi antar instansi dan mengoptimalkan anggaran pemeliharaan infrastruktur digital negara.' },
+      { no: 4, focus: 'Keamanan & Tata Kelola', explanation: 'Menjamin keamanan data pribadi warga dalam sistem yang kuat sekaligus mengatasi tantangan ego sektoral antar lembaga pemerintah.' }
+    ],
+    images: [inaDigitalImg],
+    impact: 'Penyederhanaan birokrasi digital, penghematan anggaran negara, dan peningkatan kualitas pelayanan publik yang lebih cepat serta transparan.'
   },
   {
     id: 'swasembada',
     title: 'Swasembada Pangan & Energi',
     description: 'Kemandirian nasional dalam pemenuhan kebutuhan dasar rakyat.',
-    progress: 0,
-    status: 'Kedaulatan Nasional',
+    progress: 10,
+    status: 'Kedaulatan Strategis',
     icon: 'Zap',
-    details: 'Cetak sawah baru 3 juta hektar, optimalisasi lahan rawa, dan pengembangan bioenergi (B50/B100). Target swasembada pangan tercapai dalam 3-4 tahun ke depan.',
-    images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800'],
-    impact: 'Ketahanan nasional terhadap gejolak harga dan pasokan global.'
+    details: `Program swasembada pangan dan energi adalah salah satu fokus utama pemerintahan Prabowo–Gibran untuk membangun kemandirian nasional tanpa bergantung pada impor. Strategi ini merupakan pilar penting dalam Asta Cita untuk memastikan ketahanan bangsa dalam menghadapi krisis global dengan mengoptimalkan kekayaan sumber daya alam domestik.`,
+    points: [
+      { no: 1, focus: 'Kemandirian Pangan', explanation: 'Meningkatkan produksi pertanian, mengurangi impor beras, dan menyejahterakan petani melalui modernisasi infrastruktur pertanian.' },
+      { no: 2, focus: 'Kedaulatan Energi', explanation: 'Mengembangkan energi terbarukan dan biodiesel (seperti B50) untuk menghentikan ketergantungan pada solar dan BBM impor.' },
+      { no: 3, focus: 'Pertumbuhan Ekonomi', explanation: 'Mendorong target pertumbuhan ekonomi hingga 8% melalui penciptaan pusat-pusat ekonomi baru di sektor agrikultur dan energi.' },
+      { no: 4, focus: 'Ketahanan Nasional', explanation: 'Menjaga stabilitas harga kebutuhan pokok dan energi agar Indonesia lebih tahan terhadap fluktuasi pasar internasional.' }
+    ],
+    images: [swasembadaImg],
+    impact: 'Mewujudkan kedaulatan nasional di sektor dasar, meningkatkan kesejahteraan petani/nelayan, dan menciptakan lapangan kerja luas di pedesaan.'
   }
 ];
 
@@ -486,70 +544,80 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Provinsi otonomi khusus berbasis syariat Islam di ujung Utara Sumatera.",
     issues: ["Implementasi Syariat Islam", "Dana Otsus", "Infrastruktur Barat-Selatan"],
     trivia: "Satu-satunya provinsi dengan partai politik lokal.",
-    dominantParty: "Partai Aceh", dominantPartyPercent: 45, isTrending: true
+    dominantParty: "Partai Aceh", dominantPartyPercent: 45, isTrending: true,
+    intelAnalysis: "Stabilitas politik lokal sangat bergantung pada efektivitas penggunaan dana Otsus dan narasi kekhususan daerah."
   },
   { 
     id: '2', name: 'Sumatera Utara', capital: 'Medan', governor: 'Bobby Nasution', party: 'Gerindra', population: '15.65 Juta', dprSeats: 30,
     details: "Pusat ekonomi Sumatera dengan keberagaman etnis yang sangat tinggi.",
     issues: ["Kriminalitas jalanan", "Perbaikan jalan", "Wisata Danau Toba"],
     trivia: "Jumlah pemilih terbesar di luar Pulau Jawa.",
-    dominantParty: "Golkar", dominantPartyPercent: 22
+    dominantParty: "Golkar", dominantPartyPercent: 22,
+    intelAnalysis: "Heterogenitas etnis dan agama menjadikan wilayah ini barometer politik inklusi nasional."
   },
   { 
     id: '3', name: 'Sumatera Barat', capital: 'Padang', governor: 'Mahyeldi Ansharullah', party: 'PKS', population: '5.86 Juta', dprSeats: 14,
     details: "Pusat budaya Minangkabau dengan tradisi intelektual politik yang kuat.",
     issues: ["Mitigasi bencana", "Ekonomi UMKM", "Pelestarian adat"],
     trivia: "Basis massa PKS terkuat di Sumatera.",
-    dominantParty: "PKS", dominantPartyPercent: 26
+    dominantParty: "PKS", dominantPartyPercent: 26,
+    intelAnalysis: "Kekuatan ideologis PKS yang dominan menuntut strategi pendekatan nilai-nilai konservatif yang modern."
   },
   { 
     id: '4', name: 'Riau', capital: 'Pekanbaru', governor: 'Abdul Wahid', party: 'PKB', population: '7.12 Juta', dprSeats: 13,
     details: "Lumbung energi nasional melalui minyak bumi dan perkebunan sawit.",
     issues: ["Karhutla", "Konflik agraria", "Hilirisasi industri"],
     trivia: "Provinsi dengan PDRB per kapita tertinggi di Sumatera.",
-    dominantParty: "Golkar", dominantPartyPercent: 19
+    dominantParty: "Golkar", dominantPartyPercent: 19,
+    intelAnalysis: "Sentimen kedaulatan energi dan keberlanjutan sawit menjadi variabel kunci preferensi pemilih."
   },
   { 
     id: '5', name: 'Jambi', capital: 'Jambi', governor: 'Al Haris', party: 'PAN', population: '3.79 Juta', dprSeats: 8,
     details: "Wilayah agraris dengan potensi perkebunan karet dan sawit masif.",
     issues: ["Logistik Batubara", "Restorasi lahan gambut", "Pendidikan"],
     trivia: "Rumah bagi Candi Muaro Jambi.",
-    dominantParty: "PAN", dominantPartyPercent: 18
+    dominantParty: "PAN", dominantPartyPercent: 18,
+    intelAnalysis: "Logistik batubara dan konflik agraria adalah isu sensitif yang dapat menggeser suara massa."
   },
   { 
     id: '6', name: 'Sumatera Selatan', capital: 'Palembang', governor: 'Herman Deru', party: 'NasDem', population: '8.89 Juta', dprSeats: 17,
     details: "Pusat pangan dan energi, bekas pusat Kerajaan Sriwijaya.",
     issues: ["Optimalisasi LRT", "Ketahanan pangan", "Tol Trans-Sumatera"],
     trivia: "Palembang adalah kota tertua di Indonesia.",
-    dominantParty: "Gerindra", dominantPartyPercent: 21
+    dominantParty: "Gerindra", dominantPartyPercent: 21,
+    intelAnalysis: "Pengaruh figur lokal dan sejarah kejayaan Sriwijaya masih sangat kuat dalam sosiologi pemilih."
   },
   { 
     id: '7', name: 'Bengkulu', capital: 'Bengkulu', governor: 'Rohidin Mersyah', party: 'Golkar', population: '2.11 Juta', dprSeats: 4,
     details: "Provinsi pesisir barat dengan sejarah kolonial Inggris yang kuat.",
     issues: ["Konektivitas", "Pengembangan pelabuhan", "Ekonomi pesisir"],
     trivia: "Tempat lahirnya Ibu Fatmawati.",
-    dominantParty: "Golkar", dominantPartyPercent: 24
+    dominantParty: "Golkar", dominantPartyPercent: 24,
+    intelAnalysis: "Infrastruktur konektivitas menjadi aspirasi utama untuk memecah isolasi ekonomi pesisir."
   },
   { 
     id: '8', name: 'Lampung', capital: 'Bandar Lampung', governor: 'Rahmat Mirzani Djausal', party: 'Gerindra', population: '9.46 Juta', dprSeats: 20,
     details: "Gerbang logistik Sumatera-Jawa dan pusat transmigrasi.",
     issues: ["Keamanan (Begal)", "Jalan rusak", "Swasembada Jagung"],
     trivia: "Titik nol Jalan Tol Trans Sumatera.",
-    dominantParty: "Gerindra", dominantPartyPercent: 23
+    dominantParty: "Gerindra", dominantPartyPercent: 23,
+    intelAnalysis: "Sebagai gerbang Sumatera, isu keamanan dan perbaikan jalan adalah determiner utama kepuasan publik."
   },
   { 
     id: '9', name: 'Kepulauan Bangka Belitung', capital: 'Pangkalpinang', governor: 'Erzaldi Rosman', party: 'Gerindra', population: '1.53 Juta', dprSeats: 3,
     details: "Provinsi kepulauan penghasil timah terbesar di dunia.",
     issues: ["Reklamasi tambang", "Pariwisata bahari", "Ekonomi non-timah"],
     trivia: "Inspirasi lokasi novel Laskar Pelangi.",
-    dominantParty: "Gerindra", dominantPartyPercent: 20
+    dominantParty: "Gerindra", dominantPartyPercent: 20,
+    intelAnalysis: "Diversifikasi ekonomi pasca-timah dan pengembangan pariwisata bahari adalah prioritas intelijen."
   },
   { 
     id: '10', name: 'Kepulauan Riau', capital: 'Tanjungpinang', governor: 'Ansar Ahmad', party: 'Golkar', population: '2.31 Juta', dprSeats: 4,
     details: "Pusat industri manufaktur perbatasan Singapura.",
     issues: ["Kedaulatan maritim", "Transportasi antar-pulau", "Batam-Bintan Bridge"],
     trivia: "Memiliki lebih dari 2.400 pulau.",
-    dominantParty: "Golkar", dominantPartyPercent: 21
+    dominantParty: "Golkar", dominantPartyPercent: 21,
+    intelAnalysis: "Posisi geografis perbatasan menuntut fokus pada kedaulatan maritim dan investasi industri manufaktur."
   },
 
   // --- JAWA ---
@@ -558,42 +626,48 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Pusat ekonomi nasional dan barometer politik.",
     issues: ["Polusi udara", "Banjir", "Transisi pasca-IKN"],
     trivia: "Status Daerah Khusus Jakarta (DKJ).",
-    dominantParty: "PKS", dominantPartyPercent: 28, isTrending: true
+    dominantParty: "PKS", dominantPartyPercent: 28, isTrending: true,
+    intelAnalysis: "Transisi status Jakarta pasca-IKN menciptakan dinamika baru dalam perebutan pengaruh politik ekonomi."
   },
   { 
     id: '12', name: 'Jawa Barat', capital: 'Bandung', governor: 'Dedi Mulyadi', party: 'Gerindra', population: '50.48 Juta', dprSeats: 91,
     details: "Provinsi populasi terbesar, battleground utama Pemilu.",
     issues: ["Pengangguran", "Sampah", "Kesenjangan"],
     trivia: "Pemilih terbanyak di Indonesia.",
-    dominantParty: "Gerindra", dominantPartyPercent: 32, isTrending: true
+    dominantParty: "Gerindra", dominantPartyPercent: 32, isTrending: true,
+    intelAnalysis: "Populasi raksasa menjadikannya battleground paling krusial. Pergeseran sentimen di sini menentukan pemenang nasional."
   },
   { 
     id: '13', name: 'Banten', capital: 'Serang', governor: 'Airin Rachmi Diany', party: 'Golkar', population: '12.59 Juta', dprSeats: 22,
     details: "Pusat industri manufaktur dan gerbang udara.",
     issues: ["Pengangguran industri", "Korupsi", "Infrastruktur Banten Selatan"],
     trivia: "Gerbang utama udara Indonesia (Soekarno-Hatta).",
-    dominantParty: "Gerindra", dominantPartyPercent: 22
+    dominantParty: "Gerindra", dominantPartyPercent: 22,
+    intelAnalysis: "Dominasi klan politik lokal dan isu pengangguran di sektor industri menjadi tantangan stabilisasi."
   },
   { 
     id: '14', name: 'Jawa Tengah', capital: 'Semarang', governor: 'Ahmad Luthfi', party: 'Gerindra', population: '38.07 Juta', dprSeats: 77,
     details: "Basis massa tradisional dan pusat kebudayaan Jawa.",
     issues: ["Banjir Rob", "Kemiskinan Eks-Karesidenan Solo", "Industrialisasi"],
     trivia: "Pusat gravitasi politik Jawa.",
-    dominantParty: "PDI-P", dominantPartyPercent: 34
+    dominantParty: "PDI-P", dominantPartyPercent: 34,
+    intelAnalysis: "Basis tradisional PDI-P yang kuat memerlukan strategi penetrasi berbasis pemberdayaan desa dan umkm."
   },
   { 
     id: '15', name: 'DI Yogyakarta', capital: 'Yogyakarta', governor: 'Sri Sultan Hamengkubuwono X', party: 'Independen', population: '3.80 Juta', dprSeats: 8,
     details: "Daerah Istimewa dengan sistem monarki konstitusional.",
     issues: ["Sampah", "Harga tanah", "Klithih"],
     trivia: "Gubernur dijabat oleh Sultan yang bertakhta.",
-    dominantParty: "PDI-P", dominantPartyPercent: 24
+    dominantParty: "PDI-P", dominantPartyPercent: 24,
+    intelAnalysis: "Keseimbangan antara modernisasi pendidikan dan pelestarian monarki adalah kunci stabilitas wilayah."
   },
   { 
     id: '16', name: 'Jawa Timur', capital: 'Surabaya', governor: 'Khofifah Indar Parawansa', party: 'Independen/NU', population: '41.81 Juta', dprSeats: 87,
     details: "Pusat industri Timur Indonesia dan basis massa NU.",
     issues: ["Disparitas Madura", "Infrastruktur desa", "Gunung Berapi"],
     trivia: "Lumbung suara PKB dan PDI-P.",
-    dominantParty: "PKB", dominantPartyPercent: 25
+    dominantParty: "PKB", dominantPartyPercent: 25,
+    intelAnalysis: "Pengaruh kyai dan jaringan pesantren merupakan variabel mutlak dalam pemenangan suara di tingkat akar rumput."
   },
 
   // --- BALI & NUSA TENGGARA ---
@@ -602,21 +676,24 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Pusat pariwisata internasional.",
     issues: ["Over-tourism", "Kelangkaan air", "Adat vs Modernisasi"],
     trivia: "Basis terkuat PDI-P di Indonesia.",
-    dominantParty: "PDI-P", dominantPartyPercent: 52
+    dominantParty: "PDI-P", dominantPartyPercent: 52,
+    intelAnalysis: "Ketahanan industri pariwisata terhadap isu global dan pelestarian adat adalah fokus utama stabilitas."
   },
   { 
     id: '18', name: 'Nusa Tenggara Barat', capital: 'Mataram', governor: 'Lalu Muhamad Iqbal', party: 'Independen', population: '5.51 Juta', dprSeats: 11,
     details: "Pusat wisata olahraga dan pertanian.",
     issues: ["Sirkuit Mandalika", "PMI Ilegal", "Kekeringan"],
     trivia: "Hub wisata halal Indonesia.",
-    dominantParty: "Gerindra", dominantPartyPercent: 20
+    dominantParty: "Gerindra", dominantPartyPercent: 20,
+    intelAnalysis: "Narasi sport-tourism (Mandalika) dan pemberdayaan PMI adalah isu strategis untuk penggalangan massa."
   },
   { 
     id: '19', name: 'Nusa Tenggara Timur', capital: 'Kupang', governor: 'Melkiades Laka Lena', party: 'Golkar', population: '5.56 Juta', dprSeats: 13,
     details: "Wilayah kepulauan dengan potensi wisata alam unik.",
     issues: ["Stunting", "Krisis air", "Konektivitas"],
     trivia: "Gerbang batas darat Timor Leste.",
-    dominantParty: "PDI-P", dominantPartyPercent: 21
+    dominantParty: "PDI-P", dominantPartyPercent: 21,
+    intelAnalysis: "Optimalisasi sumber daya laut dan penanganan stunting menjadi agenda prioritas pemerintah daerah."
   },
 
   // --- KALIMANTAN ---
@@ -625,35 +702,40 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Berbatasan darat dengan Malaysia, pusat bauksit.",
     issues: ["Perbatasan", "Infrastruktur", "Karhutla"],
     trivia: "Dilalui garis khatulistiwa.",
-    dominantParty: "PDI-P", dominantPartyPercent: 23
+    dominantParty: "PDI-P", dominantPartyPercent: 23,
+    intelAnalysis: "Manajemen harmoni sosial antar etnis di wilayah perbatasan adalah kunci stabilitas intelijen."
   },
   { 
     id: '21', name: 'Kalimantan Tengah', capital: 'Palangkaraya', governor: 'Sugianto Sabran', party: 'PDI-P', population: '2.77 Juta', dprSeats: 6,
     details: "Konservasi orangutan dan Food Estate.",
     issues: ["Food Estate", "Lahan Gambut", "Banjir"],
     trivia: "Ibu kota masa depan rancangan Bung Karno.",
-    dominantParty: "PDI-P", dominantPartyPercent: 25
+    dominantParty: "PDI-P", dominantPartyPercent: 25,
+    intelAnalysis: "Keberhasilan Food Estate dan pencegahan Karhutla sangat menentukan penilaian kinerja pusat."
   },
   { 
     id: '22', name: 'Kalimantan Selatan', capital: 'Banjarbaru', governor: 'Muhidin', party: 'PAN', population: '4.22 Juta', dprSeats: 11,
     details: "Pusat batubara dan budaya religius.",
     issues: ["Lubang tambang", "Ibu kota Banjarbaru", "Konektivitas"],
     trivia: "Pusat perdagangan batu permata (Martapura).",
-    dominantParty: "Golkar", dominantPartyPercent: 22
+    dominantParty: "Golkar", dominantPartyPercent: 22,
+    intelAnalysis: "Transisi ekonomi dari batubara ke sektor berkelanjutan mulai menjadi perhatian pemilih muda."
   },
   { 
     id: '23', name: 'Kalimantan Timur', capital: 'Samarinda', governor: 'Isran Noor', party: 'Independen', population: '3.94 Juta', dprSeats: 8,
     details: "Lokasi IKN, pusat migas dan batubara.",
     issues: ["IKN", "Hilirisasi", "Lingkungan"],
     trivia: "Provinsi terkaya di Kalimantan.",
-    dominantParty: "Golkar", dominantPartyPercent: 23, isTrending: true
+    dominantParty: "Golkar", dominantPartyPercent: 23, isTrending: true,
+    intelAnalysis: "Akselerasi pembangunan IKN menciptakan potensi gesekan lahan sekaligus peluang ekonomi masif."
   },
   { 
     id: '24', name: 'Kalimantan Utara', capital: 'Tanjung Selor', governor: 'Zainal Arifin Paliwang', party: 'Gerindra', population: '0.74 Juta', dprSeats: 3,
     details: "Provinsi termuda di Kalimantan, energi hijau.",
     issues: ["Kawasan Industri Hijau", "PLTA Kayan", "Perbatasan"],
     trivia: "Provinsi dengan populasi paling sedikit.",
-    dominantParty: "Gerindra", dominantPartyPercent: 24
+    dominantParty: "Gerindra", dominantPartyPercent: 24,
+    intelAnalysis: "Pengembangan Kawasan Industri Hijau dan PLTA Kayan merupakan proyek strategis kedaulatan energi."
   },
 
   // --- SULAWESI ---
@@ -662,42 +744,48 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Pusat ekonomi Pasifik dan wisata bahari.",
     issues: ["Gerbang Pasifik", "Toleransi", "Infrastruktur"],
     trivia: "Sering disebut 'The Land of Smiling People'.",
-    dominantParty: "PDI-P", dominantPartyPercent: 38
+    dominantParty: "PDI-P", dominantPartyPercent: 38,
+    intelAnalysis: "Sebagai hub Pasifik, toleransi beragama dan stabilitas keamanan perbatasan utara sangat krusial."
   },
   { 
     id: '26', name: 'Sulawesi Tengah', capital: 'Palu', governor: 'Rusdy Mastura', party: 'Gerindra', population: '3.08 Juta', dprSeats: 7,
     details: "Penghasil nikel dan wilayah pemulihan bencana.",
     issues: ["Nikel", "Likuifaksi", "Konflik agraria"],
     trivia: "Pusat industri nikel Morowali.",
-    dominantParty: "Golkar", dominantPartyPercent: 20
+    dominantParty: "Golkar", dominantPartyPercent: 20,
+    intelAnalysis: "Industri nikel Morowali membawa dampak ekonomi besar namun menuntut manajemen konflik lingkungan yang ketat."
   },
   { 
     id: '27', name: 'Sulawesi Selatan', capital: 'Makassar', governor: 'Andi Sudirman Sulaiman', party: 'Independen', population: '9.22 Juta', dprSeats: 24,
     details: "Hub transportasi udara dan laut Timur Indonesia.",
     issues: ["KA Trans-Sulawesi", "Ekonomi Makassar", "Pertanian"],
     trivia: "Gerbang utama Indonesia Timur.",
-    dominantParty: "NasDem", dominantPartyPercent: 19
+    dominantParty: "NasDem", dominantPartyPercent: 19,
+    intelAnalysis: "Konektivitas kereta api Trans-Sulawesi merupakan simbol kemajuan yang sangat diminati konstituen."
   },
   { 
     id: '28', name: 'Sulawesi Tenggara', capital: 'Kendari', governor: 'Andap Budhi Revianto', party: 'Pj (Pemerintah)', population: '2.70 Juta', dprSeats: 6,
     details: "Lumbung aspal dan nikel nasional.",
     issues: ["Smelter", "Wakatobi", "Aspal Buton"],
     trivia: "Memiliki aspal alam terbaik di dunia.",
-    dominantParty: "NasDem", dominantPartyPercent: 18
+    dominantParty: "NasDem", dominantPartyPercent: 18,
+    intelAnalysis: "Hilirisasi aspal Buton dan pengembangan Wakatobi menjadi komoditas politik yang menjanjikan."
   },
   { 
     id: '29', name: 'Gorontalo', capital: 'Gorontalo', governor: 'Rudy Salahuddin', party: 'Pj (Pemerintah)', population: '1.20 Juta', dprSeats: 3,
     details: "Provinsi agraris Serambi Madinah.",
     issues: ["Jagung", "Kemiskinan", "Pendidikan"],
     trivia: "Provinsi paling aman di Sulawesi.",
-    dominantParty: "Golkar", dominantPartyPercent: 25
+    dominantParty: "Golkar", dominantPartyPercent: 25,
+    intelAnalysis: "Fokus pada swasembada jagung dan pengentasan kemiskinan di wilayah agraris."
   },
   { 
     id: '30', name: 'Sulawesi Barat', capital: 'Mamuju', governor: 'Bahtiar Baharuddin', party: 'Pj (Pemerintah)', population: '1.45 Juta', dprSeats: 4,
     details: "Penghasil kakao terbesar.",
     issues: ["Kakao", "Gempa", "Infrastruktur"],
     trivia: "Memiliki tradisi bahari Sandeq.",
-    dominantParty: "Golkar", dominantPartyPercent: 21
+    dominantParty: "Golkar", dominantPartyPercent: 21,
+    intelAnalysis: "Peningkatan nilai tambah komoditas kakao dan mitigasi bencana gempa adalah prioritas daerah."
   },
 
   // --- MALUKU & PAPUA ---
@@ -706,56 +794,64 @@ export const PROVINCES_DATA: ProvinceData[] = [
     details: "Provinsi kepulauan kekayaan rempah.",
     issues: ["Blok Masela", "LIN", "Konektivitas"],
     trivia: "Negeri Para Raja.",
-    dominantParty: "PDI-P", dominantPartyPercent: 22
+    dominantParty: "PDI-P", dominantPartyPercent: 22,
+    intelAnalysis: "Blok Masela dan Lumbung Ikan Nasional merupakan harapan besar yang menanti realisasi konkret."
   },
   { 
     id: '32', name: 'Maluku Utara', capital: 'Sofifi', governor: 'Al Yasin Ali', party: 'PDI-P', population: '1.31 Juta', dprSeats: 3,
     details: "Investasi nikel dunia dan kesultanan.",
     issues: ["Nikel Weda Bay", "Ibu Kota Sofifi", "Pertambangan"],
     trivia: "Pertumbuhan ekonomi fenomenal.",
-    dominantParty: "PDI-P", dominantPartyPercent: 20
+    dominantParty: "PDI-P", dominantPartyPercent: 20,
+    intelAnalysis: "Booming investasi nikel harus diimbangi dengan pemerataan manfaat ekonomi bagi masyarakat lokal."
   },
   { 
     id: '33', name: 'Papua', capital: 'Jayapura', governor: 'Ridwan Rumasukun', party: 'Pj (Pemerintah)', population: '1.03 Juta', dprSeats: 3,
     details: "Pusat pemerintahan tanah Papua.",
     issues: ["Otsus", "Keamanan", "Pendidikan"],
     trivia: "Ibu kota paling timur (Jayapura).",
-    dominantParty: "PDI-P", dominantPartyPercent: 18
+    dominantParty: "PDI-P", dominantPartyPercent: 18,
+    intelAnalysis: "Optimalisasi dana Otsus dan peningkatan kualitas SDM melalui pendidikan adalah kunci perdamaian."
   },
   { 
     id: '34', name: 'Papua Barat', capital: 'Manokwari', governor: 'Ali Baham Temongmere', party: 'Pj (Pemerintah)', population: '0.56 Juta', dprSeats: 3,
     details: "Konservasi alam Raja Ampat.",
     issues: ["Konservasi", "Pariwisata", "Otsus"],
     trivia: "Pusat penelitian burung Cendrawasih.",
-    dominantParty: "Golkar", dominantPartyPercent: 22
+    dominantParty: "Golkar", dominantPartyPercent: 22,
+    intelAnalysis: "Pengembangan ekowisata Raja Ampat dan konservasi hutan lindung menjadi identitas politik wilayah."
   },
   { 
     id: '35', name: 'Papua Tengah', capital: 'Nabire', governor: 'Ribka Haluk', party: 'Pj (Pemerintah)', population: '1.43 Juta', dprSeats: 3,
     details: "Lokasi tambang emas Grasberg.",
     issues: ["Tambang", "Pembangunan DOB", "Keamanan"],
     trivia: "Gunung tertinggi di Indonesia.",
-    dominantParty: "PDI-P", dominantPartyPercent: 19
+    dominantParty: "PDI-P", dominantPartyPercent: 19,
+    intelAnalysis: "Distribusi manfaat tambang Grasberg dan stabilitas di wilayah pegunungan tengah sangat dinamis."
   },
   { 
     id: '36', name: 'Papua Selatan', capital: 'Merauke', governor: 'Apolo Safanpo', party: 'Pj (Pemerintah)', population: '0.52 Juta', dprSeats: 3,
     details: "Lumbung pangan Timur.",
     issues: ["Food Estate Merauke", "Perbatasan", "Sagu"],
     trivia: "Titik nol Kilometer Timur Indonesia.",
-    dominantParty: "PDI-P", dominantPartyPercent: 24
+    dominantParty: "PDI-P", dominantPartyPercent: 24,
+    intelAnalysis: "Visi Merauke sebagai lumbung pangan Indonesia Timur memerlukan dukungan infrastruktur irigasi masif."
   },
   { 
     id: '37', name: 'Papua Pegunungan', capital: 'Wamena', governor: 'Velix Wanggai', party: 'Pj (Pemerintah)', population: '1.43 Juta', dprSeats: 3,
     details: "Satu-satunya provinsi Landlocked (tanpa laut).",
     issues: ["Kesejahteraan", "Akses Logistik", "Budaya"],
     trivia: "Festival Budaya Lembah Baliem.",
-    dominantParty: "PDI-P", dominantPartyPercent: 26
+    dominantParty: "PDI-P", dominantPartyPercent: 26,
+    intelAnalysis: "Adaptasi budaya dalam pembangunan dan peningkatan akses logistik udara adalah tantangan utama."
   },
   { 
     id: '38', name: 'Papua Barat Daya', capital: 'Sorong', governor: 'Mohammad Musa\'ad', party: 'Pj (Pemerintah)', population: '0.61 Juta', dprSeats: 3,
     details: "Gerbang utama Papua industri migas.",
     issues: ["Kawasan Ekonomi Khusus", "Pariwisata", "Migas"],
     trivia: "Provinsi paling bungsu (ke-38).",
-    dominantParty: "Golkar", dominantPartyPercent: 21
+    dominantParty: "Golkar", dominantPartyPercent: 21,
+    intelAnalysis: "Status sebagai provinsi baru menuntut percepatan pembentukan birokrasi yang bersih dan melayani."
   }
 ];
 
@@ -860,7 +956,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Presiden Prabowo Subianto dalam pidatonya menegaskan bahwa hilirisasi industri adalah kunci utama bagi Indonesia untuk keluar dari jebakan pendapatan menengah.',
     date: '01 Mar 2026',
     category: 'Nasional',
-    imageUrl: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800',
     url: 'https://nasional.kompas.com/'
   },
   {
@@ -869,7 +965,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Wakil Presiden Gibran Rakabuming Raka memastikan pemerataan akses internet cepat di Papua dan Maluku untuk mendukung ekonomi kreatif digital.',
     date: '28 Feb 2026',
     category: 'Teknologi',
-    imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800',
     url: 'https://www.metrotvnews.com/'
   },
   {
@@ -914,7 +1010,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Progres pembangunan infrastruktur inti di IKN telah mencapai 85%, siap untuk upacara kemerdekaan mendatang.',
     date: '23 Feb 2026',
     category: 'Infrastruktur',
-    imageUrl: 'https://images.unsplash.com/photo-1540910419892-f03d98c32a73?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&h=400&fit=crop',
     url: 'https://nasional.tempo.co/'
   },
   {
@@ -923,25 +1019,7 @@ export const NEWS_DATA: NewsItem[] = [
     summary: 'Kebijakan baru ini bertujuan meningkatkan efisiensi dan keseimbangan kerja bagi aparatur sipil negara di wilayah perkotaan.',
     date: '22 Feb 2026',
     category: 'Pemerintahan',
-    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=600&h=400&fit=crop',
-    url: 'https://www.metrotvnews.com/'
-  },
-  {
-    id: 'n9',
-    title: 'Pilkada Serentak 2026: KPU Pastikan Kesiapan Logistik di Daerah Terpencil',
-    summary: 'KPU mulai mendistribusikan kotak suara dan surat suara ke wilayah kepulauan untuk menjamin hak pilih warga.',
-    date: '21 Feb 2026',
-    category: 'Politik',
-    imageUrl: 'https://images.unsplash.com/photo-1540910419892-f03d98c32a73?q=80&w=600&h=400&fit=crop',
-    url: 'https://nasional.kompas.com/'
-  },
-  {
-    id: 'n10',
-    title: 'Inovasi Energi Hijau: Pembangkit Listrik Tenaga Surya Terapung Terbesar Diresmikan',
-    summary: 'Indonesia memperkuat komitmen transisi energi dengan meresmikan PLTS terapung yang mampu melistriki ribuan rumah.',
-    date: '20 Feb 2026',
-    category: 'Lingkungan',
-    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=600&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&h=400&fit=crop',
     url: 'https://www.metrotvnews.com/'
   }
 ];

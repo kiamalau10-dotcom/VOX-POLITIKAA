@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Send, MessageCircle, Heart, Search } from 'lucide-react';
 import { User } from '../types';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import { getAvatarUrl } from '../services/avatarService';
 import { 
   db, 
   collection, 
@@ -33,6 +36,120 @@ interface Post {
   shares?: number;
   authorId?: string;
 }
+
+const PostCard = React.memo(({ post, currentUser, isDarkMode, onLike, onCommentToggle, onCommentDelete, onDelete, isCommenting }: {
+  post: Post,
+  currentUser: User | null,
+  isDarkMode: boolean,
+  onLike: (id: string) => void,
+  onCommentToggle: (id: string) => void,
+  onCommentDelete: (id: string, comment: any) => void,
+  onDelete: (id: string) => void,
+  isCommenting: boolean
+}) => {
+  const [commentText, setCommentText] = React.useState('');
+
+  const formatTimestamp = (ts: any) => {
+    if (!ts) return 'Baru saja';
+    if (ts.toDate) return ts.toDate().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return ts;
+  };
+
+  const avatarUrl = getAvatarUrl(post.username, post.avatarConfig);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-white border-black/5 shadow-xl'} will-change-transform`}
+    >
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-red-600/10 overflow-hidden border-2 border-red-600/20">
+              <LazyLoadImage 
+                src={avatarUrl} 
+                alt="avatar" 
+                effect="blur"
+                wrapperClassName="w-full h-full"
+                referrerPolicy="no-referrer"
+              />
+          </div>
+          <div>
+            <h4 className="font-black uppercase text-sm">{post.displayName}</h4>
+            <p className="text-[10px] font-bold opacity-40 uppercase">{formatTimestamp(post.timestamp)}</p>
+          </div>
+        </div>
+
+        {(currentUser?.role === 'ADMIN' || currentUser?.username === post.username || currentUser?.username.toLowerCase() === '@superadmin') && (
+          <button 
+            onClick={() => onDelete(post.id)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all active:scale-95"
+          >
+            <Trash2 size={12} /> Hapus
+          </button>
+        )}
+      </div>
+
+      <p className={`text-lg mb-8 ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>{post.content}</p>
+
+      <div className="flex gap-8 pt-6 border-t border-white/5">
+        <button onClick={() => onLike(post.id)} className={`flex items-center gap-2 text-xs font-bold ${post.likes.includes(currentUser?.username || '') ? 'text-red-600' : 'opacity-50'}`}>
+          <Heart size={16} /> {post.likes.length}
+        </button>
+        <button onClick={() => onCommentToggle(post.id)} className="flex items-center gap-2 text-xs font-bold opacity-50">
+          <MessageCircle size={16} /> {post.comments.length}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {isCommenting && (
+          <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+            <div className="space-y-3">
+              {post.comments.map((comment, idx) => (
+                <div key={idx} className="p-3 rounded-xl bg-black/5 flex justify-between items-start group/comment">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-black uppercase text-red-600 mb-1">{comment.username}</p>
+                    <p className="text-xs font-medium">{comment.text}</p>
+                  </div>
+                  {(currentUser?.role === 'ADMIN' || currentUser?.username === comment.username) && (
+                    <button 
+                      onClick={() => onCommentDelete(post.id, comment)}
+                      className="p-1 text-zinc-400 hover:text-red-600 transition-colors opacity-0 group-hover/comment:opacity-100"
+                      title="Hapus Komentar"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Tulis komentar..."
+                className={`flex-1 p-3 rounded-xl text-xs outline-none border-2 transition-all ${isDarkMode ? 'bg-black border-white/5 focus:border-red-600' : 'bg-gray-50 border-black/5 focus:border-red-600'}`}
+              />
+              <button 
+                onClick={() => {
+                   if (commentText.trim()) {
+                     // Pass the comment text up or handle here
+                     (window as any).handleCommentInternal?.(post.id, commentText);
+                     setCommentText('');
+                   }
+                }} 
+                className="p-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all"
+              >
+                <Send size={14} />
+              </button>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+});
 
 const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = ({ currentUser, isDarkMode }) => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -127,19 +244,24 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     });
   };
 
-  const handleComment = async (postId: string) => {
-    if (!commentText.trim() || !currentUser) return;
+  const handleComment = React.useCallback(async (postId: string, textOverride?: string) => {
+    const finalCommentText = textOverride || commentText;
+    if (!finalCommentText.trim() || !currentUser) return;
     const postRef = doc(db, 'posts', postId);
     await updateDoc(postRef, {
       comments: arrayUnion({
         username: currentUser.username,
-        text: commentText,
+        text: finalCommentText,
         timestamp: new Date().toISOString()
       })
     });
-    setCommentText('');
+    if (!textOverride) setCommentText('');
     setCommentingOn(null);
-  };
+  }, [currentUser, commentText]);
+
+  useEffect(() => {
+    (window as any).handleCommentInternal = handleComment;
+  }, [handleComment]);
 
   const handleDeleteComment = async (postId: string, comment: any) => {
     try {
@@ -159,12 +281,6 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       p.displayName.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [posts, searchQuery]);
-
-  const formatTimestamp = (ts: any) => {
-    if (!ts) return 'Baru saja';
-    if (ts.toDate) return ts.toDate().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-    return ts;
-  };
 
   return (
     <div className="max-w-4xl mx-auto py-20 px-6">
@@ -215,80 +331,17 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       {/* Feed Section */}
       <div className="space-y-6">
         {filteredPosts.map((post) => (
-          <div key={post.id} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-white border-black/5 shadow-xl'}`}>
-            <div className="flex justify-between items-start mb-6">
-              <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-red-600/10 overflow-hidden border-2 border-red-600/20">
-                    <img src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${post.username}`} alt="avatar" />
-                </div>
-                <div>
-                  <h4 className="font-black uppercase text-sm">{post.displayName}</h4>
-                  <p className="text-[10px] font-bold opacity-40 uppercase">{formatTimestamp(post.timestamp)}</p>
-                </div>
-              </div>
-
-              {/* Tombol Hapus: Muncul jika kamu Admin atau Kamu Pemiliknya */}
-              {(currentUser?.role === 'ADMIN' || currentUser?.username === post.username || currentUser?.username.toLowerCase() === '@superadmin') && (
-                <button 
-                  onClick={() => setPostToDelete(post.id)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all active:scale-95"
-                >
-                  <Trash2 size={12} /> Hapus
-                </button>
-              )}
-            </div>
-
-            <p className={`text-lg mb-8 ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>{post.content}</p>
-
-            {/* Actions */}
-            <div className="flex gap-8 pt-6 border-t border-white/5">
-              <button onClick={() => handleLike(post.id)} className={`flex items-center gap-2 text-xs font-bold ${post.likes.includes(currentUser?.username || '') ? 'text-red-600' : 'opacity-50'}`}>
-                <Heart size={16} /> {post.likes.length}
-              </button>
-              <button onClick={() => setCommentingOn(commentingOn === post.id ? null : post.id)} className="flex items-center gap-2 text-xs font-bold opacity-50">
-                <MessageCircle size={16} /> {post.comments.length}
-              </button>
-            </div>
-
-            {/* Comment Section */}
-            <AnimatePresence>
-              {commentingOn === post.id && (
-                <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
-                  <div className="space-y-3">
-                    {post.comments.map((comment, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-black/5 flex justify-between items-start group/comment">
-                        <div className="flex-1">
-                          <p className="text-[10px] font-black uppercase text-red-600 mb-1">{comment.username}</p>
-                          <p className="text-xs font-medium">{comment.text}</p>
-                        </div>
-                        {(currentUser?.role === 'ADMIN' || currentUser?.username === comment.username) && (
-                          <button 
-                            onClick={() => handleDeleteComment(post.id, comment)}
-                            className="p-1 text-zinc-400 hover:text-red-600 transition-colors opacity-0 group-hover/comment:opacity-100"
-                            title="Hapus Komentar"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Tulis komentar..."
-                      className={`flex-1 p-3 rounded-xl text-xs outline-none border-2 transition-all ${isDarkMode ? 'bg-black border-white/5 focus:border-red-600' : 'bg-gray-50 border-black/5 focus:border-red-600'}`}
-                    />
-                    <button onClick={() => handleComment(post.id)} className="p-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all">
-                      <Send size={14} />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </AnimatePresence>
-          </div>
+          <PostCard 
+            key={post.id}
+            post={post}
+            currentUser={currentUser}
+            isDarkMode={isDarkMode}
+            onLike={handleLike}
+            onCommentToggle={(id) => setCommentingOn(commentingOn === id ? null : id)}
+            onCommentDelete={handleDeleteComment}
+            onDelete={setPostToDelete}
+            isCommenting={commentingOn === post.id}
+          />
         ))}
       </div>
 

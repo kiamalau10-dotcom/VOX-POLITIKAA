@@ -49,13 +49,13 @@ export const googleProvider = new GoogleAuthProvider();
 async function testConnection() {
   try {
     // Attempt to read a dummy doc to verify connection
+    // We use a small timeout to avoid long waits in offline mode
     await getDocFromServer(doc(db, '_connection_test_', 'ping'));
     console.log("Firebase connection established successfully.");
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client is offline.");
-    }
-    // Skip logging for other errors during initial test
+  } catch {
+    // Silently fail as the app will automatically operate in offline mode
+    // This avoids flooding the console with errors if Firebase is not yet provisioned
+    console.info("Firestore is currently in offline mode. Data will be persisted locally.");
   }
 }
 

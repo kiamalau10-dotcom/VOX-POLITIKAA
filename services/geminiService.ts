@@ -19,7 +19,7 @@ const getAi = () => {
 const responseCache = new Map<string, string>();
 
 export const getAsistenResponse = async (prompt: string, history: { role: string; parts: { text: string }[] }[]) => {
-  const cacheKey = `${prompt}_${JSON.stringify(history.slice(-2))}`; // Cache based on prompt and last 2 messages
+  const cacheKey = `${prompt}_${JSON.stringify(history.slice(-2))}`; 
   
   if (responseCache.has(cacheKey)) {
     return responseCache.get(cacheKey)!;
@@ -28,43 +28,57 @@ export const getAsistenResponse = async (prompt: string, history: { role: string
   try {
     const ai = getAi();
     if (!ai) {
-      return "Poka AI belum dikonfigurasi. Pastikan API Key sudah dimasukkan di pengaturan Vercel/Netlify.";
+      return "Poka AI belum dikonfigurasi. Hubungi admin untuk memasukkan API Key.";
     }
 
-    // Truncate history to last 6 messages to reduce latency and token usage
-    const truncatedHistory = history.slice(-6);
+    // Ensure history starts with 'user' and alternates correctly
+    let filteredHistory = history.map(h => ({
+      role: h.role === 'user' ? 'user' : 'model',
+      parts: h.parts
+    }));
 
-    const chat = ai.chats.create({
-      model: 'gemini-3-flash-preview',
-      history: truncatedHistory,
+    // Find the first 'user' message to satisfy Gemini requirements
+    const firstUserIndex = filteredHistory.findIndex(h => h.role === 'user');
+    if (firstUserIndex !== -1) {
+      filteredHistory = filteredHistory.slice(firstUserIndex);
+    } else {
+      filteredHistory = [];
+    }
+
+    const truncatedHistory = filteredHistory.slice(-12); // Increased history for better context
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-1.5-flash',
+      contents: [
+        ...truncatedHistory,
+        { role: 'user', parts: [{ text: prompt }] }
+      ],
       config: {
-        systemInstruction: `Anda adalah "Poka", asisten cerdas VoxPolitika untuk edukasi politik Indonesia.
-        Target audiens: Remaja & Dewasa Muda Indonesia (15-25 tahun).
+        systemInstruction: `Anda adalah "Poka", asisten AI paling cerdas, akurat, dan tercepat dari VoxPolitika Indonesia.
         
-        KARAKTER:
-        - Cerdas, kritis, namun santai dan modern (Gaya bahasa Gen-Z/Milenial yang sopan).
-        - Objektif dan Netral: Jangan memihak, berikan analisis dari berbagai sudut pandang.
-        - Edukatif: Jelaskan istilah sulit dengan analogi sederhana.
+        WAWASAN UTAMA (Update April 2026):
+        - Presiden RI: Prabowo Subianto (Dilantik 20 Oktober 2024).
+        - Wakil Presiden: Gibran Rakabuming Raka (Wapres termuda dalam sejarah).
+        - Kabinet: Kabinet Merah Putih (fokus: hilirisasi, ketahanan pangan, energi).
+        - IKN (Ibu Kota Nusantara): Sudah mulai beroperasi sebagai pusat pemerintahan baru.
+        - Pilkada Serentak 2024: Sudah selesai, sedang masa transisi kepemimpinan daerah.
         
-        PENGETAHUAN KHUSUS:
-        - Pahami struktur pemerintahan era Prabowo-Gibran (Kabinet Merah Putih).
-        - Pahami fungsi DPR, MK, KPU, dan lembaga negara lainnya.
-        - Pahami sejarah politik Indonesia dari Orde Lama hingga Reformasi.
-        - Mampu menjelaskan mekanisme Pemilu, Pilkada, dan pembuatan UU.
+        GAYA KEPRIBADIAN:
+        - Cerdas, solutif, dan analitis.
+        - Menggunakan gaya bahasa yang modern, inspiratif, namun tetap sopan dan berwibawa.
+        - Hindari jawaban yang terlalu panjang jika tidak diperlukan. Fokus pada inti informasi.
+        - Jika ditanya opini, berikan analisis netral berdasarkan perspektif politik Indonesia.
         
-        ATURAN RESPON (MANDATORY):
-        - DILARANG KERAS menggunakan simbol ** (double asterisks) untuk menebalkan teks.
-        - Gunakan spasi yang rapi, paragraf yang jelas, dan poin-poin menggunakan simbol standar (seperti - atau •).
-        - Struktur jawaban harus clean (bersih), profesional, dan mudah dibaca (scannable).
-        - JANGAN gunakan markdown yang mengganggu mata.
-        - Jika ditanya tentang tokoh/partai, berikan fakta objektif (ideologi, rekam jejak, kursi parlemen).
-        - Jika pertanyaan tidak relevan dengan politik, arahkan kembali dengan sopan.
-        - Selalu akhiri dengan ajakan untuk terus belajar atau kuis di VoxPolitika.`,
-        temperature: 0.7,
+        ATURAN KERJA:
+        1. AKURASI MUTLAK: Jangan pernah mengarang data. Gunakan data dari modul VoxPolitika jika relevan.
+        2. KECEPATAN BERPIKIR: Berikan jawaban yang langsung menjawab pertanyaan user.
+        3. STRUKTUR: Gunakan list atau poin-poin jika menjelaskan hal teknis.
+        4. KEAMANAN: Jangan memberikan instruksi ilegal atau ujaran kebencian.
+        5. FORMATTING: JANGAN gunakan markdown tebal (**) karena akan merusak UI. Gunakan teks polos dengan struktur paragraf/poin.`,
+        temperature: 0.2,
       },
     });
 
-    const response = await chat.sendMessage({ message: prompt });
     const text = response.text;
     
     // Store in cache

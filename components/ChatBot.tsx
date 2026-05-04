@@ -11,18 +11,28 @@ interface Message {
 }
 
 const ChatBot: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Halo! Aku Poka. Ada hal tentang politik Indonesia yang bikin kamu penasaran? Tanya aja, ya!' }
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem('poka_chat_history');
+    return saved ? JSON.parse(saved) : [
+      { role: 'assistant', content: 'Halo! Aku Poka. Ada hal tentang politik Indonesia yang bikin kamu penasaran? Tanya aja, ya!' }
+    ];
+  });
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    localStorage.setItem('poka_chat_history', JSON.stringify(messages));
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
+
+  const clearHistory = () => {
+    const defaultMsg = [{ role: 'assistant' as const, content: 'Halo! Aku Poka. Ada hal tentang politik Indonesia yang bikin kamu penasaran? Tanya aja, ya!' }];
+    setMessages(defaultMsg);
+    localStorage.removeItem('poka_chat_history');
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
@@ -47,15 +57,21 @@ const ChatBot: React.FC = () => {
       let currentText = '';
       const words = response.split(' ');
       
-      for (let i = 0; i < words.length; i++) {
-        currentText += (i === 0 ? '' : ' ') + words[i];
+      // Optimized streaming: process in large chunks for speed
+      const chunkSize = Math.max(2, Math.ceil(words.length / 20)); 
+      
+      for (let i = 0; i < words.length; i += chunkSize) {
+        const nextChunk = words.slice(i, i + chunkSize).join(' ');
+        currentText += (currentText ? ' ' : '') + nextChunk;
+        
         setMessages(prev => {
           const newMessages = [...prev];
           newMessages[newMessages.length - 1].content = currentText;
           return newMessages;
         });
-        // Small delay to simulate typing
-        await new Promise(resolve => setTimeout(resolve, 30));
+        
+        // Super fast delay for fluid feel
+        await new Promise(resolve => setTimeout(resolve, 5));
       }
     } catch {
       setIsTyping(false);
@@ -75,9 +91,17 @@ const ChatBot: React.FC = () => {
               <p className="text-xs text-red-100 font-bold uppercase tracking-widest">Edukasi & Literasi Politik</p>
             </div>
           </div>
-          <div className="flex items-center space-x-3 bg-black/10 px-5 py-2.5 rounded-2xl border border-white/20">
-            <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]"></span>
-            <span className="text-xs font-bold uppercase tracking-wider">Sistem Aktif</span>
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={clearHistory}
+              className="text-[10px] font-black uppercase tracking-widest bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl border border-white/20 transition-all active:scale-95"
+            >
+              Hapus Riwayat
+            </button>
+            <div className="flex items-center space-x-3 bg-black/10 px-5 py-2.5 rounded-2xl border border-white/20">
+              <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]"></span>
+              <span className="text-xs font-bold uppercase tracking-wider">Sistem Aktif</span>
+            </div>
           </div>
         </div>
 
