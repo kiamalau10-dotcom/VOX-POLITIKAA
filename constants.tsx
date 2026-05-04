@@ -1,7 +1,7 @@
 import { Minister, PoliticalParty, ProvinceData, NewsItem, Quiz, StrategicProgram } from './types';
 
-import astaCitaImg from './src/assets/images/regenerated_image_1777864246646.jpg';
-import hilirisasiImg from './src/assets/images/regenerated_image_1777864049014.jpg';
+import astaCitaImg from './src/assets/images/regenerated_image_1777851843712.jpg';
+import hilirisasiImg from './src/assets/images/regenerated_image_1777851844491.jpg';
 import makanGratisImg from './src/assets/images/regenerated_image_1777851845322.jpg';
 import danantaraImg from './src/assets/images/regenerated_image_1777851846449.jpg';
 import inaDigitalImg from './src/assets/images/regenerated_image_1777851847184.jpg';
@@ -425,25 +425,9 @@ export const STRATEGIC_PROGRAMS: StrategicProgram[] = [
     progress: 0,
     status: 'Visi Utama',
     icon: 'Shield',
-    details: `Asta Cita adalah delapan misi utama yang diusung oleh pasangan Presiden dan Wakil Presiden Indonesia periode 2024–2029, Prabowo Subianto dan Gibran Rakabuming Raka. Secara etimologi, "Asta" berarti delapan dan "Cita" berarti keinginan atau tujuan. Program ini dirancang sebagai peta jalan untuk melanjutkan pembangunan nasional menuju visi Indonesia Emas 2045.`,
-    points: [
-      { no: 1, focus: 'Ideologi & Demokrasi', explanation: 'Memperkokoh ideologi Pancasila, demokrasi, dan hak asasi manusia (HAM).' },
-      { no: 2, focus: 'Kemandirian Bangsa', explanation: 'Memantapkan sistem pertahanan keamanan negara dan mendorong kemandirian bangsa melalui swasembada pangan, energi, air, ekonomi kreatif, ekonomi hijau, dan ekonomi biru.' },
-      { no: 3, focus: 'Lapangan Kerja', explanation: 'Meningkatkan lapangan kerja yang berkualitas, mendorong kewirausahaan, mengembangkan industri kreatif, dan melanjutkan pembangunan infrastruktur.' },
-      { no: 4, focus: 'SDM & Pendidikan', explanation: 'Memperkuat pembangunan sumber daya manusia (SDM), sains, teknologi, pendidikan, kesehatan, prestasi olahraga, kesetaraan gender, serta penguatan peran perempuan, pemuda, dan penyandang disabilitas.' },
-      { no: 5, focus: 'Hilirisasi & Industri', explanation: 'Melanjutkan hilirisasi dan industrialisasi untuk meningkatkan nilai tambah di dalam negeri.' },
-      { no: 6, focus: 'Pembangunan Desa', explanation: 'Membangun dari desa dan dari bawah untuk pemerataan ekonomi dan pemberantasan kemiskinan.' },
-      { no: 7, focus: 'Reformasi Hukum', explanation: 'Memperkuat reformasi politik, hukum, dan birokrasi, serta memperkuat pencegahan dan pemberantasan korupsi dan narkoba.' },
-      { no: 8, focus: 'Lingkungan & Budaya', explanation: 'Memperkuat penyelarasan kehidupan yang harmonis dengan lingkungan, alam, dan budaya, serta peningkatan toleransi antarumat beragama untuk mewujudkan masyarakat yang adil dan makmur.' }
-    ],
-    quickWins: [
-      { title: 'Makan Siang Gratis', explanation: 'Pemberian makan siang dan susu gratis di sekolah serta bantuan gizi untuk ibu hamil dan balita.' },
-      { title: 'Pemeriksaan Kesehatan Gratis', explanation: 'Penurunan kasus TBC dan pembangunan rumah sakit berkualitas di daerah.' },
-      { title: 'Peningkatan Produktivitas Pertanian', explanation: 'Pencetakan sawah baru dan penguatan stok pangan nasional.' },
-      { title: 'Beasiswa', explanation: 'Penguatan program beasiswa santri dan peningkatan kualitas pendidikan vokasi.' }
-    ],
+    details: 'Asta Cita mencakup: 1. Memperkokoh ideologi Pancasila, 2. Memantapkan sistem pertahanan keamanan, 3. Meningkatkan lapangan kerja, 4. Memperkuat pembangunan SDM, 5. Melanjutkan hilirisasi, 6. Membangun dari desa, 7. Memperkuat reformasi politik/hukum, 8. Menyelaraskan kehidupan yang harmonis dengan lingkungan.',
     images: [astaCitaImg],
-    impact: 'Secara keseluruhan, Asta Cita menekankan pada keberlanjutan program-program strategis dari pemerintahan sebelumnya (seperti hilirisasi dan pembangunan infrastruktur) dengan tambahan fokus yang kuat pada ketahanan pangan dan kualitas gizi SDM.'
+    impact: 'Transformasi struktural menuju Indonesia Emas 2045.'
   },
   {
     id: 'hilirisasi',
@@ -452,88 +436,53 @@ export const STRATEGIC_PROGRAMS: StrategicProgram[] = [
     progress: 0,
     status: 'Prioritas Ekonomi',
     icon: 'Factory',
-    details: `Hilirisasi Industri adalah strategi ekonomi nasional untuk meningkatkan nilai tambah komoditas dengan mengolah bahan mentah menjadi produk setengah jadi atau barang jadi sebelum diekspor. Secara sederhana, hilirisasi berarti "bergerak ke arah hilir" (pemrosesan), sehingga Indonesia tidak lagi hanya menjual "tanah dan air" (bahan mentah). Strategi ini menjadi pilar utama dalam transformasi ekonomi untuk melepaskan ketergantungan pada ekspor komoditas mentah dan mewujudkan visi Indonesia Emas 2045.`,
-    points: [
-      { no: 1, focus: 'Mineral & Logam', explanation: 'Mengolah nikel, bauksit, tembaga, dan timah di dalam negeri untuk industri baterai kendaraan listrik (EV) dan baja.' },
-      { no: 2, focus: 'Minyak & Gas Bumi', explanation: 'Memperkuat industri petrokimia dan mengolah gas menjadi produk turunan seperti pupuk atau metanol untuk mengurangi impor.' },
-      { no: 3, focus: 'Perkebunan (CPO)', explanation: 'Mengolah minyak sawit mentah menjadi produk bernilai tinggi seperti oleokimia, produk pangan, hingga bahan bakar nabati (biofuel).' },
-      { no: 4, focus: 'Kelautan & Perikanan', explanation: 'Membangun industri pengolahan hasil laut (seperti pengalengan ikan atau pengolahan rumput laut) untuk kebutuhan pangan dan farmasi.' },
-      { no: 5, focus: 'Kehutanan', explanation: 'Meningkatkan pengolahan kayu dan hasil hutan menjadi produk furnitur, kertas, dan turunan selulosa dengan standar ekspor global.' },
-      { no: 6, focus: 'Infrastruktur Smelter', explanation: 'Mempercepat pembangunan fasilitas pemurnian (smelter) di berbagai wilayah strategis untuk mendukung proses pengolahan mineral.' },
-      { no: 7, focus: 'Transfer Teknologi', explanation: 'Mewajibkan adanya adopsi teknologi tinggi dari investor asing agar tenaga kerja lokal mampu mengoperasikan industri manufaktur modern.' },
-      { no: 8, focus: 'Penciptaan Lapangan Kerja', explanation: 'Membuka jutaan peluang kerja baru di sektor manufaktur yang membutuhkan keahlian teknis dan manajerial yang lebih tinggi.' }
-    ],
+    details: 'Fokus pada pengolahan nikel, bauksit, tembaga, dan komoditas perkebunan/perikanan. Target investasi hilirisasi mencapai US$ 545,3 Miliar hingga 2040 di 21 komoditas strategis.',
     images: [hilirisasiImg],
-    impact: 'Penciptaan nilai tambah ekonomi nasional, pengurangan ketergantungan ekspor bahan mentah, dan pembukaan jutaan lapangan kerja sektor manufaktur.'
+    impact: 'Peningkatan PDB dan penciptaan jutaan lapangan kerja berkualitas.'
   },
   {
     id: 'makan-gratis',
     title: 'Makan Bergizi Gratis',
     description: 'Program gizi nasional untuk anak sekolah, balita, dan ibu hamil.',
-    progress: 5,
-    status: 'Program Prioritas',
+    progress: 0,
+    status: 'Transformasi Sosial',
     icon: 'Utensils',
-    details: `Makan Bergizi Gratis (MBG) adalah program investasi masa depan Indonesia yang bertujuan untuk menciptakan generasi yang lebih sehat, cerdas, dan produktif. Program ini bukan sekadar memberikan makanan, tetapi merupakan langkah strategis untuk memutus rantai kemiskinan dan masalah stunting (tengkes) di tanah air. Sebagai salah satu program prioritas menuju Indonesia Emas 2045, MBG dirancang untuk menyentuh langsung kebutuhan dasar masyarakat di seluruh pelosok negeri.`,
-    points: [
-      { no: 1, focus: 'Sasaran Luas', explanation: 'Mencakup anak sekolah (PAUD sampai SMA), santri di pesantren, balita, hingga ibu hamil dan menyusui untuk memastikan gizi terjaga sejak dalam kandungan.' },
-      { no: 2, focus: 'Standar Nutrisi', explanation: 'Menu disusun berdasarkan standar kesehatan yang ketat (karbohidrat, protein hewani, sayur, dan buah) guna mendukung perkembangan kognitif dan fisik anak.' },
-      { no: 3, focus: 'Pemberdayaan Lokal', explanation: 'Bahan baku makanan wajib dibeli dari petani, peternak, dan nelayan lokal. Hal ini memastikan bahan makanan tetap segar sekaligus menghidupkan ekonomi desa.' },
-      { no: 4, focus: 'Sistem Unit Pelayanan', explanation: 'Distribusi dilakukan melalui "Unit Pelayanan" atau dapur umum di tiap wilayah yang melibatkan UMKM dan koperasi lokal untuk memasak dan mengelola logistik.' },
-      { no: 5, focus: 'Dampak Ekonomi', explanation: 'Menciptakan jutaan lapangan kerja baru, mulai dari tenaga juru masak, kurir pengantar makanan, hingga peningkatan permintaan hasil panen rakyat.' }
-    ],
+    details: 'Dikelola oleh Badan Gizi Nasional. Menargetkan 82,9 juta penerima manfaat. Menggunakan 5.885 unit Satuan Pelayanan Pemenuhan Gizi (SPPG) di seluruh Indonesia. Anggaran diproyeksikan mencapai Rp 335 Triliun.',
     images: [makanGratisImg],
-    impact: 'Peningkatan kualitas kesehatan SDM, pencegahan stunting secara masif, dan penguatan ekonomi kerakyatan melalui sektor pangan.'
+    impact: 'Penurunan angka stunting dan peningkatan kualitas SDM sejak dini.'
   },
   {
     id: 'danantara',
     title: 'BPI Danantara',
-    description: 'Sovereign Wealth Fund raksasa untuk transformasi ekonomi nasional.',
-    progress: 10,
-    status: 'Lanskap Investasi Baru',
+    description: 'Super-holding investasi strategis untuk mengelola aset negara secara profesional.',
+    progress: 0,
+    status: 'Rekayasa Kelembagaan',
     icon: 'Landmark',
-    details: `BPI Danantara (Badan Pengelola Investasi Daya Anagata Nusantara) adalah lembaga baru yang diluncurkan pada 2025 untuk mengelola kekayaan dan investasi negara dalam skala besar. Berbeda dengan lembaga pengelola aset biasa, Danantara berfungsi sebagai "Sovereign Wealth Fund" yang mengonsolidasikan aset BUMN besar—seperti Bank Mandiri, BRI, Pertamina, dan Telkom—agar dapat diinvestasikan kembali secara profesional ke proyek strategis nasional untuk keuntungan jangka panjang.`,
-    points: [
-      { no: 1, focus: 'Fungsi Utama', explanation: 'Mengelola aset negara (terutama BUMN) dan menginvestasikan dana ke proyek strategis demi meningkatkan nilai ekonomi nasional.' },
-      { no: 2, focus: 'Skala Raksasa', explanation: 'Memiliki dana awal US$ 20 Miliar dengan potensi total aset kelolaan mencapai US$ 900 Miliar (Rp 14.000 Triliun), memposisikannya sebagai salah satu yang terbesar di dunia.' },
-      { no: 3, focus: 'Sektor Prioritas', explanation: 'Membiayai energi terbarukan, hilirisasi sumber daya alam, teknologi AI, infrastruktur manufaktur, dan ketahanan pangan.' },
-      { no: 4, focus: 'Visi Strategis', explanation: 'Meningkatkan pertumbuhan ekonomi hingga target 8%, menarik investasi global, dan meletakkan fondasi Indonesia Emas 2045.' }
-    ],
+    details: 'Badan Pengelola Investasi Daya Anagata Nusantara (Danantara) dirancang sebagai Sovereign Wealth Fund (SWF) raksasa dengan target kelolaan aset US$ 1 Triliun, mengonsolidasikan BUMN besar seperti BRI, Mandiri, Telkom, dan Pertamina.',
     images: [danantaraImg],
-    impact: 'Menciptakan lapangan kerja baru, mempercepat industrialisasi, dan memperkuat posisi tawar ekonomi Indonesia di kancah global.'
+    impact: 'Efisiensi pengelolaan aset negara dan peningkatan daya saing investasi global.'
   },
   {
     id: 'ina-digital',
     title: 'INA Digital',
     description: 'Transformasi digital birokrasi melalui satu portal layanan terpadu.',
-    progress: 15,
-    status: 'Integrasi Nasional',
+    progress: 0,
+    status: 'Efisiensi Birokrasi',
     icon: 'Cpu',
-    details: `INA Digital adalah program strategis pemerintah untuk menyatukan layanan digital dalam satu sistem terintegrasi yang dikelola oleh GovTech Indonesia. Dengan menghubungkan lebih dari 27.000 aplikasi pemerintah yang sebelumnya terpisah-pisah, INA Digital hadir untuk menyederhanakan akses layanan publik menjadi lebih efisien, transparan, dan berbasis kebutuhan masyarakat (citizen-centric). Program ini bertujuan untuk menciptakan lompatan besar dalam transformasi digital nasional menuju Indonesia Emas 2045.`,
-    points: [
-      { no: 1, focus: 'Integrasi Layanan', explanation: 'Menyatukan puluhan ribu aplikasi pemerintah yang terfragmentasi ke dalam satu ekosistem GovTech Indonesia yang terintegrasi.' },
-      { no: 2, focus: 'Satu Portal Nasional', explanation: 'Menyediakan satu pintu akses untuk semua layanan publik guna mengurangi kerumitan birokrasi dan pengulangan input data oleh masyarakat.' },
-      { no: 3, focus: 'Efisiensi Birokrasi', explanation: 'Menghilangkan tumpang tindih fungsi aplikasi antar instansi dan mengoptimalkan anggaran pemeliharaan infrastruktur digital negara.' },
-      { no: 4, focus: 'Keamanan & Tata Kelola', explanation: 'Menjamin keamanan data pribadi warga dalam sistem yang kuat sekaligus mengatasi tantangan ego sektoral antar lembaga pemerintah.' }
-    ],
+    details: 'Konsolidasi >27.000 aplikasi pemerintah menjadi satu portal nasional. Fokus pada 9 layanan esensial termasuk kesehatan, pendidikan, dan bantuan sosial. Menggunakan Single Sign-On (SSO) dan Digital ID.',
     images: [inaDigitalImg],
-    impact: 'Penyederhanaan birokrasi digital, penghematan anggaran negara, dan peningkatan kualitas pelayanan publik yang lebih cepat serta transparan.'
+    impact: 'Penghematan anggaran Rp 6,2 Triliun per tahun dan pelayanan publik yang lebih cepat.'
   },
   {
     id: 'swasembada',
     title: 'Swasembada Pangan & Energi',
     description: 'Kemandirian nasional dalam pemenuhan kebutuhan dasar rakyat.',
-    progress: 10,
-    status: 'Kedaulatan Strategis',
+    progress: 0,
+    status: 'Kedaulatan Nasional',
     icon: 'Zap',
-    details: `Program swasembada pangan dan energi adalah salah satu fokus utama pemerintahan Prabowo–Gibran untuk membangun kemandirian nasional tanpa bergantung pada impor. Strategi ini merupakan pilar penting dalam Asta Cita untuk memastikan ketahanan bangsa dalam menghadapi krisis global dengan mengoptimalkan kekayaan sumber daya alam domestik.`,
-    points: [
-      { no: 1, focus: 'Kemandirian Pangan', explanation: 'Meningkatkan produksi pertanian, mengurangi impor beras, dan menyejahterakan petani melalui modernisasi infrastruktur pertanian.' },
-      { no: 2, focus: 'Kedaulatan Energi', explanation: 'Mengembangkan energi terbarukan dan biodiesel (seperti B50) untuk menghentikan ketergantungan pada solar dan BBM impor.' },
-      { no: 3, focus: 'Pertumbuhan Ekonomi', explanation: 'Mendorong target pertumbuhan ekonomi hingga 8% melalui penciptaan pusat-pusat ekonomi baru di sektor agrikultur dan energi.' },
-      { no: 4, focus: 'Ketahanan Nasional', explanation: 'Menjaga stabilitas harga kebutuhan pokok dan energi agar Indonesia lebih tahan terhadap fluktuasi pasar internasional.' }
-    ],
+    details: 'Cetak sawah baru 3 juta hektar, optimalisasi lahan rawa, dan pengembangan bioenergi (B50/B100). Target swasembada pangan tercapai dalam 3-4 tahun ke depan.',
     images: [swasembadaImg],
-    impact: 'Mewujudkan kedaulatan nasional di sektor dasar, meningkatkan kesejahteraan petani/nelayan, dan menciptakan lapangan kerja luas di pedesaan.'
+    impact: 'Ketahanan nasional terhadap gejolak harga dan pasokan global.'
   }
 ];
 

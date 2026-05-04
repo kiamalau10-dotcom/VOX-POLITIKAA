@@ -52,8 +52,6 @@ export interface StrategicProgram {
   details?: string;
   images?: string[];
   impact?: string;
-  points?: { no: number; focus: string; explanation: string }[];
-  quickWins?: { title: string; explanation: string }[];
 }
 
 export interface NewsItem {

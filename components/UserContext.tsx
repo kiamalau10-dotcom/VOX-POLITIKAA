@@ -50,12 +50,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        if (err.code === 'auth/network-request-failed' || err.message?.includes('offline')) {
-          console.info("Auth operating in offline mode.");
-          setIsLoading(false);
-          return;
-        }
-
         if (err.code === 'auth/too-many-requests') {
           console.warn("Auth hammered. Waiting longer before retry...");
           setTimeout(initAuth, 10000); 

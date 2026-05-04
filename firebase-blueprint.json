@@ -92,6 +92,43 @@
       "schema": "Post",
       "description": "Vox Circle posts."
     },
+    "/feedbacks/{feedbackId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" },
+          "username": { "type": "string" },
+          "displayName": { "type": "string" },
+          "message": { "type": "string" },
+          "date": { "type": "string" },
+          "timestamp": { "type": "object" }
+        }
+      },
+      "description": "User feedback messages."
+    },
+    "/quiz_results/{resultId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" },
+          "username": { "type": "string" },
+          "score": { "type": "number" },
+          "topic": { "type": "string" },
+          "date": { "type": "string" },
+          "timestamp": { "type": "object" }
+        }
+      },
+      "description": "User quiz performance history."
+    },
+    "/settings/{docId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "voxStudioEnabled": { "type": "boolean" }
+        }
+      },
+      "description": "Global application settings."
+    },
     "/stats/global": {
       "schema": "GlobalStats",
       "description": "Global application statistics."
