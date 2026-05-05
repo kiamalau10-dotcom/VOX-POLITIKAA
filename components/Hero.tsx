@@ -23,7 +23,7 @@ const AnimatedShape = () => {
   return (
     <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.3}>
       <mesh ref={meshRef}>
-        <torusKnotGeometry args={[1, 0.3, 64, 16]} />
+        <torusKnotGeometry args={[1, 0.3, 40, 8]} />
         <meshPhongMaterial color="#dc2626" specular="#ffffff" shininess={100} />
       </mesh>
     </Float>
@@ -58,7 +58,15 @@ const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
       <div className="absolute inset-0 z-0 opacity-60">
         {isVisible && (
           <Suspense fallback={null}>
-            <Canvas camera={{ position: [0, 0, 5], fov: 45 }} gl={{ antialias: false, powerPreference: "high-performance" }}>
+            <Canvas 
+              camera={{ position: [0, 0, 5], fov: 45 }} 
+              gl={{ 
+                antialias: false, 
+                powerPreference: "low-power",
+                alpha: true
+              }}
+              dpr={[1, 1.5]}
+            >
               <ambientLight intensity={0.5} />
               <pointLight position={[10, 10, 10]} intensity={1} />
               <AnimatedShape />

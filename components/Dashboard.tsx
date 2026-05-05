@@ -119,7 +119,7 @@ const AdminStatsPlatform: React.FC<{ stats: any; liveStats?: any; isDarkMode: bo
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
         <div className="flex items-center gap-3 mb-8"><TrendingUp size={24} className="text-red-600" /><h3 className="text-2xl font-black uppercase italic">Real-time Analytics</h3></div>
-        <div className="h-[250px] w-full">
+        <div className="h-[250px] w-full" style={{ minHeight: '250px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#333' : '#eee'} />
@@ -149,38 +149,26 @@ const AdminStatsPlatform: React.FC<{ stats: any; liveStats?: any; isDarkMode: bo
   );
 };
 
-const DashboardAvatar2D = ({ username, config }: { username: string, config: any }) => {
-  const isMale = config?.gender === 'male';
-  const maleHair = ['short01', 'short02', 'short03', 'short04', 'short05'];
-  const femaleHair = ['long01', 'long02', 'long03', 'long04', 'long05', 'hijab01'];
+import { getAvatarUrl } from '../services/avatarService';
+
+const DashboardAvatar2D = ({ username, config, equippedCostumeId }: { username: string, config?: any, equippedCostumeId?: string }) => {
+  // prioritize costume system
+  const effectiveConfig = equippedCostumeId ? { costume: equippedCostumeId } : config;
+  const avatarUrl = getAvatarUrl(username, effectiveConfig);
   
-  const hairPool = isMale ? maleHair : femaleHair;
-  const hairIndex = Math.abs(username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % hairPool.length;
-  const hair = isMale ? hairPool[hairIndex] : (config?.hair === 'hijab' ? 'hijab01' : hairPool[hairIndex]);
-
-  const params = new URLSearchParams({
-    seed: username,
-    hair: hair,
-  });
-
-  if (config?.skin === 'light') params.set('skinColor', 'fce5d8');
-  if (config?.skin === 'medium') params.set('skinColor', 'e0ac69');
-  if (config?.skin === 'dark') params.set('skinColor', '8d5524');
-
-  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?${params.toString()}&backgroundColor=f8fafc,f1f5f9&radius=20`;
   return (
-    <div className="w-full h-full p-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-zinc-800 dark:to-zinc-900 relative">
+    <div className="w-full h-full p-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-zinc-800 dark:to-zinc-900 relative group">
       <LazyLoadImage 
-        key={username} 
+        key={username + (equippedCostumeId || 'default')} 
         src={avatarUrl} 
         alt="Avatar" 
-        className="w-full h-full object-contain drop-shadow-xl" 
+        className="w-full h-full object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-110" 
         effect="opacity"
         wrapperClassName="w-full h-full"
         referrerPolicy="no-referrer" 
         onError={(e: any) => { e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`; }} 
       />
-      <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900 animate-pulse" />
+      <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
     </div>
   );
 };
@@ -440,14 +428,18 @@ const Dashboard: React.FC<{ isDarkMode: boolean; currentUser: User | null; onLog
   const renderAvatar = () => {
     return (
       <div className="w-24 h-24 bg-red-600/10 rounded-3xl overflow-hidden border-2 border-red-600/20 shadow-xl relative group">
-        <DashboardAvatar2D username={currentUser.username} config={currentUser.avatarConfig} />
+        <DashboardAvatar2D 
+          username={currentUser.username} 
+          config={currentUser.avatarConfig} 
+          equippedCostumeId={currentUser.equippedCostumeId}
+        />
         {role === 'ADMIN' && <div className="absolute top-1 right-1"><Shield size={12} className="text-red-600" /></div>}
       </div>
     );
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-20 px-6">
+    <div className="max-w-7xl mx-auto py-20 px-6 will-change-transform">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>

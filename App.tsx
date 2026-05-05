@@ -78,7 +78,11 @@ const Content = React.memo(({
           case AppSection.BASICS: return <PoliticsBasics />;
           case AppSection.AI: return <ChatBot />;
           case AppSection.NEWS: return <News />;
-          case AppSection.QUIZ: return <Quiz isDarkMode={isDarkMode} currentUser={currentUser} onStateChange={setIsQuizActive} />;
+          case AppSection.QUIZ: 
+            if (!currentUser) {
+              return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
+            }
+            return <Quiz isDarkMode={isDarkMode} currentUser={currentUser} onStateChange={setIsQuizActive} />;
           case AppSection.DASHBOARD: 
             if (!currentUser) {
               setIsLoggedIn(false);
@@ -235,9 +239,9 @@ const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeSection]);
 
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
+  const toggleDarkMode = useCallback(() => setIsDarkMode(prev => !prev), []);
 
-  const handleLogin = (user: User) => {
+  const handleLogin = useCallback((user: User) => {
     const rememberMe = (user as any).rememberMe;
     setIsLoggedIn(true);
     setCurrentUser(user);
@@ -251,12 +255,12 @@ const AppContent: React.FC = () => {
     }
     
     localStorage.setItem(`user_data_${user.username}`, JSON.stringify(user));
-  };
+  }, [setIsLoggedIn, setCurrentUser]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     setActiveSection(AppSection.HOME);
-  };
+  }, [logout]);
 
   // Sync currentUser from Firestore in real-time
   // (Moved to UserContext)
@@ -301,10 +305,6 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!isLoggedIn) {
-    return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
-  }
-
   return (
     <div className={`min-h-screen antialiased transition-colors duration-300 ${isDarkMode ? 'dark bg-black text-white' : 'bg-white text-black'}`}>
       {!isQuizActive && (
@@ -329,13 +329,14 @@ const AppContent: React.FC = () => {
             </button>
           </div>
         )}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           <motion.div 
             key={activeSection} 
-            initial={{ opacity: 0, scale: 0.98 }} 
+            initial={{ opacity: 0, scale: 1.01 }} 
             animate={{ opacity: 1, scale: 1 }} 
-            exit={{ opacity: 0, scale: 1.02 }} 
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 0.99 }} 
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="will-change-transform"
           >
             <Content 
               activeSection={activeSection}
@@ -519,7 +520,7 @@ const AppContent: React.FC = () => {
             try {
               const docId = updatedUser.username.replace('@', '');
               await updateDoc(doc(db, 'users', docId), {
-                avatarConfig: updatedUser.avatarConfig,
+                avatarConfig: null, // Force removal of legacy config
                 equippedCostumeId: updatedUser.equippedCostumeId,
                 voxTitle: updatedUser.voxTitle || null,
                 coins: updatedUser.coins,

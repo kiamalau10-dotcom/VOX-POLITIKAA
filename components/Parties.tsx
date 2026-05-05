@@ -9,6 +9,13 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 
 const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
   const [selectedParty, setSelectedParty] = useState<PoliticalParty | null>(null);
+  const [chartVisible, setChartVisible] = useState(false);
+
+  // Force chart visibility check after mount to solve ResponsiveContainer issues
+  React.useEffect(() => {
+    const timer = setTimeout(() => setChartVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-500 py-20 px-6">
@@ -26,7 +33,7 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
               {PARTIES_DATA.map((party) => (
                 <motion.div
                   key={party.id}
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ y: -5 }}
                   onClick={() => setSelectedParty(party)}
                   className="group p-8 bg-zinc-50 dark:bg-zinc-900 rounded-[2rem] border-2 border-black/5 dark:border-white/5 flex flex-col md:flex-row items-center gap-8 transition-all hover:border-red-600/50 cursor-pointer"
                 >
@@ -65,29 +72,40 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
             <div className="sticky top-24 bg-white dark:bg-zinc-900 rounded-[3rem] p-10 shadow-2xl border-2 border-black/10 dark:border-white/10">
               <h3 className="text-2xl font-black mb-8 text-center uppercase italic tracking-tighter">Distribusi Kursi DPR 2024-2029</h3>
               
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={PARTIES_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="abbreviation" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                    <Tooltip 
-                      cursor={{fill: 'rgba(0,0,0,0.05)'}}
-                      contentStyle={{ 
-                        borderRadius: '20px', 
-                        border: 'none', 
-                        backgroundColor: '#000',
-                        color: '#fff',
-                        fontWeight: 'bold'
-                      }}
-                    />
-                    <Bar dataKey="seats" radius={[12, 12, 0, 0]} barSize={60}>
-                      {PARTIES_DATA.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+              <div 
+                className={`h-[400px] w-full flex items-center justify-center transition-opacity duration-700 ${chartVisible ? 'opacity-100' : 'opacity-0'}`}
+                style={{ minHeight: '400px' }}
+              >
+                {chartVisible ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={PARTIES_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? "#333" : "#e2e8f0"} />
+                      <XAxis dataKey="abbreviation" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                      <Tooltip 
+                        cursor={{fill: 'rgba(239, 68, 68, 0.05)'}}
+                        contentStyle={{ 
+                          borderRadius: '20px', 
+                          border: 'none', 
+                          backgroundColor: isDarkMode ? '#18181b' : '#fff',
+                          color: isDarkMode ? '#fff' : '#000',
+                          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+                          fontWeight: 'bold'
+                        }}
+                      />
+                      <Bar dataKey="seats" radius={[8, 8, 0, 0]} barSize={40}>
+                        {PARTIES_DATA.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="animate-pulse flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-30">Loading Statistics...</p>
+                  </div>
+                )}
               </div>
 
               <div className="mt-10 p-6 bg-red-600/5 rounded-2xl border-2 border-red-600/20 text-center">

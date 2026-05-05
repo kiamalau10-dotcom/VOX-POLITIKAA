@@ -55,7 +55,7 @@ const PostCard = React.memo(({ post, currentUser, isDarkMode, onLike, onCommentT
     return ts;
   };
 
-  const avatarUrl = getAvatarUrl(post.username, post.avatarConfig);
+  const avatarUrl = getAvatarUrl(post.username, post.equippedCostumeId ? { costume: post.equippedCostumeId } : post.avatarConfig);
 
   return (
     <motion.div 
@@ -232,14 +232,20 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   }, [currentUser, isInitialLoad]);
 
   const handlePost = async () => {
-    if (!newPost.trim() || !currentUser) return;
+    if (!currentUser) {
+      alert("Silakan masuk untuk berdiskusi di VoxCircle.");
+      (window as any).setActiveSection?.('dashboard'); 
+      return;
+    }
+    if (!newPost.trim()) return;
     
     setIsPosting(true);
     try {
       await addDoc(collection(db, 'posts'), {
         username: currentUser.username,
         displayName: currentUser.displayName,
-        avatarConfig: currentUser.avatarConfig || null,
+        avatarConfig: null, // switch to costume system
+        equippedCostumeId: currentUser.equippedCostumeId || 'justice_minister',
         content: newPost,
         timestamp: serverTimestamp(),
         likes: [],
@@ -283,7 +289,11 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   };
 
   const handleLike = async (postId: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      alert("Silakan masuk untuk menyukai postingan.");
+      (window as any).setActiveSection?.('dashboard');
+      return;
+    }
     const postRef = doc(db, 'posts', postId);
     const post = posts.find(p => p.id === postId);
     if (!post) return;
@@ -296,7 +306,12 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
 
   const handleComment = React.useCallback(async (postId: string, textOverride?: string) => {
     const finalCommentText = textOverride || commentText;
-    if (!finalCommentText.trim() || !currentUser) return;
+    if (!currentUser) {
+      alert("Silakan masuk untuk berkomentar.");
+      (window as any).setActiveSection?.('dashboard');
+      return;
+    }
+    if (!finalCommentText.trim()) return;
     const postRef = doc(db, 'posts', postId);
     await updateDoc(postRef, {
       comments: arrayUnion({

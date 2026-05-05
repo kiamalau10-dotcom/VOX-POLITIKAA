@@ -24,64 +24,82 @@ const VOX_TITLES = [
 ];
 
 const COSTUMES = [
-  { id: 'none', label: 'Casual Tee', price: 0, icon: '👕' },
-  { id: 'batik_modern', label: 'Batik Modern', price: 500, icon: '👔' },
-  { id: 'formal_suit', label: 'Executive Suit', price: 1200, icon: '🧥' },
-  { id: 'traditional_java', label: 'Beskap Jawa', price: 1500, icon: '👘' },
-  { id: 'traditional_bali', label: 'Payas Agung', price: 1500, icon: '👑' },
-  { id: 'democracy_jacket', label: 'Vox Jacket', price: 800, icon: '🧥' },
-  { id: 'judge', label: 'Judge', price: 2000, icon: '👨‍⚖️' },
-  { id: 'president', label: 'President', price: 2500, icon: '🤵' },
-  { id: 'funny_candidate', label: 'Funny Candidate', price: 1000, icon: '🤡' },
-  { id: 'cool_judge', label: 'Cool Judge', price: 2200, icon: '😎⚖️' },
+  { id: 'justice_minister', label: 'Menteri Keadilan', price: 0, icon: '⚖️' },
+  { id: 'judge', label: 'Hakim Agung', price: 1000, icon: '👨‍⚖️' },
+  { id: 'prosecutor', label: 'Jaksa Agung', price: 1200, icon: '💼' },
+  { id: 'senator', label: 'Anggota DPR', price: 800, icon: '🏛️' },
+  { id: 'governor', label: 'Gubernur Polos', price: 1500, icon: '🎖️' },
+  { id: 'mayor', label: 'Walikota Vox', price: 1000, icon: '🏢' },
+  { id: 'police_chief', label: 'Kapolda Vox', price: 1800, icon: '👮' },
+  { id: 'health_minister', label: 'Menteri Kesehatan', price: 1500, icon: '🏥' },
+  { id: 'spokesperson', label: 'Juru Bicara', price: 700, icon: '🗣️' },
+  { id: 'expert', label: 'Ahli Tata Negara', price: 1000, icon: '📚' },
+  { id: 'clerk', label: 'Staf Ahli', price: 400, icon: '✍️' },
+  { id: 'president', label: 'Presiden Vox', price: 2500, icon: '🇮🇩' },
+  { id: 'activist', label: 'Aktivis Muda', price: 500, icon: '📣' },
+  { id: 'general', label: 'Panglima Keamanan', price: 2000, icon: '🎖️' },
+  { id: 'diplomat', label: 'Diplomat Senior', price: 1500, icon: '🌍' },
 ];
-
-const AVATAR_OPTIONS = {
-  gender: [
-    { id: 'male', label: 'Male', price: 0 },
-    { id: 'female', label: 'Female', price: 0 },
-  ],
-  skin: [
-    { id: 'light', label: 'Light', color: '#fce5d8', price: 0 },
-    { id: 'medium', label: 'Medium', color: '#e0ac69', price: 0 },
-    { id: 'dark', label: 'Dark', color: '#8d5524', price: 0 },
-  ],
-  hair: [
-    { id: 'short', label: 'Short', price: 0 },
-    { id: 'long', label: 'Long', price: 100 },
-    { id: 'undercut', label: 'Undercut', price: 200 },
-    { id: 'hijab', label: 'Hijab', price: 0 },
-  ],
-  eyes: [
-    { id: 'black', label: 'Black', color: '#000000', price: 0 },
-    { id: 'brown', label: 'Brown', color: '#4b2e1e', price: 50 },
-    { id: 'blue', label: 'Blue', color: '#2563eb', price: 150 },
-  ]
-};
 
 const Avatar2D = ({ username, config }: { username: string, config: any }) => {
   const avatarUrl = getAvatarUrl(username, config);
+  const costume = COSTUMES.find(c => c.id === config.costume);
+  const [currentUrl, setCurrentUrl] = useState(avatarUrl);
+  const [isChanging, setIsChanging] = useState(false);
+
+  // Smooth transition for URLs
+  React.useEffect(() => {
+    if (avatarUrl !== currentUrl) {
+      setIsChanging(true);
+      const img = new Image();
+      img.src = avatarUrl;
+      img.onload = () => {
+        setCurrentUrl(avatarUrl);
+        setIsChanging(false);
+      };
+      // Timeout fallback to prevent stuck states
+      const timeout = setTimeout(() => setIsChanging(false), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [avatarUrl, currentUrl]);
 
   return (
-    <div className="w-64 h-64 relative">
-      <motion.img
-        key={avatarUrl}
-        src={avatarUrl}
-        alt="Avatar Preview"
-        className="w-full h-full object-contain drop-shadow-2xl"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", damping: 12 }}
-        referrerPolicy="no-referrer"
-        onError={(e) => {
-          e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`;
-        }}
-      />
-      {/* Animated Floating Elements */}
+    <div className="w-64 h-64 relative flex items-center justify-center">
+      {/* Glow Effect */}
+      <div className="absolute inset-0 bg-red-600/20 blur-[80px] rounded-full" />
+      
+      <div className="relative w-56 h-56 rounded-[3rem] overflow-hidden bg-gradient-to-br from-red-600 to-red-900 border-4 border-white/20 shadow-2xl">
+        {isChanging && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
+            <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+          </div>
+        )}
+        <motion.img
+          src={currentUrl}
+          alt="Avatar Preview"
+          className={`w-full h-full object-contain scale-110 translate-y-4 transition-all duration-500 ${isChanging ? 'opacity-40 grayscale blur-[2px]' : 'opacity-100'}`}
+          initial={{ y: 20 }}
+          animate={{ y: 0 }}
+          transition={{ type: "spring", damping: 15 }}
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`;
+          }}
+        />
+        
+        {/* Costume Badge/Overlay if needed */}
+        {costume && (
+          <div className="absolute top-4 right-4 text-2xl drop-shadow-lg scale-150 rotate-12">
+            {costume.icon}
+          </div>
+        )}
+      </div>
+
+      {/* Floating Particles */}
       <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-        className="absolute -top-4 -right-4 text-4xl"
+        animate={{ y: [0, -15, 0], rotate: [0, 10, 0] }}
+        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+        className="absolute -top-6 -right-6 text-4xl"
       >
         ✨
       </motion.div>
@@ -91,19 +109,12 @@ const Avatar2D = ({ username, config }: { username: string, config: any }) => {
 
 const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDarkMode, onClose }) => {
   const isAdmin = currentUser.role === 'ADMIN' || 
-                  currentUser.username.toLowerCase().includes('admin') || 
-                  currentUser.displayName === 'Dekila';
+                  currentUser.username.toLowerCase().includes('admin');
                   
   const userCoins = isAdmin ? 9999999 : (currentUser.coins || 0);
   const ownedItems = currentUser.ownedItems || [];
 
-  const [config, setConfig] = useState(currentUser.avatarConfig || {
-    gender: 'male',
-    skin: 'light',
-    hair: 'short',
-    eyes: 'black',
-  });
-  const [equippedCostumeId, setEquippedCostumeId] = useState(currentUser.equippedCostumeId || 'none');
+  const [equippedCostumeId, setEquippedCostumeId] = useState(currentUser.equippedCostumeId || 'justice_minister');
   const [voxTitle, setVoxTitle] = useState(currentUser.voxTitle || 'none');
 
   const isItemOwned = (id: string, price: number) => {
@@ -115,15 +126,6 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
     if (isAdmin) return 0;
     let total = 0;
     
-    // Check avatar options
-    Object.entries(AVATAR_OPTIONS).forEach(([category, options]) => {
-      const selectedId = config[category];
-      const option = options.find((o: any) => o.id === selectedId);
-      if (option && option.price > 0 && !isItemOwned(option.id, option.price)) {
-        total += option.price;
-      }
-    });
-
     // Check costume
     const costume = COSTUMES.find(c => c.id === equippedCostumeId);
     if (costume && costume.price > 0 && !isItemOwned(costume.id, costume.price)) {
@@ -131,10 +133,6 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
     }
 
     return total;
-  };
-
-  const handleSelect = (category: string, option: any) => {
-    setConfig(prev => ({ ...prev, [category]: option.id }));
   };
 
   const handleEquipCostume = (costume: any) => {
@@ -151,14 +149,6 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
 
     // Collect newly purchased items
     const newPurchases: string[] = [];
-    Object.entries(AVATAR_OPTIONS).forEach(([category, options]) => {
-      const selectedId = config[category];
-      const option = options.find((o: any) => o.id === selectedId);
-      if (option && option.price > 0 && !isItemOwned(option.id, option.price)) {
-        newPurchases.push(option.id);
-      }
-    });
-
     const costume = COSTUMES.find(c => c.id === equippedCostumeId);
     if (costume && costume.price > 0 && !isItemOwned(costume.id, costume.price)) {
       newPurchases.push(costume.id);
@@ -166,15 +156,14 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
 
     const updatedUser = {
       ...currentUser,
-      avatarConfig: config,
       equippedCostumeId: equippedCostumeId,
+      avatarConfig: undefined, // Clear legacy config to force costume system
       voxTitle: voxTitle === 'none' ? undefined : (VOX_TITLES.find(t => t.id === voxTitle)?.label || voxTitle),
       coins: isAdmin ? currentUser.coins : (currentUser.coins || 0) - totalCost,
       ownedItems: Array.from(new Set([...ownedItems, ...newPurchases]))
     };
 
     onUpdateUser(updatedUser);
-    alert(totalCost > 0 ? `Pembelian berhasil! 🪙${totalCost} koin telah dipotong.` : "Identitas berhasil diperbarui!");
     onClose();
   };
 
@@ -198,11 +187,11 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
         <div className={`flex-1 relative border-r flex items-center justify-center ${
           isDarkMode ? 'bg-black/50 border-white/5' : 'bg-zinc-50 border-black/5'
         }`}>
-          <Avatar2D username={currentUser.username} config={config} />
+          <Avatar2D username={currentUser.username} config={{ costume: equippedCostumeId }} />
 
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center pointer-events-none">
             <h2 className="text-3xl font-black uppercase italic text-red-600 tracking-tighter">Avatar Lab 2.0</h2>
-            <p className="text-[10px] font-bold opacity-50 uppercase tracking-[0.3em] mt-1">2D Identity System</p>
+            <p className="text-[10px] font-bold opacity-50 uppercase tracking-[0.3em] mt-1">Cabinet Style System</p>
             {voxTitle !== 'none' && (
               <motion.p 
                 initial={{ opacity: 0, y: 10 }}
@@ -225,7 +214,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
                 animate={{ opacity: 1, x: 0 }}
                 className="bg-yellow-500 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
               >
-                Total Biaya: 🪙{totalCost}
+                Biaya Kostum: 🪙{totalCost}
               </motion.div>
             )}
           </div>
@@ -236,7 +225,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
           <div className="p-8 border-b border-white/5 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <ShoppingBag className="text-red-600" size={20} />
-              <h3 className="font-black uppercase tracking-widest text-sm">Identity & Wardrobe</h3>
+              <h3 className="font-black uppercase tracking-widest text-sm">Pilih Kostum Jabatan</h3>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-red-600/10 rounded-xl transition-all">
               <X size={20} />
@@ -244,43 +233,8 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
           </div>
 
           <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-            {/* Options Grid */}
-            <div className="grid grid-cols-2 gap-8">
-              {Object.entries(AVATAR_OPTIONS).map(([category, options]) => (
-                <div key={category}>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4">{category}</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {options.map((opt: any) => {
-                      const owned = isItemOwned(opt.id, opt.price);
-                      return (
-                        <button
-                          key={opt.id}
-                          onClick={() => handleSelect(category, opt)}
-                          className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
-                            config[category] === opt.id
-                              ? 'border-red-600 bg-red-600/5'
-                              : isDarkMode ? 'border-white/5 bg-white/5' : 'border-black/5 bg-zinc-50'
-                          }`}
-                        >
-                          <span className="text-[10px] font-bold uppercase">{opt.label}</span>
-                          {!owned && opt.price > 0 && (
-                            <span className="text-[8px] text-red-500 font-black">🪙{opt.price}</span>
-                          )}
-                          {owned && opt.price > 0 && (
-                            <span className="text-[8px] text-green-500 font-black uppercase">Owned</span>
-                          )}
-                          {config[category] === opt.id && <Check size={10} className="text-red-600" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-
             {/* Costumes */}
             <div>
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4">Wardrobe Collection</h4>
               <div className="grid grid-cols-2 gap-4">
                 {COSTUMES.map((costume) => {
                   const owned = isItemOwned(costume.id, costume.price);
@@ -294,7 +248,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
                           : isDarkMode ? 'border-white/5 bg-white/5 hover:border-white/20' : 'border-black/5 bg-zinc-50 hover:border-black/20'
                       }`}
                     >
-                      <div className="w-12 h-12 bg-red-600/10 rounded-2xl flex items-center justify-center text-2xl">
+                      <div className="w-16 h-16 bg-red-600/10 rounded-2xl flex items-center justify-center text-3xl">
                         {costume.icon}
                       </div>
                       <div>
@@ -305,11 +259,14 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
                         {owned && costume.price > 0 && (
                           <p className="text-[10px] font-black text-green-500 uppercase">Owned</p>
                         )}
+                        {costume.price === 0 && (
+                          <p className="text-[10px] font-black opacity-30 uppercase">Gratis</p>
+                        )}
                       </div>
                       {equippedCostumeId === costume.id ? (
-                        <span className="text-[8px] font-black bg-red-600 text-white px-2 py-1 rounded-full uppercase">Equipped</span>
+                        <span className="text-[8px] font-black bg-red-600 text-white px-3 py-1 rounded-full uppercase">Dipakai</span>
                       ) : (
-                        <span className="text-[8px] font-black opacity-30 uppercase">Select</span>
+                        <span className="text-[8px] font-black opacity-30 uppercase tracking-widest">Pilih</span>
                       )}
                     </button>
                   );
@@ -319,7 +276,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
 
             {/* Vox Titles */}
             <div>
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4">Vox Titles (Jabatan)</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4">Gelar Kehormatan (Titles)</h4>
               <div className="grid grid-cols-2 gap-2">
                 {VOX_TITLES.map((title) => (
                   <button
@@ -344,7 +301,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
               onClick={handleSave}
               className="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-all active:scale-95 shadow-2xl shadow-red-600/30"
             >
-              {totalCost > 0 ? `Purchase & Save (🪙${totalCost})` : 'Confirm Identity'}
+              {totalCost > 0 ? `Beli & Simpan (🪙${totalCost})` : 'Simpan Identitas'}
             </button>
           </div>
         </div>
