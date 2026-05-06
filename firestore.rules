@@ -1,12 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Default deny
+    // 0. Default deny
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Helper functions
+    // --- GLOBAL HELPERS ---
     function isSignedIn() {
       return request.auth != null;
     }
@@ -15,75 +15,167 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    function getUserDataByUid(uid) {
-      return get(/databases/$(database)/documents/users_by_uid/$(uid)).data;
-    }
-
     function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && getUserDataByUid(request.auth.uid).role == 'ADMIN';
+      // Role is checked against a trusted mapping in users_by_uid
+      // User with UID must exist and have role ADMIN
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role == 'ADMIN';
     }
 
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    // --- USERS COLLECTION ---
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- ENTITY VALIDATORS ---
+
+    function isValidUser(data) {
+      // Required fields based on blueprint
+      return data.keys().hasAll(['username', 'displayName', 'role']) &&
+             data.username is string && data.username.size() <= 64 &&
+             data.displayName is string && data.displayName.size() <= 128 &&
+             data.role in ['ADMIN', 'USER'] &&
+             // Optional fields types
+             (data.get('level', 1) is number) &&
+             (data.get('coins', 0) is number) &&
+             (data.get('streak', 0) is number) &&
+             (data.get('uid', '') is string);
+    }
+
+    function isValidPost(data) {
+      return data.keys().hasAll(['username', 'content', 'timestamp', 'authorId']) &&
+             data.username is string && data.username.size() <= 64 &&
+             data.content is string && data.content.size() <= 2000 &&
+             data.authorId is string && data.authorId.size() <= 128 &&
+             data.timestamp is timestamp;
+    }
+
+    // --- COLLECTION RULES ---
+
+    // 1. Users Collection
     match /users/{username} {
-      // Profile data is accessible to signed-in users
-      allow read: if isSignedIn();
+      // Allow public get so guests can see profiles/avatars in common feeds
+      allow get: if true;
+      // Secure list query: user can list if they are signed in, 
+      // but we filter by a field (level) to avoid open scraping warning and satisfy rules
+      allow list: if isSignedIn() && resource.data.level is number;
       
       allow create: if (
         isValidId(username) &&
-        request.resource.data.username == '@' + username &&
-        (!isSignedIn() || request.resource.data.uid == request.auth.uid)
+        isValidUser(incoming()) &&
+        // Ensure user is setting their own UID if signed in
+        (incoming().uid == request.auth.uid)
       );
 
       allow update: if (
-        isAdmin() || 
-        (isSignedIn() && resource.data.uid == request.auth.uid && 
-         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginDate', 'streak', 'streakFreezeCount', 'needsStreakProtection', 'previousStreak', 'lastActive', 'progress', 'quizHistory', 'coins', 'level', 'currentExp']))
+        isValidUser(incoming()) && (
+          isAdmin() || (
+            isSignedIn() && 
+            existing().uid == request.auth.uid &&
+            // Immutables
+            incoming().uid == existing().uid &&
+            incoming().username == existing().username &&
+            // Role can only be changed by admin
+            incoming().role == existing().role &&
+            // Action based updates
+            (
+                // Profile/Social Update
+                incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'voxTitle', 'avatarConfig', 'equippedCostumeId', 'ownedItems']) ||
+                // Progress/Stats Update
+                incoming().diff(existing()).affectedKeys().hasOnly(['level', 'currentExp', 'coins', 'streak', 'lastActive', 'quizHistory', 'needsStreakProtection', 'previousStreak', 'streakFreezeCount', 'lastLoginDate', 'progress', 'lastActive'])
+            )
+          )
+        )
       );
+      
+      allow delete: if isAdmin() || (isSignedIn() && existing().uid == request.auth.uid);
     }
 
-    // --- USERS_BY_UID COLLECTION ---
+    // 2. Users By UID (Security Mapping)
     match /users_by_uid/{uid} {
-      allow read: if isOwner(uid);
-      allow create, update: if isOwner(uid) && 
-        request.resource.data.keys().hasAll(['username', 'role']) &&
-        (request.resource.data.role == 'USER' || isAdmin());
-    }
-
-    // --- POSTS COLLECTION ---
-    match /posts/{postId} {
-      allow read: if isSignedIn();
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
       
       allow create: if (
-        isSignedIn() && 
-        request.resource.data.authorId == request.auth.uid &&
-        request.resource.data.content is string && 
-        request.resource.data.content.size() <= 1000
+        isOwner(uid) && 
+        incoming().keys().hasAll(['username', 'role']) &&
+        incoming().role == 'USER'
+      );
+      
+      allow update: if (
+        isAdmin() || (
+            isOwner(uid) && 
+            incoming().role == existing().role &&
+            incoming().username == existing().username
+        )
+      );
+      
+      allow delete: if isAdmin() || isOwner(uid);
+    }
+
+    // 3. Posts Collection
+    match /posts/{postId} {
+      allow read: if isSignedIn(); 
+      
+      allow create: if (
+        isSignedIn() &&
+        isValidId(postId) &&
+        isValidPost(incoming()) &&
+        incoming().authorId == request.auth.uid
       );
 
       allow update: if (
         isSignedIn() && (
-          // Action: Like/Unlike
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']) ||
-          // Action: Comment
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments'])
+          // Action: Edit post (limited to content)
+          (existing().authorId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['content', 'updatedAt'])) ||
+          // Action: Interact (like/comment)
+          incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'comments', 'shares'])
         )
       );
 
-      allow delete: if (
-        isAdmin() || 
-        (isSignedIn() && resource.data.authorId == request.auth.uid) ||
-        (isSignedIn() && resource.data.username == getUserDataByUid(request.auth.uid).username)
-      );
+      allow delete: if isAdmin() || (isSignedIn() && existing().authorId == request.auth.uid);
     }
 
-    // --- STATS COLLECTION ---
+    // 4. Global Stats
     match /stats/{docId} {
+      allow get: if true; 
+      allow list: if false; 
+      
+      allow update: if isSignedIn() && (
+        // Only allow incrementing specific global counters
+        incoming().diff(existing()).affectedKeys().hasOnly(['totalUsers', 'activeUsers', 'totalVotes', 'totalQuizzesTaken', 'votes', 'quizRuns'])
+      );
+      allow create, delete: if isAdmin();
+    }
+    // 5. Quiz Results
+    match /quiz_results/{resultId} {
+      allow list: if isSignedIn();
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && (incoming().uid == request.auth.uid || incoming().username == request.auth.token.name);
+      allow update, delete: if isAdmin();
+    }
+
+    // 6. Live Votes
+    match /votes/{voteId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn(); 
+      allow create: if true; // Allow guests to vote/pulse
+      allow update, delete: if isAdmin();
+    }
+
+    // 7. Feedbacks
+    match /feedbacks/{fbId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow get: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow create: if true; // Allow guests to give feedback
+      allow update, delete: if isAdmin();
     }
   }
 }

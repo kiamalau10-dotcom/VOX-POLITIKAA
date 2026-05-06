@@ -17,8 +17,8 @@ const ProvinceButton = React.memo(({ prov, isSelected, isDarkMode, onClick }: {
     whileTap={{ scale: 0.98 }}
     className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
       isSelected 
-        ? 'bg-red-600 text-white border-red-600 shadow-xl' 
-        : isDarkMode ? 'bg-zinc-900/30 border-white/5 hover:border-red-600/50' : 'bg-white border-black/5 hover:border-red-600/50 shadow-sm'
+        ? 'bg-vox-primary text-white border-vox-primary shadow-xl' 
+        : isDarkMode ? 'bg-vox-deep-ocean border-white/5 hover:border-vox-primary/50' : 'bg-white border-vox-primary/10 hover:border-vox-primary/50 shadow-sm'
     }`}
   >
     <div className="flex justify-between items-start">
@@ -32,7 +32,7 @@ const ProvinceButton = React.memo(({ prov, isSelected, isDarkMode, onClick }: {
   </motion.button>
 ));
 
-const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
+const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = false }) => {
   const [selectedProvince, setSelectedProvince] = React.useState<ProvinceData | null>(null);
   const [show3DMap, setShow3DMap] = React.useState(false);
   const [showAnalysis, setShowAnalysis] = React.useState(false);
@@ -67,17 +67,17 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
   }, [selectedProvince]);
 
   return (
-    <div className={`min-h-screen py-20 px-6 font-sans overflow-x-hidden transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-zinc-50 text-black'}`}>
+    <div className={`min-h-screen py-20 px-6 font-sans overflow-x-hidden transition-colors duration-300 ${isDarkMode ? 'bg-vox-navy text-white' : 'bg-vox-bg text-vox-navy'}`}>
       <div className="max-w-7xl mx-auto">
         
         <header className="mb-16 relative">
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-3 mb-4">
-              <span className="h-[2px] w-12 bg-red-600 animate-pulse" />
-              <span className="text-red-500 font-black tracking-[0.4em] text-[10px] uppercase">VoxPolitika Map Revolution v3.0</span>
+              <span className="h-[2px] w-12 bg-vox-primary animate-pulse" />
+              <span className="text-vox-accent font-black tracking-[0.4em] text-[10px] uppercase">VoxPolitika Map Revolution v3.0</span>
             </div>
             <h1 className="text-7xl font-black tracking-tighter leading-none mb-6 italic uppercase">
-              Peta <span className="text-red-600 outline-text not-italic">Interaktif</span>
+              Peta <span className="text-vox-primary outline-text not-italic">Interaktif</span>
             </h1>
           </motion.div>
         </header>
@@ -86,7 +86,7 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
           
           {/* LEFT: DAFTAR PROVINSI */}
           <div className="lg:col-span-7 space-y-10">
-            <div className={`p-8 rounded-[3rem] border ${isDarkMode ? 'bg-zinc-900/50 border-white/5' : 'bg-white border-black/5'}`}>
+            <div className={`p-8 rounded-[3rem] border ${isDarkMode ? 'bg-vox-deep-ocean border-white/5' : 'bg-white border-vox-primary/5 shadow-xl shadow-blue-100/20'}`}>
                 <h3 className="text-xl font-black uppercase tracking-widest mb-6">Pilih Provinsi</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
                     {PROVINCES_DATA.map((prov) => (
@@ -109,7 +109,7 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
                 <motion.div
                   key={selectedProvince.id}
                   initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                  className={`rounded-[3rem] border overflow-hidden ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-2xl'}`}
+                  className={`rounded-[3rem] border overflow-hidden ${isDarkMode ? 'bg-vox-deep-ocean border-white/10' : 'bg-white border-vox-primary/10 shadow-2xl shadow-blue-200/20'}`}
                 >
                   <div className="p-10 space-y-8">
                     {/* Header Info */}
@@ -121,10 +121,10 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
                             <span className="bg-yellow-500 text-black text-[8px] font-black px-2 py-0.5 rounded-full uppercase animate-bounce">Hot</span>
                           )}
                         </div>
-                        <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.2em]">{selectedProvince.capital} • Sektor {selectedProvince.id}</p>
+                        <p className="text-[10px] font-black text-vox-primary uppercase tracking-[0.2em]">{selectedProvince.capital} • Sektor {selectedProvince.id}</p>
                       </div>
-                      <div className="w-16 h-16 rounded-2xl bg-red-600/10 flex items-center justify-center border border-red-600/20">
-                        <MapPin size={24} className="text-red-600" />
+                      <div className="w-16 h-16 rounded-2xl bg-vox-primary/10 flex items-center justify-center border border-vox-primary/20">
+                        <MapPin size={24} className="text-vox-primary" />
                       </div>
                     </div>
 
@@ -132,18 +132,18 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
                     <div className="grid grid-cols-2 gap-4">
                       <div className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-zinc-50 border-black/5'}`}>
                         <div className="flex items-center gap-3 mb-4">
-                          <Award size={16} className="text-red-600" />
+                          <Award size={16} className="text-vox-primary" />
                           <span className="text-[9px] font-black uppercase opacity-50">Kursi DPR</span>
                         </div>
-                        <p className="text-3xl font-black text-red-600">{selectedProvince.dprSeats}</p>
+                        <p className="text-3xl font-black text-vox-primary">{selectedProvince.dprSeats}</p>
                         <p className="text-[8px] font-bold opacity-40 uppercase mt-1">Mandat Nasional</p>
                       </div>
                       <div className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-zinc-50 border-black/5'}`}>
                         <div className="flex items-center gap-3 mb-4">
-                          <PieChart size={16} className="text-blue-500" />
+                          <PieChart size={16} className="text-vox-accent" />
                           <span className="text-[9px] font-black uppercase opacity-50">Dominasi Partai</span>
                         </div>
-                        <p className="text-3xl font-black text-blue-500">{selectedProvince.dominantPartyPercent}%</p>
+                        <p className="text-3xl font-black text-vox-accent">{selectedProvince.dominantPartyPercent}%</p>
                         <p className="text-[8px] font-bold opacity-40 uppercase mt-1">{selectedProvince.dominantParty || 'N/A'}</p>
                       </div>
                     </div>
@@ -156,17 +156,16 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
                       <h4 className={`text-xl font-black uppercase italic leading-tight mb-1 ${isDarkMode ? 'text-white' : 'text-black'}`}>
                         {selectedProvince.governor}
                       </h4>
-                      <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">
+                      <span className="text-[9px] font-black text-vox-primary uppercase tracking-widest">
                         {selectedProvince.party}
                       </span>
                     </div>
 
                     {/* Trivia Section: Tahukah Kamu? (Fixed Quotes) */}
-                    <div className="p-6 rounded-3xl bg-red-600/5 border border-red-600/10 relative overflow-hidden">
+                    <div className="p-6 rounded-3xl bg-vox-primary/5 border border-vox-primary/10 relative overflow-hidden">
                       <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-3">
-                          <Info size={14} className="text-red-600" />
-                          <h4 className="text-[10px] font-black uppercase tracking-widest text-red-600">Tahukah Kamu?</h4>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-vox-primary">Tahukah Kamu?</span>
                         </div>
                         <p className="text-xs font-medium leading-relaxed italic opacity-80">
                           {selectedProvince.trivia 
@@ -183,7 +182,7 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
                     <div className="grid grid-cols-2 gap-4">
                       <button 
                         onClick={() => setShowAnalysis(!showAnalysis)}
-                        className="py-4 bg-red-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+                        className="py-4 bg-vox-primary text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-vox-secondary transition-all shadow-lg shadow-vox-primary/20"
                       >
                         {showAnalysis ? 'Tutup Analisis' : 'Analisis Intel'}
                       </button>
@@ -204,7 +203,7 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
                         >
                           <div className="flex justify-between items-center">
                             <span className="text-[9px] font-black uppercase opacity-40">Prioritas Strategis</span>
-                            <span className="text-xs font-black text-red-600">{strategicAnalysis?.priority}</span>
+                            <span className="text-xs font-black text-vox-primary">{strategicAnalysis?.priority}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-[9px] font-black uppercase opacity-40">Indeks Kerawanan</span>
@@ -219,8 +218,8 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
               ) : (
                 <div className={`h-[600px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-[4rem] ${isDarkMode ? 'border-white/5' : 'border-black/5'}`}>
                    <div className="relative mb-8">
-                     <div className="w-24 h-24 rounded-full border-4 border-red-600/20 border-t-red-600 animate-spin" />
-                     <MapPin size={32} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-600" />
+                     <div className="w-24 h-24 rounded-full border-4 border-vox-primary/20 border-t-vox-primary animate-spin" />
+                     <MapPin size={32} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-vox-primary" />
                    </div>
                    <h3 className="text-xl font-black uppercase tracking-widest opacity-20 italic">Select a Sector to Scan...</h3>
                 </div>
@@ -233,17 +232,17 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
       {/* 3D Map Modal */}
       <AnimatePresence>
         {show3DMap && selectedProvince && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10 bg-black/98 backdrop-blur-3xl">
-            <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} className="relative w-full max-w-7xl h-[85vh] bg-black rounded-[4rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(220,38,38,0.2)]">
-              <div className="absolute top-0 left-0 right-0 p-10 bg-gradient-to-b from-black via-black/80 to-transparent z-20 flex justify-between items-center">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10 bg-zinc-900/98 backdrop-blur-3xl">
+            <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} className="relative w-full max-w-7xl h-[85vh] bg-zinc-900 rounded-[4rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(23,112,144,0.2)]">
+              <div className="absolute top-0 left-0 right-0 p-10 bg-gradient-to-b from-zinc-900 via-zinc-900/80 to-transparent z-20 flex justify-between items-center">
                 <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center font-black text-3xl italic shadow-[0_0_30px_rgba(220,38,38,0.5)]">{selectedProvince.name.charAt(0)}</div>
+                  <div className="w-16 h-16 bg-vox-primary rounded-2xl flex items-center justify-center font-black text-3xl italic shadow-[0_0_30px_rgba(23,112,144,0.5)]">{selectedProvince.name.charAt(0)}</div>
                   <div>
                     <h3 className="text-white text-4xl font-black italic uppercase tracking-tighter">Live Scan: {selectedProvince.name}</h3>
-                    <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.4em]">Satellite Connection Established</p>
+                    <p className="text-vox-accent text-[10px] font-black uppercase tracking-[0.4em]">Satellite Connection Established</p>
                   </div>
                 </div>
-                <button onClick={() => setShow3DMap(false)} className="p-5 bg-white/5 hover:bg-red-600 rounded-full transition-all border border-white/10 group"><X size={32} className="group-hover:rotate-90 transition-transform" /></button>
+                <button onClick={() => setShow3DMap(false)} className="p-5 bg-white/5 hover:bg-vox-primary rounded-full transition-all border border-white/10 group"><X size={32} className="group-hover:rotate-90 transition-transform" /></button>
               </div>
               <iframe 
                 src={`https://earth3dmap.com/#?l=provinsi${selectedProvince.name.toLowerCase().replace(/\s+/g, '')}`} 
@@ -260,8 +259,8 @@ const PoliticalMap: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true })
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #dc2626; }
-        .outline-text { -webkit-text-stroke: 1px #dc2626; color: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #177090; }
+        .outline-text { -webkit-text-stroke: 1px #177090; color: transparent; }
       `}</style>
     </div>
   );

@@ -80,15 +80,15 @@ const ChatBot: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-500 py-20 px-6">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-black rounded-[2.5rem] shadow-2xl border-2 border-black dark:border-white overflow-hidden flex flex-col h-[750px] transition-colors duration-500">
+    <div className="min-h-screen bg-vox-bg text-vox-navy transition-colors duration-500 py-20 px-6">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-zinc-900 rounded-[2.5rem] shadow-2xl border-2 border-black dark:border-white overflow-hidden flex flex-col h-[750px] transition-colors duration-500">
         {/* Header */}
-        <div className="p-8 bg-red-600 text-white flex items-center justify-between shadow-lg relative z-10">
+        <div className="p-8 bg-blue-600 text-white flex items-center justify-between shadow-lg relative z-10">
           <div className="flex items-center space-x-5">
             <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl shadow-inner border border-white/30">🤖</div>
             <div>
               <h3 className="text-xl font-bold tracking-tight">Poka</h3>
-              <p className="text-xs text-red-100 font-bold uppercase tracking-widest">Edukasi & Literasi Politik</p>
+              <p className="text-xs text-blue-100 font-bold uppercase tracking-widest">Edukasi & Literasi Politik</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -131,9 +131,9 @@ const ChatBot: React.FC = () => {
             <div className="flex justify-start">
               <div className="bg-gray-50 dark:bg-zinc-900 px-8 py-6 rounded-[2.5rem] rounded-tl-none border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-500">
                 <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                  <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                 </div>
               </div>
             </div>
@@ -146,7 +146,7 @@ const ChatBot: React.FC = () => {
             <input
               type="text"
               placeholder="Tanya apapun tentang politik..."
-              className="flex-1 px-8 py-5 rounded-2xl border-2 border-black dark:border-white bg-transparent font-semibold focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all shadow-inner"
+              className="flex-1 px-8 py-5 rounded-2xl border-2 border-black dark:border-white bg-transparent font-semibold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all shadow-inner"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
@@ -154,7 +154,7 @@ const ChatBot: React.FC = () => {
             <button 
               onClick={handleSend}
               disabled={isTyping}
-              className="p-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl shadow-red-500/20 transition-all active:scale-95 disabled:opacity-50"
+              className="p-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
             >
               <Send className="w-7 h-7" />
             </button>

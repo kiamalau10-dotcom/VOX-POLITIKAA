@@ -12,14 +12,14 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   const [selectedProgram, setSelectedProgram] = useState<StrategicProgram | null>(null);
 
   return (
-    <div className="min-h-screen py-20 px-6 bg-white dark:bg-black transition-colors duration-500">
+    <div className="min-h-screen py-20 px-6 bg-vox-bg transition-colors duration-500">
       <div className="max-w-7xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-20 text-center"
         >
-          <h2 className="text-5xl md:text-7xl font-black uppercase italic text-red-600 mb-4 tracking-tighter">Program Strategis</h2>
+          <h2 className="text-5xl md:text-7xl font-black uppercase italic text-vox-primary mb-4 tracking-tighter">Program Strategis</h2>
           <p className={`text-xl font-bold uppercase tracking-widest opacity-40 ${isDarkMode ? 'text-white' : 'text-black'}`}>
             Analisis Strategis Kebijakan Pembangunan Nasional Era Prabowo-Gibran
           </p>
@@ -36,7 +36,7 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                 onClick={() => setSelectedProgram(program)}
                 whileHover={{ y: -10 }}
                 className={`group cursor-pointer rounded-[2.5rem] overflow-hidden border-4 transition-all ${
-                  isDarkMode ? 'bg-zinc-900 border-white/10 hover:border-red-600' : 'bg-white border-black hover:border-red-600 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(220,38,38,1)]'
+                  isDarkMode ? 'bg-zinc-900 border-white/10 hover:border-vox-primary' : 'bg-white border-black hover:border-vox-primary shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(37,99,235,1)]'
                 }`}
               >
                 <div className="h-48 overflow-hidden relative">
@@ -53,16 +53,16 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                   <div className="absolute bottom-4 left-6 flex items-center gap-2 text-white">
-                    <Icon size={20} className="text-red-600" />
+                    <Icon size={20} className="text-vox-primary" />
                     <span className="text-[10px] font-black uppercase tracking-widest">{program.status}</span>
                   </div>
                 </div>
                 <div className="p-8">
-                  <h3 className="text-2xl font-black uppercase italic mb-3 group-hover:text-red-600 transition-colors">{program.title}</h3>
+                  <h3 className="text-2xl font-black uppercase italic mb-3 group-hover:text-vox-primary transition-colors">{program.title}</h3>
                   <p className={`text-sm font-medium line-clamp-2 mb-6 ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
                     {program.description}
                   </p>
-                  <div className="flex items-center gap-2 text-red-600 font-black text-xs uppercase tracking-widest">
+                  <div className="flex items-center gap-2 text-vox-accent font-black text-xs uppercase tracking-widest">
                     Selengkapnya <ArrowRight size={14} />
                   </div>
                 </div>
@@ -91,7 +91,7 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
               >
                 <button 
                   onClick={() => setSelectedProgram(null)}
-                  className="absolute top-6 right-6 z-10 p-2 bg-red-600 text-white rounded-full hover:scale-110 transition-transform"
+                  className="absolute top-6 right-6 z-10 p-2 bg-vox-primary text-white rounded-full hover:scale-110 transition-transform"
                 >
                   <X size={24} />
                 </button>
@@ -110,10 +110,10 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent" />
                   <div className="absolute bottom-8 left-8">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-red-600 rounded-xl text-white">
+                      <div className="p-2 bg-vox-primary rounded-xl text-white">
                         {React.createElement(IconMap[selectedProgram.icon] || Globe, { size: 24 })}
                       </div>
-                      <span className="text-xs font-black uppercase tracking-[0.3em] text-red-500">{selectedProgram.status}</span>
+                      <span className="text-xs font-black uppercase tracking-[0.3em] text-vox-accent">{selectedProgram.status}</span>
                     </div>
                     <h2 className="text-4xl md:text-6xl font-black uppercase italic text-white">{selectedProgram.title}</h2>
                   </div>
@@ -123,19 +123,19 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     <div className="lg:col-span-2 space-y-8">
                       <section className="space-y-4">
-                        <h4 className="text-xl font-black uppercase italic text-red-600">Detail Program</h4>
+                        <h4 className="text-xl font-black uppercase italic text-vox-primary">Detail Program</h4>
                         <p className="text-lg font-medium leading-relaxed opacity-80 whitespace-pre-line">{selectedProgram.details}</p>
                       </section>
 
                       {selectedProgram.points && (
                         <section className="space-y-6">
-                          <h4 className="text-xl font-black uppercase italic text-red-600">
+                          <h4 className="text-xl font-black uppercase italic text-vox-primary">
                             {selectedProgram.points.length} {selectedProgram.id === 'asta-cita' ? 'Poin Utama' : 'Fokus Utama'} {selectedProgram.title}
                           </h4>
                           <div className={`overflow-hidden rounded-2xl border-2 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
                             <table className="w-full text-left border-collapse">
                               <thead>
-                                <tr className="bg-red-600 text-white">
+                                <tr className="bg-vox-primary text-white">
                                   <th className="p-4 uppercase font-black italic text-[10px]">No</th>
                                   <th className="p-4 uppercase font-black italic text-[10px]">Fokus Utama</th>
                                   <th className="p-4 uppercase font-black italic text-[10px]">Penjabaran Singkat</th>
@@ -143,9 +143,9 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                               </thead>
                               <tbody className="font-bold text-xs">
                                 {selectedProgram.points.map((point) => (
-                                  <tr key={point.no} className="border-b border-black/5 dark:border-white/5 hover:bg-red-500/5 transition-colors">
+                                  <tr key={point.no} className="border-b border-black/5 dark:border-white/5 hover:bg-vox-primary/5 transition-colors">
                                     <td className="p-4">{point.no}</td>
-                                    <td className="p-4 text-red-600">{point.focus}</td>
+                                    <td className="p-4 text-vox-primary">{point.focus}</td>
                                     <td className="p-4 opacity-70 leading-relaxed">{point.explanation}</td>
                                   </tr>
                                 ))}
@@ -157,11 +157,11 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
 
                       {selectedProgram.quickWins && (
                         <section className="space-y-6">
-                          <h4 className="text-xl font-black uppercase italic text-red-600">Fokus Strategis (Quick Wins)</h4>
+                          <h4 className="text-xl font-black uppercase italic text-vox-primary">Fokus Strategis (Quick Wins)</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {selectedProgram.quickWins.map((win, idx) => (
                               <div key={idx} className={`p-6 rounded-2xl border-2 ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-black/10'}`}>
-                                <h5 className="font-black text-red-600 uppercase italic mb-2 tracking-tight">{win.title}</h5>
+                                <h5 className="font-black text-vox-primary uppercase italic mb-2 tracking-tight">{win.title}</h5>
                                 <p className="text-xs font-medium opacity-70 leading-relaxed">{win.explanation}</p>
                               </div>
                             ))}
@@ -170,17 +170,17 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                       )}
 
                       <section className="space-y-4">
-                        <h4 className="text-xl font-black uppercase italic text-red-600">Dampak Strategis</h4>
+                        <h4 className="text-xl font-black uppercase italic text-vox-primary">Dampak Strategis</h4>
                         <p className="text-lg font-medium leading-relaxed opacity-80">{selectedProgram.impact}</p>
                       </section>
 
                       {/* MACROECONOMIC TABLE */}
                       <section className="space-y-6">
-                        <h4 className="text-xl font-black uppercase italic text-red-600">Indikator Makroekonomi</h4>
+                        <h4 className="text-xl font-black uppercase italic text-vox-primary">Indikator Makroekonomi</h4>
                         <div className={`overflow-hidden rounded-2xl border-2 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
                           <table className="w-full text-left border-collapse">
                             <thead>
-                              <tr className="bg-red-600 text-white">
+                              <tr className="bg-vox-primary text-white">
                                 <th className="p-4 uppercase font-black italic text-xs">Indikator</th>
                                 <th className="p-4 uppercase font-black italic text-xs">Target</th>
                               </tr>
@@ -188,19 +188,19 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
                             <tbody className="font-bold text-sm">
                               <tr className="border-b border-black/5 dark:border-white/5">
                                 <td className="p-4">Pertumbuhan Ekonomi</td>
-                                <td className="p-4 text-red-600">6% - 8%</td>
+                                <td className="p-4 text-vox-primary">6% - 8%</td>
                               </tr>
                               <tr className="border-b border-black/5 dark:border-white/5">
                                 <td className="p-4">Rasio Pajak</td>
-                                <td className="p-4 text-red-600">23%</td>
+                                <td className="p-4 text-vox-primary">23%</td>
                               </tr>
                               <tr className="border-b border-black/5 dark:border-white/5">
                                 <td className="p-4">Rasio Utang/PDB</td>
-                                <td className="p-4 text-red-600">{"<"} 40%</td>
+                                <td className="p-4 text-vox-primary">{"<"} 40%</td>
                               </tr>
                               <tr>
                                 <td className="p-4">Investasi Hilirisasi</td>
-                                <td className="p-4 text-red-600">US$ 545,3 Miliar</td>
+                                <td className="p-4 text-vox-primary">US$ 545,3 Miliar</td>
                               </tr>
                             </tbody>
                           </table>
@@ -210,7 +210,7 @@ const ProgramSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
 
                     <aside className="space-y-6">
                       <div className="bg-black dark:bg-white p-6 rounded-3xl text-white dark:text-black">
-                        <Globe size={32} className="mb-4 text-red-600" />
+                        <Globe size={32} className="mb-4 text-vox-primary" />
                         <h5 className="text-sm font-black uppercase italic mb-2">Indonesia Emas</h5>
                         <p className="text-[10px] font-bold opacity-70">Menuju ekonomi terbesar ke-5 dunia pada tahun 2045.</p>
                       </div>

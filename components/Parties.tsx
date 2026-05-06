@@ -18,13 +18,13 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-500 py-20 px-6">
+    <div className="min-h-screen bg-vox-bg text-vox-navy transition-colors duration-500 py-20 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-12">
           
           {/* BAGIAN KIRI: DAFTAR PARTAI */}
           <div className="lg:w-1/2">
-            <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tighter italic text-red-600">Partai Politik</h2>
+            <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tighter italic text-vox-primary">Partai Politik</h2>
             <p className="text-lg opacity-80 mb-10 font-bold leading-relaxed">
               Pilar demokrasi Indonesia. Ketahui siapa saja yang mewakili suaramu di kursi parlemen.
             </p>
@@ -35,7 +35,7 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                   key={party.id}
                   whileHover={{ y: -5 }}
                   onClick={() => setSelectedParty(party)}
-                  className="group p-8 bg-zinc-50 dark:bg-zinc-900 rounded-[2rem] border-2 border-black/5 dark:border-white/5 flex flex-col md:flex-row items-center gap-8 transition-all hover:border-red-600/50 cursor-pointer"
+                  className="group p-8 bg-white rounded-[2rem] border-2 border-vox-navy/5 flex flex-col md:flex-row items-center gap-8 transition-all hover:border-vox-primary/50 cursor-pointer text-vox-navy"
                 >
                   <div className="w-48 h-48 flex-shrink-0 bg-white dark:bg-white p-4 rounded-2xl shadow-inner flex items-center justify-center overflow-hidden">
                     <LazyLoadImage 
@@ -52,14 +52,14 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                   </div>
 
                   <div className="flex-1 text-center md:text-left">
-                    <div className="inline-block px-4 py-1 mb-3 bg-red-600 text-white rounded-full text-[12px] font-black uppercase tracking-widest">
+                    <div className="inline-block px-4 py-1 mb-3 bg-vox-primary text-white rounded-full text-[12px] font-black uppercase tracking-widest">
                       {party.ideology}
                     </div>
-                    <h3 className="text-4xl font-black mb-1 group-hover:text-red-600 transition-colors">{party.abbreviation}</h3>
+                    <h3 className="text-4xl font-black mb-1 group-hover:text-vox-primary transition-colors">{party.abbreviation}</h3>
                     <p className="text-xl font-bold opacity-60 mb-2">{party.name}</p>
                     <div className="h-px w-12 bg-black/20 dark:bg-white/20 mb-3 mx-auto md:mx-0"></div>
                     <p className="text-sm font-black uppercase tracking-tighter opacity-80">
-                      Ketua Umum: <span className="text-red-600">{party.chairman}</span>
+                      Ketua Umum: <span className="text-vox-primary">{party.chairman}</span>
                     </p>
                   </div>
                 </motion.div>
@@ -68,8 +68,8 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
           </div>
           
           {/* BAGIAN KANAN: STATISTIK */}
-          <div className="lg:w-1/2">
-            <div className="sticky top-24 bg-white dark:bg-zinc-900 rounded-[3rem] p-10 shadow-2xl border-2 border-black/10 dark:border-white/10">
+          <div className="lg:w-1/2 text-vox-navy">
+            <div className="sticky top-24 bg-white rounded-[3rem] p-10 shadow-2xl border-2 border-vox-primary/10">
               <h3 className="text-2xl font-black mb-8 text-center uppercase italic tracking-tighter">Distribusi Kursi DPR 2024-2029</h3>
               
               <div 
@@ -83,7 +83,7 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                       <XAxis dataKey="abbreviation" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
                       <Tooltip 
-                        cursor={{fill: 'rgba(239, 68, 68, 0.05)'}}
+                        cursor={{fill: 'rgba(23, 112, 144, 0.05)'}}
                         contentStyle={{ 
                           borderRadius: '20px', 
                           border: 'none', 
@@ -102,13 +102,13 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                   </ResponsiveContainer>
                 ) : (
                   <div className="animate-pulse flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-12 h-12 border-4 border-vox-primary border-t-transparent rounded-full animate-spin" />
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-30">Loading Statistics...</p>
                   </div>
                 )}
               </div>
 
-              <div className="mt-10 p-6 bg-red-600/5 rounded-2xl border-2 border-red-600/20 text-center">
+              <div className="mt-10 p-6 bg-vox-primary/5 rounded-2xl border-2 border-vox-primary/20 text-center">
                 <p className="text-sm leading-relaxed italic font-black uppercase opacity-80">
                   "Fungsi DPR mencakup Legislasi, Anggaran, dan Pengawasan terhadap pemerintah."
                 </p>
@@ -132,9 +132,7 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className={`max-w-4xl w-full rounded-[3rem] p-8 md:p-12 relative ${
-                isDarkMode ? 'bg-zinc-900 text-white' : 'bg-white text-black'
-              }`}
+              className="max-w-4xl w-full rounded-[3rem] p-8 md:p-12 relative bg-white text-vox-navy border-2 border-vox-primary/20 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button 
@@ -160,13 +158,13 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                     />
                   </div>
                   <div className="mt-8 grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl bg-red-600/5 border border-red-600/10 text-center">
+                    <div className="p-4 rounded-xl bg-vox-primary/5 border border-vox-primary/10 text-center">
                       <p className="text-[10px] font-bold uppercase opacity-50 mb-1">Kursi DPR</p>
-                      <p className="text-2xl font-black text-red-600">{selectedParty.seats}</p>
+                      <p className="text-2xl font-black text-vox-primary">{selectedParty.seats}</p>
                     </div>
-                    <div className="p-4 rounded-xl bg-red-600/5 border border-red-600/10 text-center">
+                    <div className="p-4 rounded-xl bg-vox-primary/5 border border-vox-primary/10 text-center">
                       <p className="text-[10px] font-bold uppercase opacity-50 mb-1">Peringkat</p>
-                      <p className="text-2xl font-black text-red-600">#{PARTIES_DATA.indexOf(selectedParty) + 1}</p>
+                      <p className="text-2xl font-black text-vox-primary">#{PARTIES_DATA.indexOf(selectedParty) + 1}</p>
                     </div>
                   </div>
                 </div>
@@ -174,27 +172,27 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                 <div className="flex-[1.5] space-y-8">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <span className="px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase rounded-full">{selectedParty.ideology}</span>
+                      <span className="px-3 py-1 bg-vox-primary text-white text-[10px] font-black uppercase rounded-full">{selectedParty.ideology}</span>
                     </div>
                     <h2 className="text-5xl font-black uppercase italic tracking-tighter leading-tight mb-2">{selectedParty.abbreviation}</h2>
                     <p className="text-xl font-bold opacity-60 mb-6">{selectedParty.name}</p>
                     <p className="text-lg font-medium opacity-80 leading-relaxed mb-6">{selectedParty.description}</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-6 rounded-2xl bg-zinc-100 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-2">Fungsi Demokrasi</h4>
+                      <div className="p-6 rounded-2xl bg-vox-navy/5 border border-vox-navy/10">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-vox-primary mb-2">Fungsi Demokrasi</h4>
                         <p className="text-sm font-bold leading-relaxed">{selectedParty.functionInDemocracy}</p>
                       </div>
-                      <div className="p-6 rounded-2xl bg-zinc-100 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-2">Peran Legislatif</h4>
+                      <div className="p-6 rounded-2xl bg-vox-navy/5 border border-vox-navy/10">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-vox-primary mb-2">Peran Legislatif</h4>
                         <p className="text-sm font-bold leading-relaxed">{selectedParty.legislativeRole}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800/50">
-                      <Users className="text-red-600" />
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-vox-navy/5">
+                      <Users className="text-vox-primary" />
                       <div>
                         <p className="text-[10px] font-bold uppercase opacity-50">Ketua Umum</p>
                         <p className="font-black">{selectedParty.chairman}</p>

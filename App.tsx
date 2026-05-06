@@ -92,21 +92,22 @@ const Content = React.memo(({
           case AppSection.FEEDBACK:
             return (
               <div className="max-w-4xl mx-auto py-20 px-6">
-                <div className={`p-10 rounded-3xl border ${isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5 shadow-xl'}`}>
-                  <h2 className="text-3xl font-black mb-2 uppercase italic text-red-600">Feedback Dashboard</h2>
-                  <p className={`mb-8 font-medium ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}>Suara Anda membangun demokrasi yang lebih baik.</p>
+                <div className="p-10 rounded-3xl border shadow-xl bg-white border-vox-primary/5">
+                  <h2 className="text-3xl font-black mb-2 uppercase italic text-vox-primary">Feedback Dashboard</h2>
+                  <p className="mb-8 font-medium text-vox-navy opacity-70">Suara Anda membangun demokrasi yang lebih baik.</p>
                   
                   <form onSubmit={handleSendFeedback} className="space-y-6">
                     <textarea 
                       value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
                       placeholder="Tulis kritik atau saran Anda di sini..."
-                      className={`w-full h-40 p-6 rounded-2xl outline-none transition-all border-2 ${
-                        isDarkMode ? 'bg-black border-white/10 focus:border-red-600' : 'bg-gray-50 border-gray-200 focus:border-red-600'
-                      }`}
+                      className="w-full h-40 p-6 rounded-2xl outline-none transition-all border-2 bg-vox-bg border-vox-primary/5 focus:border-vox-primary text-vox-navy"
                       required
                     />
-                    <button type="submit" className="flex items-center gap-3 bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition-all active:scale-95">
+                    <button 
+                      type="submit"
+                      className="w-full py-4 rounded-xl font-black italic text-vox-navy flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-vox-emerald/20 uppercase tracking-widest text-xs bg-vox-emerald hover:bg-vox-primary hover:text-white"
+                    >
                       <Send size={20} /> KIRIM MASUKAN
                     </button>
                   </form>
@@ -123,9 +124,9 @@ const Content = React.memo(({
                     <h3 className="text-xl font-black uppercase italic mb-6">Riwayat Feedback Anda</h3>
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                       {userFeedbacks.map((fb) => (
-                        <div key={fb.id} className={`p-4 rounded-xl border ${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-gray-50 border-black/5'}`}>
+                      <div key={fb.id} className="p-4 rounded-xl border bg-vox-bg border-vox-primary/5 transition-all text-vox-navy">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-[10px] font-black uppercase text-red-600">{fb.date} • {fb.time || 'Baru'}</span>
+                            <span className="text-[10px] font-black uppercase text-vox-primary">{fb.date} • {fb.time || 'Baru'}</span>
                             <span className="text-[8px] font-bold opacity-30 uppercase">TERKIRIM</span>
                           </div>
                           <p className="text-xs font-medium italic opacity-80 leading-relaxed">"{fb.message}"</p>
@@ -147,11 +148,11 @@ const Content = React.memo(({
 });
 
 const SectionLoader = ({ isDarkMode }: { isDarkMode: boolean }) => (
-  <div className={`h-[60vh] flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+  <div className={`h-[60vh] flex items-center justify-center ${isDarkMode ? 'bg-vox-deep-ocean' : 'bg-vox-bg'}`}>
     <motion.div 
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full"
+      className="w-10 h-10 border-4 border-vox-primary border-t-transparent rounded-full"
     />
   </div>
 );
@@ -161,20 +162,18 @@ const LegalModal: React.FC<{
   content: React.ReactNode; 
   onClose: () => void;
   isDarkMode: boolean;
-}> = ({ title, content, onClose, isDarkMode }) => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+}> = ({ title, content, onClose }) => (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-vox-navy/80 backdrop-blur-md">
     <motion.div 
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className={`relative w-full max-w-2xl p-12 rounded-[3rem] border-4 ${
-        isDarkMode ? 'bg-zinc-900 border-white/10 text-white' : 'bg-white border-black text-black'
-      }`}
+      className="relative w-full max-w-2xl p-12 rounded-[3rem] border-4 bg-white border-vox-navy text-vox-navy shadow-2xl"
     >
-      <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-red-600 text-white rounded-full hover:scale-110 transition-transform">
+      <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-vox-primary text-white rounded-full hover:scale-110 transition-transform">
         <Send size={20} className="rotate-45" />
       </button>
-      <h3 className="text-3xl font-black uppercase italic text-red-600 mb-8">{title}</h3>
-      <div className={`text-sm font-medium leading-relaxed space-y-4 overflow-y-auto max-h-[60vh] pr-4 custom-scrollbar ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
+      <h3 className="text-3xl font-black uppercase italic text-vox-primary mb-8">{title}</h3>
+      <div className="text-sm font-medium leading-relaxed space-y-4 overflow-y-auto max-h-[60vh] pr-4 custom-scrollbar text-vox-navy">
         {content}
       </div>
     </motion.div>
@@ -188,14 +187,12 @@ const AppContent: React.FC = () => {
   
   // --- STATE TEMA & NAVIGASI ---
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) return savedTheme === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return localStorage.getItem("theme") === "dark";
   });
   const [activeSection, setActiveSection] = useState<AppSection>(AppSection.HOME);
   const [isQuizActive, setIsQuizActive] = useState(false);
 
-  // --- STATE FEEDBACK ---
+  // --- STATE FEEDBACK & AVATAR ---
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
   const [userFeedbacks, setUserFeedbacks] = useState<any[]>([]);
@@ -224,13 +221,20 @@ const AppContent: React.FC = () => {
     }
   }, [isLoggedIn, currentUser?.uid]);
 
+  const toggleDarkMode = useCallback(() => {
+    setIsDarkMode(prev => !prev);
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
+    const body = document.body;
     if (isDarkMode) {
       root.classList.add('dark');
+      body.classList.add('dark');
       localStorage.setItem("theme", "dark");
     } else {
       root.classList.remove('dark');
+      body.classList.remove('dark');
       localStorage.setItem("theme", "light");
     }
   }, [isDarkMode]);
@@ -239,7 +243,10 @@ const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeSection]);
 
-  const toggleDarkMode = useCallback(() => setIsDarkMode(prev => !prev), []);
+  const handleLogout = useCallback(() => {
+    logout();
+    setActiveSection(AppSection.HOME);
+  }, [logout]);
 
   const handleLogin = useCallback((user: User) => {
     const rememberMe = (user as any).rememberMe;
@@ -256,11 +263,6 @@ const AppContent: React.FC = () => {
     
     localStorage.setItem(`user_data_${user.username}`, JSON.stringify(user));
   }, [setIsLoggedIn, setCurrentUser]);
-
-  const handleLogout = useCallback(() => {
-    logout();
-    setActiveSection(AppSection.HOME);
-  }, [logout]);
 
   // Sync currentUser from Firestore in real-time
   // (Moved to UserContext)
@@ -291,28 +293,28 @@ const AppContent: React.FC = () => {
       console.error("Error sending feedback:", error);
       handleFirestoreError(error, OperationType.CREATE, path);
     }
-  }, [feedback, currentUser]);
+  }, [feedback, currentUser, setIsSent, setFeedback]);
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-vox-deep-ocean' : 'bg-vox-bg'}`}>
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"
+          className="w-12 h-12 border-4 border-vox-primary border-t-transparent rounded-full"
         />
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen antialiased transition-colors duration-300 ${isDarkMode ? 'dark bg-black text-white' : 'bg-white text-black'}`}>
+    <div className={`min-h-screen antialiased transition-colors duration-300 ${isDarkMode ? 'dark bg-vox-navy text-white' : 'bg-vox-bg text-vox-navy'}`}>
       {!isQuizActive && (
         <Navbar 
           activeSection={activeSection} 
           setActiveSection={setActiveSection} 
           isDarkMode={isDarkMode}
-          toggleDarkMode={toggleDarkMode}
+          onToggleDarkMode={toggleDarkMode}
         />
       )}
       
@@ -322,7 +324,7 @@ const AppContent: React.FC = () => {
             <button 
               onClick={() => setIsEditMode(!isEditMode)}
               className={`px-6 py-3 rounded-xl font-black italic uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95 ${
-                isEditMode ? 'bg-green-500 text-white' : 'bg-red-600 text-white'
+                isEditMode ? 'bg-green-500 text-white' : 'bg-vox-primary text-white'
               }`}
             >
               {isEditMode ? '✓ SIMPAN / OK' : '✎ EDIT MODE'}
@@ -358,11 +360,11 @@ const AppContent: React.FC = () => {
       </main>
 
       {!isQuizActive && (
-        <footer className={`py-24 px-6 border-t mt-20 transition-colors duration-500 ${isDarkMode ? 'bg-black border-white/10' : 'bg-gray-50 border-black/10'}`}>
+        <footer className={`py-24 px-6 border-t mt-20 transition-colors duration-500 ${isDarkMode ? 'bg-vox-navy border-white/5' : 'bg-vox-navy text-white'}`}>
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="col-span-1 md:col-span-2">
-              <span className="text-4xl font-black tracking-tighter text-red-600 italic">VOXPOLITIKA</span>
-              <p className={`mt-6 max-w-sm font-medium leading-relaxed ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
+              <span className="text-4xl font-black tracking-tighter text-vox-accent italic">VOXPOLITIKA</span>
+              <p className={`mt-6 max-w-sm font-medium leading-relaxed ${isDarkMode ? 'text-zinc-400' : 'text-blue-100/70'}`}>
                 Membangun fondasi demokrasi masa depan melalui literasi politik yang inovatif bagi generasi emas Indonesia.
               </p>
             </div>
@@ -372,12 +374,12 @@ const AppContent: React.FC = () => {
               <ul className="space-y-4 text-sm font-bold">
                 {Object.values(AppSection).filter(v => v !== 'home' && v !== 'login' && v !== 'feedback').map((sec) => (
                   <li key={sec}>
-                    <button onClick={() => setActiveSection(sec as AppSection)} className="hover:text-red-600 transition-colors capitalize">
+                    <button onClick={() => setActiveSection(sec as AppSection)} className="hover:text-vox-secondary transition-colors capitalize">
                       {sec.replace('_', ' ')}
                     </button>
                   </li>
                 ))}
-                <li><button onClick={() => setActiveSection(AppSection.FEEDBACK)} className="text-red-600 hover:underline">Kirim Feedback</button></li>
+                <li><button onClick={() => setActiveSection(AppSection.FEEDBACK)} className="text-vox-primary hover:underline">Kirim Feedback</button></li>
                 <li><button onClick={handleLogout} className="text-zinc-500 hover:text-white transition-colors">Logout</button></li>
               </ul>
             </div>
@@ -391,36 +393,36 @@ const AppContent: React.FC = () => {
                       title: 'Siapa Kami?',
                       content: (
                         <div className="space-y-6">
-                          <p className="text-2xl font-black text-red-600 tracking-tighter leading-tight mb-6">
+                          <p className="text-2xl font-black text-vox-primary tracking-tighter leading-tight mb-6">
                             MENHUBUNGKAN GAGASAN,<br />MENCERDASKAN PILIHAN.
                           </p>
                           
                           <p className="font-medium text-lg leading-relaxed">
-                            Selamat datang di <span className="text-red-600 font-bold">VoxPolitika</span>! Kami adalah tim kecil dengan visi besar dari <span className="underline decoration-red-600 underline-offset-4 font-bold">SMA Unggul Del</span> yang digerakkan oleh <span className="text-red-600">Devina Purba</span>, <span className="text-red-600">Hizkia Malau</span>, dan <span className="text-red-600">Larissa Siahaan</span>.
+                            Selamat datang di <span className="text-vox-primary font-bold">VoxPolitika</span>! Kami adalah tim kecil dengan visi besar dari <span className="underline decoration-vox-primary underline-offset-4 font-bold">SMA Unggul Del</span> yang digerakkan oleh <span className="text-vox-primary">Devina Purba</span>, <span className="text-vox-primary">Hizkia Malau</span>, dan <span className="text-vox-primary">Larissa Siahaan</span>.
                           </p>
 
-                          <div className={`p-8 border-l-8 border-red-600 rounded-r-3xl italic font-medium ${isDarkMode ? 'bg-white/5' : 'bg-red-50'}`}>
+                          <div className={`p-8 border-l-8 border-vox-primary rounded-r-3xl italic font-medium ${isDarkMode ? 'bg-white/5' : 'bg-vox-light/10'}`}>
                             <p className="mb-4">"VoxPolitika lahir dari sebuah keresahan di meja riset. Melalui kompetisi penelitian yang kami ikuti, kami menyadari bahwa data angka saja tidak cukup untuk membawa perubahan."</p>
                             <p>Kami percaya bahwa literasi politik harus bersifat inklusif, mudah diakses, dan berdampak nyata. Karena itulah, kami mentransformasi hasil riset tersebut menjadi sebuah platform interaktif yang dirancang khusus untuk membantu khalayak luas memahami dinamika politik dengan cara yang lebih segar.</p>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 mt-8">
                             <div className={`p-4 rounded-2xl border ${isDarkMode ? 'border-white/10 bg-white/5' : 'border-black/5 bg-gray-50'}`}>
-                              <span className="block text-[10px] font-black uppercase text-red-600 mb-1">Misi Kami</span>
+                              <span className="block text-[10px] font-black uppercase text-vox-secondary mb-1">Misi Kami</span>
                               <p className="text-xs font-bold leading-tight">Inklusivitas & Literasi Digital</p>
                             </div>
                             <div className={`p-4 rounded-2xl border ${isDarkMode ? 'border-white/10 bg-white/5' : 'border-black/5 bg-gray-50'}`}>
-                              <span className="block text-[10px] font-black uppercase text-red-600 mb-1">Target</span>
+                              <span className="block text-[10px] font-black uppercase text-vox-secondary mb-1">Target</span>
                               <p className="text-xs font-bold leading-tight">Generasi Emas Indonesia 2045</p>
                             </div>
                           </div>
                         </div>
                       )
                     })}
-                    className="hover:text-red-600 transition-colors flex items-center gap-2 group"
+                    className="hover:text-vox-secondary transition-colors flex items-center gap-2 group"
                   >
                     About Us
-                    <span className="bg-red-600 text-white text-[8px] px-1.5 py-0.5 rounded-full scale-0 group-hover:scale-100 transition-transform origin-left">BARU</span>
+                    <span className="bg-vox-primary text-white text-[8px] px-1.5 py-0.5 rounded-full scale-0 group-hover:scale-100 transition-transform origin-left">BARU</span>
                   </button>
                 </li>
                 <li>
@@ -439,7 +441,7 @@ const AppContent: React.FC = () => {
                         </>
                       )
                     })}
-                    className="hover:text-red-600 transition-colors"
+                    className="hover:text-vox-primary transition-colors"
                   >
                     Kebijakan Privasi
                   </button>
@@ -461,7 +463,7 @@ const AppContent: React.FC = () => {
                         </>
                       )
                     })}
-                    className="hover:text-red-600 transition-colors"
+                    className="hover:text-vox-primary transition-colors"
                   >
                     Syarat & Ketentuan
                   </button>
@@ -472,7 +474,7 @@ const AppContent: React.FC = () => {
           
           <div className={`max-w-7xl mx-auto mt-20 pt-10 border-t flex flex-col md:flex-row justify-between items-center text-[10px] font-bold tracking-[0.3em] uppercase ${isDarkMode ? 'border-white/10 text-zinc-600' : 'border-black/10 text-zinc-400'}`}>
             <p>© 2026 VOXPOLITIKA INDONESIA. ALL RIGHTS RESERVED.</p>
-            <span className="text-red-600 mt-4 md:mt-0 animate-pulse font-black">Indonesia Emas 2045</span>
+            <span className="text-vox-primary mt-4 md:mt-0 animate-pulse font-black">Indonesia Emas 2045</span>
           </div>
         </footer>
       )}
@@ -517,6 +519,7 @@ const AppContent: React.FC = () => {
             localStorage.setItem('all_users', JSON.stringify(updatedAllUsers));
 
             // Sync to Firestore
+            const path = `users/${updatedUser.username.replace('@', '')}`;
             try {
               const docId = updatedUser.username.replace('@', '');
               await updateDoc(doc(db, 'users', docId), {
@@ -527,7 +530,7 @@ const AppContent: React.FC = () => {
                 ownedItems: updatedUser.ownedItems || []
               });
             } catch (error) {
-              console.error("Error syncing avatar update to Firestore:", error);
+              handleFirestoreError(error, OperationType.UPDATE, path);
             }
           }}
         />
@@ -537,7 +540,7 @@ const AppContent: React.FC = () => {
         <motion.button
           initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={() => setActiveSection(AppSection.FEEDBACK)}
-          className={`fixed bottom-8 left-8 w-16 h-16 bg-white text-black rounded-2xl shadow-2xl flex items-center justify-center z-40 border-2 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-white' : 'border-black/5'}`}
+          className="fixed bottom-8 left-8 w-16 h-16 bg-white text-vox-navy rounded-2xl shadow-2xl flex items-center justify-center z-40 border-2 border-vox-primary/20"
         >
           <MessageSquare className="w-8 h-8" />
         </motion.button>

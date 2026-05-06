@@ -17,7 +17,7 @@ const Cabinet: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-500 py-20 px-6">
+    <div className="min-h-screen bg-vox-bg text-vox-navy transition-colors duration-500 py-20 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-16 text-center">
           {/* Header yang sudah diubah sesuai permintaan */}
@@ -30,7 +30,7 @@ const Cabinet: React.FC = () => {
             <input
               type="text"
               placeholder="Cari nama atau jabatan..."
-              className="w-full px-6 py-4 rounded-2xl border-2 border-black dark:border-white bg-transparent shadow-lg focus:ring-2 focus:ring-red-500 outline-none transition-all"
+              className="w-full px-6 py-4 rounded-2xl border-2 border-black dark:border-white bg-transparent shadow-lg focus:ring-2 focus:ring-vox-primary outline-none transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -48,8 +48,8 @@ const Cabinet: React.FC = () => {
               layoutId={person.id}
               onClick={() => setSelectedMinister(person)}
               whileHover={{ y: -8 }}
-              className={`cursor-pointer bg-white dark:bg-black rounded-3xl overflow-hidden shadow-xl border-2 transition-colors duration-500 group ${
-                person.position.includes('Presiden') ? 'border-red-600' : 'border-black/10 dark:border-white/20'
+              className={`cursor-pointer bg-white rounded-3xl overflow-hidden shadow-xl border-2 transition-colors duration-500 group ${
+                person.position.includes('Presiden') ? 'border-vox-primary' : 'border-vox-navy/10'
               }`}
             >
               <div className="relative overflow-hidden h-64">
@@ -66,14 +66,14 @@ const Cabinet: React.FC = () => {
                   />
                   {/* Badge Khusus untuk Presiden/Wapres */}
                   {person.position.includes('Presiden') && (
-                    <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">
+                    <div className="absolute top-4 left-4 bg-vox-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">
                       Pimpinan Negara
                     </div>
                   )}
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-1 line-clamp-1">{person.name}</h3>
-                <p className="text-sm text-red-600 font-black mb-3 tracking-widest uppercase">{person.position}</p>
+                <p className="text-sm text-vox-primary font-black mb-3 tracking-widest uppercase">{person.position}</p>
                 <p className="text-sm opacity-60 line-clamp-2">{person.bio}</p>
               </div>
             </motion.div>
@@ -93,7 +93,7 @@ const Cabinet: React.FC = () => {
             />
             <motion.div 
               layoutId={selectedMinister.id}
-              className="relative w-full max-w-3xl bg-white dark:bg-black text-black dark:text-white rounded-[2.5rem] overflow-hidden shadow-2xl border-2 border-black dark:border-white transition-colors duration-500"
+              className="relative w-full max-w-3xl bg-white text-vox-navy rounded-[2.5rem] overflow-hidden shadow-2xl border-2 border-vox-navy transition-colors duration-500"
             >
               <div className="flex flex-col md:flex-row h-full">
                 <div className="w-full md:w-2/5 h-80 md:h-auto">
@@ -112,23 +112,23 @@ const Cabinet: React.FC = () => {
                 <div className="p-8 md:p-12 flex flex-col flex-1 relative">
                   <button 
                     onClick={() => setSelectedMinister(null)}
-                    className="absolute top-6 right-6 p-2.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-500 hover:text-white transition-all"
+                    className="absolute top-6 right-6 p-2.5 rounded-full bg-vox-navy/5 hover:bg-vox-primary hover:text-white transition-all"
                   >
                     <X className="w-5 h-5" />
                   </button>
                   <h2 className="text-3xl font-extrabold mb-1">{selectedMinister.name}</h2>
-                  <p className="text-red-600 font-bold mb-6 text-lg uppercase tracking-wide">{selectedMinister.position}</p>
+                  <p className="text-vox-primary font-bold mb-6 text-lg uppercase tracking-wide">{selectedMinister.position}</p>
                   <div className="space-y-6">
                     <div>
-                      <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] mb-2 opacity-40 text-red-600">Profil Singkat</h4>
+                      <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] mb-2 opacity-40 text-vox-primary">Profil Singkat</h4>
                       <p className="font-medium leading-relaxed">{selectedMinister.bio}</p>
                     </div>
                     <div>
-                      <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] mb-3 opacity-40 text-red-600">Tanggung Jawab Utama</h4>
+                      <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] mb-3 opacity-40 text-vox-primary">Tanggung Jawab Utama</h4>
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {selectedMinister.tasks.map((task, idx) => (
-                          <li key={idx} className="flex items-center text-xs font-bold bg-black/5 dark:bg-white/10 px-3 py-2 rounded-xl border border-black/10 dark:border-white/10">
-                            <span className="w-1.5 h-1.5 bg-red-600 rounded-full mr-3 shrink-0" />
+                          <li key={idx} className="flex items-center text-xs font-bold bg-vox-navy/5 px-3 py-2 rounded-xl border border-vox-navy/10">
+                            <span className="w-1.5 h-1.5 bg-vox-primary rounded-full mr-3 shrink-0" />
                             {task}
                           </li>
                         ))}

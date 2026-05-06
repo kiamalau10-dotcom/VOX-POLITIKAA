@@ -53,8 +53,8 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center p-6 bg-zinc-950 text-white font-sans">
           <div className="max-w-md w-full p-10 rounded-[3rem] bg-zinc-900 border border-white/10 shadow-2xl text-center">
-            <div className="w-20 h-20 bg-red-600/20 rounded-3xl flex items-center justify-center mx-auto mb-8">
-              <AlertCircle size={40} className="text-red-600" />
+            <div className="w-20 h-20 bg-blue-600/20 rounded-3xl flex items-center justify-center mx-auto mb-8">
+              <AlertCircle size={40} className="text-blue-600" />
             </div>
             <h2 className="text-3xl font-black uppercase italic mb-4 tracking-tighter">Waduh! Ada Masalah</h2>
             <p className="text-zinc-400 font-medium mb-8 leading-relaxed">
@@ -62,7 +62,7 @@ class ErrorBoundary extends Component<Props, State> {
             </p>
             <button 
               onClick={this.handleReset}
-              className="w-full flex items-center justify-center gap-3 bg-red-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95"
+              className="w-full flex items-center justify-center gap-3 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95"
             >
               <RotateCcw size={20} /> Muat Ulang Aplikasi
             </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Send, MessageCircle, Heart, Search } from 'lucide-react';
 import { User } from '../types';
@@ -37,7 +37,7 @@ interface Post {
   authorId?: string;
 }
 
-const PostCard = React.memo(({ post, currentUser, isDarkMode, onLike, onCommentToggle, onCommentDelete, onDelete, isCommenting }: {
+const PostCard = React.memo(({ post, currentUser, onLike, onCommentToggle, onCommentDelete, onDelete, isCommenting }: {
   post: Post,
   currentUser: User | null,
   isDarkMode: boolean,
@@ -61,11 +61,11 @@ const PostCard = React.memo(({ post, currentUser, isDarkMode, onLike, onCommentT
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-white border-black/5 shadow-xl'} will-change-transform`}
+      className={`p-8 rounded-[2.5rem] border bg-white border-vox-primary/5 shadow-xl shadow-blue-100/20 will-change-transform text-vox-navy`}
     >
       <div className="flex justify-between items-start mb-6">
         <div className="flex gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-red-600/10 overflow-hidden border-2 border-red-600/20">
+          <div className="w-12 h-12 rounded-2xl bg-vox-primary/10 overflow-hidden border-2 border-vox-primary/20">
               <LazyLoadImage 
                 src={avatarUrl} 
                 alt="avatar" 
@@ -76,45 +76,45 @@ const PostCard = React.memo(({ post, currentUser, isDarkMode, onLike, onCommentT
           </div>
           <div>
             <h4 className="font-black uppercase text-sm">{post.displayName}</h4>
-            <p className="text-[10px] font-bold opacity-40 uppercase">{formatTimestamp(post.timestamp)}</p>
+            <p className="text-[10px] font-bold text-vox-slate uppercase">{formatTimestamp(post.timestamp)}</p>
           </div>
         </div>
 
         {(currentUser?.role === 'ADMIN' || currentUser?.username === post.username || currentUser?.username.toLowerCase() === '@superadmin') && (
           <button 
             onClick={() => onDelete(post.id)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-vox-primary text-white font-black text-[10px] uppercase shadow-lg shadow-vox-primary/20 hover:bg-red-500 transition-all active:scale-95"
           >
             <Trash2 size={12} /> Hapus
           </button>
         )}
       </div>
 
-      <p className={`text-lg mb-8 ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>{post.content}</p>
+      <p className="text-lg mb-8 text-vox-navy font-medium leading-relaxed">{post.content}</p>
 
-      <div className="flex gap-8 pt-6 border-t border-white/5">
-        <button onClick={() => onLike(post.id)} className={`flex items-center gap-2 text-xs font-bold ${post.likes.includes(currentUser?.username || '') ? 'text-red-600' : 'opacity-50'}`}>
-          <Heart size={16} /> {post.likes.length}
+      <div className="flex gap-8 pt-6 border-t border-vox-bg">
+        <button onClick={() => onLike(post.id)} className={`flex items-center gap-2 text-xs font-bold transition-colors ${post.likes.includes(currentUser?.username || '') ? 'text-vox-primary' : 'text-vox-slate hover:text-vox-primary'}`}>
+          <Heart size={16} fill={post.likes.includes(currentUser?.username || '') ? "currentColor" : "none"} /> {post.likes.length}
         </button>
-        <button onClick={() => onCommentToggle(post.id)} className="flex items-center gap-2 text-xs font-bold opacity-50">
+        <button onClick={() => onCommentToggle(post.id)} className="flex items-center gap-2 text-xs font-bold text-vox-slate hover:text-vox-primary transition-colors">
           <MessageCircle size={16} /> {post.comments.length}
         </button>
       </div>
 
       <AnimatePresence>
         {isCommenting && (
-          <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+          <div className="mt-6 pt-6 border-t border-vox-bg space-y-4">
             <div className="space-y-3">
               {post.comments.map((comment, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-black/5 flex justify-between items-start group/comment">
+                <div key={idx} className="p-3 rounded-xl bg-vox-bg flex justify-between items-start group/comment">
                   <div className="flex-1">
-                    <p className="text-[10px] font-black uppercase text-red-600 mb-1">{comment.username}</p>
-                    <p className="text-xs font-medium">{comment.text}</p>
+                    <p className="text-[10px] font-black uppercase text-vox-primary mb-1">{comment.username}</p>
+                    <p className="text-xs font-medium text-vox-navy">{comment.text}</p>
                   </div>
                   {(currentUser?.role === 'ADMIN' || currentUser?.username === comment.username) && (
                     <button 
                       onClick={() => onCommentDelete(post.id, comment)}
-                      className="p-1 text-zinc-400 hover:text-red-600 transition-colors opacity-0 group-hover/comment:opacity-100"
+                      className="p-1 text-vox-slate hover:text-red-500 transition-colors opacity-0 group-hover/comment:opacity-100"
                       title="Hapus Komentar"
                     >
                       <Trash2 size={12} />
@@ -129,17 +129,16 @@ const PostCard = React.memo(({ post, currentUser, isDarkMode, onLike, onCommentT
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 placeholder="Tulis komentar..."
-                className={`flex-1 p-3 rounded-xl text-xs outline-none border-2 transition-all ${isDarkMode ? 'bg-black border-white/5 focus:border-red-600' : 'bg-gray-50 border-black/5 focus:border-red-600'}`}
+                className="flex-1 p-3 rounded-xl text-xs outline-none border-2 bg-vox-bg border-vox-primary/5 focus:border-vox-primary text-vox-navy transition-all"
               />
               <button 
                 onClick={() => {
                    if (commentText.trim()) {
-                     // Pass the comment text up or handle here
                      (window as any).handleCommentInternal?.(post.id, commentText);
                      setCommentText('');
                    }
                 }} 
-                className="p-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all"
+                className="p-3 bg-vox-primary text-white rounded-xl hover:bg-vox-accent shadow-md transition-all active:scale-95"
               >
                 <Send size={14} />
               </button>
@@ -196,7 +195,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const isInitialLoadRef = useRef(true);
 
   // Ambil data postingan
   useEffect(() => {
@@ -214,25 +213,21 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       }
       
       setPosts(fetchedPosts);
-      setIsInitialLoad(false);
+      isInitialLoadRef.current = false;
     }, (error) => {
       // Offline fallback
-      if (isInitialLoad) {
+      if (isInitialLoadRef.current) {
         setPosts(INITIAL_POSTS);
-        setIsInitialLoad(false);
+        isInitialLoadRef.current = false;
       }
-      
-      // Only handle error if it's not a permission error during initial load for guests
-      if (currentUser) {
-        console.warn("VoxCircle fetch inhibited:", error);
-      }
+      handleFirestoreError(error, OperationType.LIST, path);
     });
 
     return () => unsubscribe();
-  }, [currentUser, isInitialLoad]);
+  }, [currentUser]);
 
   const handlePost = async () => {
-    if (!currentUser) {
+    if (!currentUser || !auth.currentUser) {
       alert("Silakan masuk untuk berdiskusi di VoxCircle.");
       (window as any).setActiveSection?.('dashboard'); 
       return;
@@ -252,7 +247,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
         comments: [],
         role: currentUser.role,
         shares: 0,
-        authorId: currentUser.uid || 'unauthenticated'
+        authorId: auth.currentUser.uid
       });
       setNewPost('');
     } catch (error) {
@@ -269,9 +264,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       setPostToDelete(null);
       alert("Postingan berhasil dihapus!");
     } catch (error: any) {
-      console.error("GAGAL HAPUS DARI FIREBASE:", error);
-      alert("Gagal hapus: " + error.message);
-      setPostToDelete(null);
+      handleFirestoreError(error, OperationType.DELETE, `posts/${id}`);
     }
   };
 
@@ -283,8 +276,7 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       await Promise.all(deletePromises);
       setIsDeletingAll(false);
     } catch (error) {
-      console.error("Gagal hapus feed:", error);
-      setIsDeletingAll(false);
+      handleFirestoreError(error, OperationType.DELETE, 'posts');
     }
   };
 
@@ -299,9 +291,13 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     if (!post) return;
 
     const isLiked = post.likes.includes(currentUser.username);
-    await updateDoc(postRef, {
-      likes: isLiked ? arrayRemove(currentUser.username) : arrayUnion(currentUser.username)
-    });
+    try {
+      await updateDoc(postRef, {
+        likes: isLiked ? arrayRemove(currentUser.username) : arrayUnion(currentUser.username)
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `posts/${postId}`);
+    }
   };
 
   const handleComment = React.useCallback(async (postId: string, textOverride?: string) => {
@@ -313,13 +309,17 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
     }
     if (!finalCommentText.trim()) return;
     const postRef = doc(db, 'posts', postId);
-    await updateDoc(postRef, {
-      comments: arrayUnion({
-        username: currentUser.username,
-        text: finalCommentText,
-        timestamp: new Date().toISOString()
-      })
-    });
+    try {
+      await updateDoc(postRef, {
+        comments: arrayUnion({
+          username: currentUser.username,
+          text: finalCommentText,
+          timestamp: new Date().toISOString()
+        })
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `posts/${postId}`);
+    }
     if (!textOverride) setCommentText('');
     setCommentingOn(null);
   }, [currentUser, commentText]);
@@ -348,15 +348,15 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
   }, [posts, searchQuery]);
 
   return (
-    <div className="max-w-4xl mx-auto py-20 px-6">
+    <div className={`max-w-4xl mx-auto py-20 px-6 ${isDarkMode ? '' : 'text-vox-navy'}`}>
       {/* Header Section */}
       <div className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
-          <h2 className="text-4xl md:text-6xl font-black uppercase italic text-red-600 mb-4 tracking-tighter">VoxCircle</h2>
+          <h2 className="text-4xl md:text-6xl font-black uppercase italic text-vox-primary mb-4 tracking-tighter">VoxCircle</h2>
           {currentUser?.role === 'ADMIN' && (
             <button 
               onClick={() => setIsDeletingAll(true)}
-              className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-red-600 border border-red-600/20 px-3 py-1 rounded-lg hover:bg-red-600/5"
+              className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-vox-primary border border-vox-primary/20 px-3 py-1 rounded-lg hover:bg-vox-primary/5"
             >
               <Trash2 size={12} /> Clear All Feed (Admin)
             </button>
@@ -369,26 +369,26 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
             placeholder="Cari user..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full pl-12 pr-4 py-3 rounded-xl outline-none border-2 ${isDarkMode ? 'bg-zinc-900 border-white/5' : 'bg-white border-black/5'}`}
+            className={`w-full pl-12 pr-4 py-3 rounded-xl outline-none border-2 ${isDarkMode ? 'bg-vox-deep-ocean border-white/5 text-white' : 'bg-white border-vox-primary/10 text-vox-navy'}`}
           />
         </div>
       </div>
 
       {/* Post Input */}
-      <div className={`p-8 rounded-[2.5rem] border mb-12 ${isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white shadow-2xl shadow-black/5'}`}>
+      <div className="p-8 rounded-[2.5rem] border mb-12 bg-white shadow-2xl shadow-blue-200/20 border-vox-primary/5">
         <textarea
           value={newPost}
           onChange={(e) => setNewPost(e.target.value)}
           placeholder="Apa pendapat politikmu hari ini?"
-          className={`w-full p-6 rounded-2xl outline-none border-2 transition-all h-32 ${isDarkMode ? 'bg-black border-white/10 focus:border-red-600' : 'bg-zinc-50 border-zinc-100 focus:border-red-600'}`}
+          className="w-full p-6 rounded-2xl outline-none border-2 transition-all h-32 bg-vox-bg border-vox-primary/10 focus:border-vox-primary text-vox-navy"
         />
         <div className="flex justify-end mt-4">
           <button 
             onClick={handlePost} 
             disabled={isPosting || !newPost.trim()}
-            className={`bg-red-600 text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-all ${isPosting ? 'opacity-50 cursor-wait' : ''}`}
+            className={`bg-vox-emerald text-vox-navy px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-vox-primary hover:text-white transition-all shadow-lg shadow-vox-emerald/20 active:scale-95 ${isPosting ? 'opacity-50 cursor-wait' : ''}`}
           >
-            {isPosting ? 'Posting...' : <><Send size={16} className="inline mr-2" /> Post</>}
+            {isPosting ? 'Posting...' : <><Send size={16} className="inline mr-2" /> Post Sekarang</>}
           </button>
         </div>
       </div>
@@ -412,12 +412,12 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
 
       {/* Admin Actions */}
       {currentUser?.role === 'ADMIN' && posts.length > 0 && (
-        <div className="mt-12 p-8 rounded-[2.5rem] border-4 border-dashed border-red-600/20 bg-red-600/5 text-center">
+        <div className="mt-12 p-8 rounded-[2.5rem] border-4 border-dashed border-vox-primary/20 bg-vox-primary/5 text-center">
           <h4 className="text-sm font-black uppercase mb-4">Admin Control</h4>
           <button 
             onClick={handleClearAll}
             disabled={isDeletingAll}
-            className={`px-8 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all ${isDeletingAll ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-8 py-3 bg-vox-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-vox-accent shadow-lg shadow-vox-primary/20 transition-all ${isDeletingAll ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isDeletingAll ? 'Menghapus...' : 'Hapus Semua Postingan'}
           </button>
@@ -427,12 +427,12 @@ const VoxCircle: React.FC<{ currentUser: User | null; isDarkMode: boolean }> = (
       {/* Confirm Delete Popup */}
       <AnimatePresence>
         {postToDelete && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-950/80 backdrop-blur-sm">
             <div className={`p-8 rounded-[2rem] max-w-md w-full ${isDarkMode ? 'bg-zinc-900' : 'bg-white'}`}>
               <h3 className="text-xl font-black mb-4">Hapus Postingan?</h3>
               <div className="flex gap-4">
                 <button onClick={() => setPostToDelete(null)} className="flex-1 py-3 bg-zinc-200 rounded-xl font-black text-[10px] uppercase">Batal</button>
-                <button onClick={() => handleDelete(postToDelete)} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase">Ya, Hapus</button>
+                <button onClick={() => handleDelete(postToDelete)} className="flex-1 py-3 bg-vox-primary text-white rounded-xl font-black text-[10px] uppercase">Ya, Hapus</button>
               </div>
             </div>
           </div>

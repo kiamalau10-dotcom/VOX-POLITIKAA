@@ -15,18 +15,20 @@ import {
   doc, 
   getDoc,
   addDoc,
-  increment
+  increment,
+  handleFirestoreError,
+  OperationType
 } from '../firebase';
 
-const MountainTracker: React.FC<{ level: number, isDarkMode: boolean }> = ({ level, isDarkMode }) => {
+const MountainTracker: React.FC<{ level: number }> = ({ level }) => {
   // Dynamic window of 10 levels around current level
   const startLevel = Math.max(1, Math.min(level - 4, 990));
   const displayLevels = Array.from({ length: 10 }, (_, i) => startLevel + i);
   
   return (
-    <div className={`p-8 rounded-[2.5rem] border ${isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-gray-50 border-black/5'}`}>
+    <div className="p-8 rounded-[2.5rem] border bg-white border-vox-navy/10 text-vox-navy shadow-xl shadow-vox-primary/5">
       <div className="flex items-center gap-3 mb-8">
-        <Mountain className="text-red-600" />
+        <Mountain className="text-vox-primary" />
         <h3 className="text-xl font-black uppercase italic">Puncak Literasi</h3>
       </div>
       <div className="relative h-40 flex items-end justify-between px-4">
@@ -41,11 +43,11 @@ const MountainTracker: React.FC<{ level: number, isDarkMode: boolean }> = ({ lev
               <motion.div 
                 initial={{ height: 0 }}
                 animate={{ height: `${height}px` }}
-                className={`w-1 rounded-t-full transition-all duration-500 ${isActive ? 'bg-red-600' : 'bg-black/10 dark:bg-white/10'}`}
+                className={`w-1 rounded-t-full transition-all duration-500 ${isActive ? 'bg-vox-primary' : 'bg-black/10 dark:bg-white/10'}`}
               />
               <div className={`mt-2 w-6 h-6 rounded-lg flex items-center justify-center text-[8px] font-black ${
-                isCurrent ? 'bg-red-600 text-white shadow-lg shadow-red-600/40 scale-125 z-10' : 
-                isActive ? 'bg-red-600/20 text-red-600' : 'bg-black/5 dark:bg-white/5 opacity-30'
+                isCurrent ? 'bg-vox-primary text-white shadow-lg shadow-vox-primary/40 scale-125 z-10' : 
+                isActive ? 'bg-vox-primary/20 text-vox-primary' : 'bg-black/5 dark:bg-white/5 opacity-30'
               }`}>
                 {l}
               </div>
@@ -76,7 +78,7 @@ const AchievementPopup: React.FC<{ title: string, icon: string, onClose: () => v
     exit={{ opacity: 0, scale: 0.5, y: 100 }}
     className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[200] w-full max-w-sm px-6"
   >
-    <div className="bg-zinc-900 border-2 border-yellow-500 p-6 rounded-3xl shadow-2xl flex items-center gap-6">
+    <div className="bg-vox-navy border-2 border-yellow-500 p-6 rounded-3xl shadow-2xl flex items-center gap-6">
       <div className="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-yellow-500/20">
         {icon === 'Star' ? <Star size={32} className="text-black" /> : <Zap size={32} className="text-black" />}
       </div>
@@ -95,7 +97,7 @@ const Quiz: React.FC<{
   isDarkMode: boolean, 
   currentUser: User | null,
   onStateChange?: (isActive: boolean) => void 
-}> = ({ isDarkMode, onStateChange }) => {
+}> = ({ onStateChange }) => {
   const { currentUser } = useUser();
   const [currentStep, setCurrentStep] = useState<'start' | 'playing' | 'result'>('start');
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -129,8 +131,7 @@ const Quiz: React.FC<{
         .slice(0, 5);
       setLeaderboardData(users);
     }, (error) => {
-      console.warn("Leaderboard fetch error:", error);
-      // Don't throw here to avoid "Uncaught Error" in async listener
+      handleFirestoreError(error, OperationType.GET, path);
     });
 
     return () => unsubscribe();
@@ -248,6 +249,7 @@ const Quiz: React.FC<{
     if (currentUser) {
       const docId = currentUser.username.replace('@', '');
       const userRef = doc(db, 'users', docId);
+      const userPath = `users/${docId}`;
       
       try {
         const userDoc = await getDoc(userRef);
@@ -286,7 +288,7 @@ const Quiz: React.FC<{
           updatedUser.quizHistory = [quizResult, ...updatedUser.quizHistory].slice(0, 50);
 
           // Save to global results for admin
-          await addDoc(collection(db, 'quiz_results'), quizResult);
+          await addDoc(collection(db, 'quiz_results'), quizResult).catch(err => handleFirestoreError(err, OperationType.CREATE, 'quiz_results'));
 
           // Achievement Check
           if (leveledUp && updatedUser.level === 5) {
@@ -313,14 +315,14 @@ const Quiz: React.FC<{
           const statsRef = doc(db, 'stats', 'global');
           await updateDoc(statsRef, {
             totalQuizzesTaken: increment(1)
-          });
+          }).catch(err => handleFirestoreError(err, OperationType.UPDATE, 'stats/global'));
 
           // Sync local storage
           localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
           localStorage.setItem("currentUser", JSON.stringify(updatedUser));
         }
       } catch (error) {
-        console.error("Error updating quiz results: ", error);
+        handleFirestoreError(error, OperationType.WRITE, userPath);
       }
     }
 
@@ -352,22 +354,20 @@ const Quiz: React.FC<{
             exit={{ opacity: 0, y: -20 }}
             className="space-y-12"
           >
-            <div className={`p-12 rounded-[2.5rem] text-center border ${
-              isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-2xl'
-            }`}>
-              <div className="w-20 h-20 bg-red-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-red-600/20">
+            <div className="p-12 rounded-[2.5rem] text-center border bg-white border-vox-navy/10 shadow-2xl shadow-blue-200/20 text-vox-navy">
+              <div className="w-20 h-20 bg-vox-primary rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-vox-primary/20">
                 <Trophy size={40} className="text-white" />
               </div>
-              <h2 className="text-4xl font-black uppercase italic text-red-600 mb-4">Uji Literasi Politik</h2>
-              <p className={`mb-4 text-lg font-medium ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                Level Anda: <span className="text-red-600 font-black">{currentUser?.level || 1}</span>
+              <h2 className="text-4xl font-black uppercase italic text-vox-primary mb-4">Uji Literasi Politik</h2>
+              <p className="mb-4 text-lg font-medium text-vox-navy opacity-80">
+                Level Anda: <span className="text-vox-primary font-black">{currentUser?.level || 1}</span>
               </p>
-              <p className={`mb-10 text-sm font-medium ${isDarkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>
+              <p className="mb-10 text-sm font-medium text-vox-navy opacity-60">
                 Jawab 10 pertanyaan adaptif. Skor ≥ 80 untuk naik level!
               </p>
               <button 
                 onClick={startQuiz}
-                className="bg-red-600 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 shadow-xl shadow-red-600/30"
+                className="bg-vox-primary text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-vox-accent transition-all active:scale-95 shadow-xl shadow-vox-primary/30"
               >
                 Mulai Kuis
               </button>
@@ -377,9 +377,7 @@ const Quiz: React.FC<{
               <MountainTracker level={currentUser?.level || 1} isDarkMode={isDarkMode} />
               
               {/* Leaderboard Section */}
-              <div className={`p-10 rounded-[2.5rem] border ${
-                isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-gray-50 border-black/5'
-              }`}>
+              <div className="p-10 rounded-[2.5rem] border bg-white border-vox-navy/10 shadow-xl shadow-blue-100/20 text-vox-navy">
                 <div className="flex items-center gap-3 mb-8">
                   <Medal className="text-yellow-500" />
                   <h3 className="text-xl font-black uppercase italic">Peringkat Nasional</h3>
@@ -387,8 +385,7 @@ const Quiz: React.FC<{
                 <div className="space-y-4">
                   {leaderboardData.map((user, idx) => (
                     <div key={user.username} className={`flex items-center justify-between p-4 rounded-2xl ${
-                      idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/20' : 
-                      isDarkMode ? 'bg-white/5' : 'bg-white'
+                      idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/20' : 'bg-vox-bg border border-vox-navy/5'
                     }`}>
                       <div className="flex items-center gap-4">
                         <span className="text-lg font-black opacity-30">#{idx + 1}</span>
@@ -406,7 +403,7 @@ const Quiz: React.FC<{
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-black text-red-600 uppercase">{user.currentExp} EXP</p>
+                        <p className="text-xs font-black text-vox-primary uppercase">{user.currentExp} EXP</p>
                       </div>
                     </div>
                   ))}
@@ -427,7 +424,7 @@ const Quiz: React.FC<{
             <div className="flex justify-between items-center">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-600">Pertanyaan {currentIndex + 1}/10</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-vox-primary">Pertanyaan {currentIndex + 1}/10</span>
                   {questions[currentIndex].isHots && (
                     <span className="px-2 py-0.5 bg-yellow-500 text-black text-[8px] font-black uppercase rounded flex items-center gap-1">
                       <Zap size={8} fill="currentColor" /> HOTS
@@ -438,7 +435,7 @@ const Quiz: React.FC<{
               </div>
               <button 
                 onClick={handleExit}
-                className="p-3 rounded-xl bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white transition-all"
+                className="p-3 rounded-xl bg-vox-primary/10 text-vox-primary hover:bg-vox-primary hover:text-white transition-all"
               >
                 <RotateCcw size={20} />
               </button>
@@ -446,22 +443,22 @@ const Quiz: React.FC<{
 
             <div className="grid grid-cols-1 gap-4">
               {questions[currentIndex].options.map((opt, idx) => {
-                let statusClass = isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-gray-50 border-black/5';
+                let statusClass = 'bg-white border-vox-navy/10';
                 if (isAnswered) {
                   if (idx === questions[currentIndex].correctAnswer) {
-                    statusClass = 'bg-green-500/20 border-green-500 text-green-500';
+                    statusClass = 'bg-green-500/20 border-green-500 text-green-600';
                   } else if (idx === selectedOption) {
-                    statusClass = 'bg-red-500/20 border-red-500 text-red-500';
+                    statusClass = 'bg-vox-accent/20 border-vox-accent text-vox-accent';
                   }
                 } else if (selectedOption === idx) {
-                  statusClass = 'border-red-600 bg-red-600/5';
+                  statusClass = 'border-vox-primary bg-vox-primary/5';
                 }
 
                 return (
                   <button
                     key={idx}
                     onClick={() => handleOptionClick(idx)}
-                    className={`p-6 rounded-2xl border-2 text-left font-bold transition-all flex items-center justify-between gap-4 ${statusClass}`}
+                    className={`p-6 rounded-2xl border-2 text-left font-bold transition-all flex items-center justify-between gap-4 ${statusClass} text-vox-navy`}
                   >
                     <span className="leading-relaxed">{opt}</span>
                     {isAnswered && idx === questions[currentIndex].correctAnswer && <CheckCircle2 size={20} className="shrink-0" />}
@@ -475,12 +472,10 @@ const Quiz: React.FC<{
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-6 rounded-2xl border ${
-                  isDarkMode ? 'bg-zinc-900/80 border-white/10' : 'bg-gray-100 border-black/5'
-                }`}
+                className="p-6 rounded-2xl border bg-white border-vox-navy/10 text-vox-navy shadow-sm"
               >
                 <p className="text-sm font-medium leading-relaxed">
-                  <span className="font-black uppercase text-red-600 block mb-2">Penjelasan:</span>
+                  <span className="font-black uppercase text-vox-primary block mb-2">Penjelasan:</span>
                   {questions[currentIndex].explanation}
                 </p>
               </motion.div>
@@ -491,14 +486,14 @@ const Quiz: React.FC<{
                 <button 
                   onClick={submitAnswer}
                   disabled={selectedOption === null}
-                  className="bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest disabled:opacity-50 shadow-lg shadow-red-600/20"
+                  className="bg-vox-primary text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest disabled:opacity-50 shadow-lg shadow-vox-primary/20"
                 >
                   Kirim Jawaban
                 </button>
               ) : (
                 <button 
                   onClick={nextQuestion}
-                  className="bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-red-600/20"
+                  className="bg-vox-primary text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-vox-primary/20"
                 >
                   {currentIndex === questions.length - 1 ? 'Lihat Hasil' : 'Lanjut'} <ArrowRight size={18} />
                 </button>
@@ -512,16 +507,14 @@ const Quiz: React.FC<{
             key="result"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`p-12 rounded-[2.5rem] border ${
-              isDarkMode ? 'bg-zinc-900/50 border-white/10' : 'bg-white border-black/5 shadow-2xl'
-            }`}
+            className="p-12 rounded-[2.5rem] border bg-white border-vox-navy/10 shadow-2xl text-vox-navy"
           >
             <div className="text-center mb-12">
-              <h2 className="text-5xl font-black uppercase italic text-red-600 mb-4">Hasil Kuis</h2>
+              <h2 className="text-5xl font-black uppercase italic text-vox-primary mb-4">Hasil Kuis</h2>
               <div className="text-8xl font-black mb-4">{Math.round((correctCount / 10) * 100)}</div>
               <p className="text-xl font-bold opacity-50 uppercase tracking-widest">Skor Akhir Anda</p>
-              <div className="mt-6 p-4 bg-red-600/10 rounded-2xl inline-block">
-                <p className="text-xs font-black text-red-600 uppercase">+{correctCount * 10} EXP Gained</p>
+              <div className="mt-6 p-4 bg-vox-primary/10 rounded-2xl inline-block">
+                <p className="text-xs font-black text-vox-primary uppercase">+{correctCount * 10} EXP Gained</p>
               </div>
             </div>
 
@@ -529,7 +522,7 @@ const Quiz: React.FC<{
               <h4 className="font-black uppercase tracking-widest text-xs opacity-50 mb-4">Ringkasan Jawaban</h4>
               {history.map((item, idx) => (
                 <div key={idx} className={`flex items-start gap-4 p-4 rounded-xl ${isDarkMode ? 'bg-white/5' : 'bg-black/5'}`}>
-                  {item.correct ? <CheckCircle2 className="text-green-500 shrink-0" /> : <XCircle className="text-red-500 shrink-0" />}
+                  {item.correct ? <CheckCircle2 className="text-green-500 shrink-0" /> : <XCircle className="text-vox-primary shrink-0" />}
                   <div>
                     <p className="text-sm font-bold mb-1 leading-tight">{item.q}</p>
                     <p className="text-xs opacity-60 leading-relaxed">{item.explanation}</p>
@@ -541,7 +534,7 @@ const Quiz: React.FC<{
             <div className="flex justify-center gap-4">
               <button 
                 onClick={() => setCurrentStep('start')}
-                className="flex items-center gap-2 bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-600/20"
+                className="flex items-center gap-2 bg-vox-primary text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-vox-primary/20"
               >
                 <RotateCcw size={18} /> Selesai
               </button>
@@ -568,17 +561,17 @@ const Quiz: React.FC<{
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm"
           >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-              className={`p-10 rounded-[2.5rem] max-w-md w-full border ${isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5'}`}
-            >
-              <div className="w-16 h-16 bg-red-600/10 rounded-2xl flex items-center justify-center mb-6">
-                <ShieldAlert size={32} className="text-red-600" />
-              </div>
-              <h3 className="text-2xl font-black uppercase italic mb-4">Hentikan Kuis?</h3>
-              <p className={`mb-8 font-medium ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                Jika Anda keluar sekarang, progres kuis ini akan hilang dan skor dianggap 0. Yakin ingin menyerah?
-              </p>
+              <motion.div 
+                initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+                className="p-10 rounded-[2.5rem] max-w-md w-full border bg-white border-vox-navy/10 shadow-2xl text-vox-navy"
+              >
+                <div className="w-16 h-16 bg-vox-primary/10 rounded-2xl flex items-center justify-center mb-6">
+                  <ShieldAlert size={32} className="text-vox-primary" />
+                </div>
+                <h3 className="text-2xl font-black uppercase italic mb-4">Hentikan Kuis?</h3>
+                <p className="mb-8 font-medium opacity-70">
+                  Jika Anda keluar sekarang, progres kuis ini akan hilang dan skor dianggap 0. Yakin ingin menyerah?
+                </p>
               <div className="flex gap-4">
                 <button 
                   onClick={() => setShowExitWarning(false)}
@@ -588,7 +581,7 @@ const Quiz: React.FC<{
                 </button>
                 <button 
                   onClick={confirmExit}
-                  className="flex-1 py-4 rounded-xl font-bold uppercase tracking-widest text-xs bg-red-600 text-white hover:bg-red-700"
+                  className="flex-1 py-4 rounded-xl font-bold uppercase tracking-widest text-xs bg-vox-primary text-white hover:bg-vox-accent"
                 >
                   Keluar
                 </button>

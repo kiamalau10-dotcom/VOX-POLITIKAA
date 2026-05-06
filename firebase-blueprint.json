@@ -60,6 +60,44 @@
         "totalVotes": { "type": "number" },
         "totalQuizzesTaken": { "type": "number" }
       }
+    },
+    "QuizResult": {
+      "title": "Quiz Result",
+      "description": "User completion data for a quiz.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "score": { "type": "number" },
+        "date": { "type": "string" },
+        "uid": { "type": "string" },
+        "quizId": { "type": "string" },
+        "topic": { "type": "string" }
+      },
+      "required": ["username", "score", "uid"]
+    },
+    "Vote": {
+      "title": "Live Vote",
+      "description": "A signal of support or participation.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "timestamp": { "type": "object" },
+        "userId": { "type": "string" }
+      },
+      "required": ["username", "timestamp"]
+    },
+    "Feedback": {
+      "title": "User Feedback",
+      "description": "Suggestions or reported issues.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "uid": { "type": "string" },
+        "message": { "type": "string" },
+        "date": { "type": "string" },
+        "timestamp": { "type": "object" }
+      },
+      "required": ["username", "message", "timestamp"]
     }
   },
   "firestore": {
@@ -78,6 +116,18 @@
     "stats/global": {
       "schema": "GlobalStats",
       "description": "Global application statistics."
+    },
+    "quiz_results/{resultId}": {
+      "schema": "QuizResult",
+      "description": "Leaderboard and history data."
+    },
+    "votes/{voteId}": {
+      "schema": "Vote",
+      "description": "Real-time activity pulses."
+    },
+    "feedbacks/{fbId}": {
+      "schema": "Feedback",
+      "description": "User feedback storage."
     }
   }
 }

@@ -8,7 +8,9 @@ import {
   setDoc,
   auth,
   signInAnonymously,
-  onAuthStateChanged
+  onAuthStateChanged,
+  handleFirestoreError,
+  OperationType
 } from '../firebase';
 import { UserContext } from './UserContextCore';
 
@@ -26,88 +28,38 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [isLoading, setIsLoading] = useState(() => {
     const hasUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
-    return !hasUser; // Only show global loading if we don't have a cached user
+    return !hasUser; 
   });
 
   // Initialize Firebase Auth
   useEffect(() => {
-    let retryCount = 0;
-    const maxRetries = 3;
-
-    const initAuth = async () => {
-      // Only show loading if we don't have a user yet
-      if (!localStorage.getItem("currentUser") && !sessionStorage.getItem("currentUser")) {
-        setIsLoading(true);
-      }
-      try {
-        if (!auth.currentUser) {
-          await signInAnonymously(auth);
-        }
-      } catch (err: any) {
-        if (err.code === 'auth/admin-restricted-operation') {
-          console.warn("CRITICAL: Anonymous Authentication is disabled in Firebase Console.");
-          setIsLoading(false);
-          return;
-        }
-
-        if (err.code === 'auth/network-request-failed' || err.message?.includes('offline')) {
-          console.info("Auth operating in offline mode.");
-          setIsLoading(false);
-          return;
-        }
-
-        if (err.code === 'auth/too-many-requests') {
-          console.warn("Auth hammered. Waiting longer before retry...");
-          setTimeout(initAuth, 10000); 
-          return;
-        }
-
-        console.error("Auth initialization error:", err);
-        if (retryCount < maxRetries) {
-          retryCount++;
-          setTimeout(initAuth, 3000); 
-          return;
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      if (!user) {
+        try {
+          await signInAnonymously(auth);
+        } catch (err) {
+          console.warn("Silent auth error:", err);
+        }
+      } else {
+        // Resolve UID sync if user exists but UID mapping might be stale
         setCurrentUser(prev => {
-          if (prev) {
-            const updatedUser = { ...prev, uid: user.uid };
-            const storage = (localStorage.getItem("isLoggedIn") === "true" || sessionStorage.getItem("isLoggedIn") === "true") ? localStorage : sessionStorage;
-            
-            // Only update if UID actually changed or was missing
-            if (prev.uid !== user.uid) {
-              storage.setItem("currentUser", JSON.stringify(updatedUser));
-              const docId = prev.username.replace('@', '');
-              updateDoc(doc(db, 'users', docId), { uid: user.uid }).catch(e => console.error("Sync UID error:", e));
-              
-              setDoc(doc(db, 'users_by_uid', user.uid), {
-                username: prev.username,
-                role: prev.role
-              }, { merge: true }).catch(e => console.error("Sync users_by_uid error:", e));
-            }
-
-            return updatedUser;
+          if (prev && prev.uid !== user.uid) {
+            const updated = { ...prev, uid: user.uid };
+            localStorage.setItem("currentUser", JSON.stringify(updated));
+            return updated;
           }
           return prev;
         });
-        setIsLoading(false);
-      } else {
-        initAuth();
       }
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []); // Removed [currentUser] to break the loop
+  }, []); 
 
   // Sync currentUser from Firestore in real-time
   useEffect(() => {
-    if (isLoggedIn && currentUser?.username) {
+    if (isLoggedIn && currentUser?.username && auth.currentUser) {
       const docId = currentUser.username.replace('@', '');
       const unsubscribe = onSnapshot(doc(db, 'users', docId), (docSnap) => {
         if (docSnap.exists()) {
@@ -130,11 +82,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const syncData = { ...currentUser } as any;
           delete syncData.password;
           console.log("Syncing local user to Firestore (excluding sensitive fields)...");
-          setDoc(doc(db, 'users', docId), syncData, { merge: true }).catch(err => console.error("Initial user sync error:", err));
+          setDoc(doc(db, 'users', docId), syncData, { merge: true }).catch(err => handleFirestoreError(err, OperationType.WRITE, `users/${docId}`));
         }
       }, (error) => {
-        console.warn("User data sync error:", error);
-        // Don't throw here to avoid "Uncaught Error" in async listener
+        // Only report error if we are still supposedly logged in and auth is present
+        if (isLoggedIn && auth.currentUser) {
+          handleFirestoreError(error, OperationType.GET, `users/${docId}`);
+        }
       });
       return () => unsubscribe();
     }
@@ -202,7 +156,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(updatedUser);
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
     } catch (error) {
-      console.error("Error resolving streak:", error);
+      handleFirestoreError(error, OperationType.UPDATE, `users/${docId}`);
     }
   };
 

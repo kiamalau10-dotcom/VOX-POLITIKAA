@@ -13,38 +13,65 @@
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   
-  /* KUNCI UTAMA: Memastikan website sadar saat mode gelap dinyalakan */
-  --variant-dark: &:where(.dark, .dark *);
+  /* Oceanic Clarity Palette */
+  --color-vox-primary: #0EA5E9; /* Ocean Blue */
+  --color-vox-primary-dark: #0284C7;
+  --color-vox-navy: #0F172A; /* Deep Midnight Navy */
+  --color-vox-slate: #64748B; /* Slate Gray */
+  --color-vox-bg: #F0F9FF; /* Alice Blue */
+  --color-vox-card: #E0F2FE; /* Light Sky Blue */
+  --color-vox-accent: #38BDF8; /* Sky Blue accent */
+  --color-vox-emerald: #00D289; /* Emerald Green */
+  
+  /* Support for Deep Ocean */
+  --color-vox-deep-ocean: #0F172A;
 }
 
 @layer base {
   body {
-    /* Mengatur warna dasar: Putih saat terang, Hitam saat gelap */
-    @apply bg-white text-black dark:bg-black dark:text-white transition-colors duration-500;
+    /* Transitions for smooth theme switching */
+    @apply bg-vox-bg text-[#0F172A] transition-colors duration-500 overflow-x-hidden;
     font-family: "Plus Jakarta Sans", sans-serif;
     scroll-behavior: smooth;
+  }
+
+  body.dark {
+    @apply bg-vox-navy text-white;
   }
 }
 
 @layer components {
-  /* Kartu efek kaca yang bisa berubah warna otomatis */
+  /* Dynamic Glass Card */
   .glass-card {
-    @apply bg-white/80 border border-black/10 dark:bg-black/80 dark:border-white/10 backdrop-blur-md;
+    @apply bg-white shadow-[0_4px_30px_-4px_rgba(15,23,42,0.1)] border border-[#0EA5E9]/10 rounded-3xl backdrop-blur-md transition-all duration-300;
+  }
+
+  .dark .glass-card {
+    @apply bg-white border-white/5 shadow-[0_8px_40px_-10px_rgba(0,0,0,0.3)];
+  }
+
+  /* Section Title styling */
+  .section-title {
+    @apply text-3xl font-black uppercase italic tracking-tighter;
+  }
+
+  .dark .section-title {
+    @apply text-white;
   }
 }
 
-/* Mengubah warna scrollbar (batang penggeser) menjadi Merah */
+/* Mengubah warna scrollbar (batang penggeser) menjadi Brand Color */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #dc2626;
+  background: #177090;
   border-radius: 10px;
 }
 
-/* Mengubah warna saat teks disorot/diblok menjadi Merah Putih */
+/* Mengubah warna saat teks disorot/diblok */
 ::selection {
-  background-color: #dc2626;
+  background-color: #177090;
   color: white;
 }

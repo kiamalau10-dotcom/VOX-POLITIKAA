@@ -66,9 +66,9 @@ const Avatar2D = ({ username, config }: { username: string, config: any }) => {
   return (
     <div className="w-64 h-64 relative flex items-center justify-center">
       {/* Glow Effect */}
-      <div className="absolute inset-0 bg-red-600/20 blur-[80px] rounded-full" />
+      <div className="absolute inset-0 bg-blue-600/20 blur-[80px] rounded-full" />
       
-      <div className="relative w-56 h-56 rounded-[3rem] overflow-hidden bg-gradient-to-br from-red-600 to-red-900 border-4 border-white/20 shadow-2xl">
+      <div className="relative w-56 h-56 rounded-[3rem] overflow-hidden bg-gradient-to-br from-blue-600 to-blue-900 border-4 border-white/20 shadow-2xl">
         {isChanging && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
             <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
@@ -107,7 +107,7 @@ const Avatar2D = ({ username, config }: { username: string, config: any }) => {
   );
 };
 
-const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDarkMode, onClose }) => {
+const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, onClose }) => {
   const isAdmin = currentUser.role === 'ADMIN' || 
                   currentUser.username.toLowerCase().includes('admin');
                   
@@ -179,24 +179,20 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
       
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        className={`relative w-full max-w-6xl h-[85vh] rounded-[3rem] border overflow-hidden flex flex-col md:flex-row ${
-          isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-black/5'
-        }`}
+        className="relative w-full max-w-6xl h-[85vh] rounded-[3rem] border overflow-hidden flex flex-col md:flex-row bg-white border-vox-navy/10 text-vox-navy"
       >
         {/* 2D Preview Area */}
-        <div className={`flex-1 relative border-r flex items-center justify-center ${
-          isDarkMode ? 'bg-black/50 border-white/5' : 'bg-zinc-50 border-black/5'
-        }`}>
+        <div className="flex-1 relative border-r flex items-center justify-center bg-vox-bg border-vox-navy/5">
           <Avatar2D username={currentUser.username} config={{ costume: equippedCostumeId }} />
 
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-            <h2 className="text-3xl font-black uppercase italic text-red-600 tracking-tighter">Avatar Lab 2.0</h2>
+            <h2 className="text-3xl font-black uppercase italic text-blue-600 tracking-tighter">Avatar Lab 2.0</h2>
             <p className="text-[10px] font-bold opacity-50 uppercase tracking-[0.3em] mt-1">Cabinet Style System</p>
             {voxTitle !== 'none' && (
               <motion.p 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 text-xs font-black bg-red-600 text-white px-4 py-1 rounded-full uppercase tracking-widest"
+                className="mt-4 text-xs font-black bg-blue-600 text-white px-4 py-1 rounded-full uppercase tracking-widest"
               >
                 {VOX_TITLES.find(t => t.id === voxTitle)?.label}
               </motion.p>
@@ -204,7 +200,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
           </div>
 
           <div className="absolute top-8 left-8 flex flex-col gap-2">
-            <div className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full shadow-lg shadow-red-600/20">
+            <div className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg shadow-blue-600/20">
               <span className="font-black">🪙 {isAdmin ? '∞' : (currentUser.coins || 0)}</span>
               <span className="text-[8px] font-black uppercase opacity-70">VoxCoins</span>
             </div>
@@ -224,10 +220,10 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
         <div className="flex-1 flex flex-col h-full">
           <div className="p-8 border-b border-white/5 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <ShoppingBag className="text-red-600" size={20} />
+              <ShoppingBag className="text-blue-600" size={20} />
               <h3 className="font-black uppercase tracking-widest text-sm">Pilih Kostum Jabatan</h3>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-red-600/10 rounded-xl transition-all">
+            <button onClick={onClose} className="p-2 hover:bg-blue-600/10 rounded-xl transition-all">
               <X size={20} />
             </button>
           </div>
@@ -244,17 +240,17 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
                       onClick={() => handleEquipCostume(costume)}
                       className={`p-6 rounded-[2rem] border-2 transition-all flex flex-col items-center gap-3 text-center ${
                         equippedCostumeId === costume.id
-                          ? 'border-red-600 bg-red-600/5'
-                          : isDarkMode ? 'border-white/5 bg-white/5 hover:border-white/20' : 'border-black/5 bg-zinc-50 hover:border-black/20'
+                          ? 'border-blue-600 bg-blue-600/5'
+                          : 'border-vox-navy/5 bg-vox-bg hover:border-vox-primary/50'
                       }`}
                     >
-                      <div className="w-16 h-16 bg-red-600/10 rounded-2xl flex items-center justify-center text-3xl">
+                      <div className="w-16 h-16 bg-blue-600/10 rounded-2xl flex items-center justify-center text-3xl">
                         {costume.icon}
                       </div>
                       <div>
                         <p className="text-xs font-black uppercase mb-1">{costume.label}</p>
                         {!owned && costume.price > 0 && (
-                          <p className="text-[10px] font-black text-red-600">🪙 {costume.price}</p>
+                          <p className="text-[10px] font-black text-blue-600">🪙 {costume.price}</p>
                         )}
                         {owned && costume.price > 0 && (
                           <p className="text-[10px] font-black text-green-500 uppercase">Owned</p>
@@ -264,7 +260,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
                         )}
                       </div>
                       {equippedCostumeId === costume.id ? (
-                        <span className="text-[8px] font-black bg-red-600 text-white px-3 py-1 rounded-full uppercase">Dipakai</span>
+                        <span className="text-[8px] font-black bg-blue-600 text-white px-3 py-1 rounded-full uppercase">Dipakai</span>
                       ) : (
                         <span className="text-[8px] font-black opacity-30 uppercase tracking-widest">Pilih</span>
                       )}
@@ -284,12 +280,12 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
                     onClick={() => setVoxTitle(title.id)}
                     className={`p-4 rounded-xl border-2 transition-all text-left ${
                       voxTitle === title.id
-                        ? 'border-red-600 bg-red-600/5'
-                        : isDarkMode ? 'border-white/5 bg-white/5' : 'border-black/5 bg-zinc-50'
+                        ? 'border-blue-600 bg-blue-600/5'
+                        : 'border-vox-navy/5 bg-vox-bg'
                     }`}
                   >
                     <p className="text-[10px] font-black uppercase tracking-wider">{title.label}</p>
-                    {voxTitle === title.id && <Check size={10} className="text-red-600 mt-1" />}
+                    {voxTitle === title.id && <Check size={10} className="text-blue-600 mt-1" />}
                   </button>
                 ))}
               </div>
@@ -299,7 +295,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
           <div className="p-8 border-t border-white/5">
             <button 
               onClick={handleSave}
-              className="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-all active:scale-95 shadow-2xl shadow-red-600/30"
+              className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all active:scale-95 shadow-2xl shadow-blue-600/30"
             >
               {totalCost > 0 ? `Beli & Simpan (🪙${totalCost})` : 'Simpan Identitas'}
             </button>
@@ -309,7 +305,7 @@ const AvatarLab: React.FC<AvatarLabProps> = ({ currentUser, onUpdateUser, isDark
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
       `}</style>
     </div>
   );

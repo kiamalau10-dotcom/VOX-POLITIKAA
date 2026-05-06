@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { db, doc, onSnapshot, collection, query, where, orderBy, limit } from '../firebase';
+import { db, auth, doc, onSnapshot, collection, query, where, orderBy, limit, handleFirestoreError, OperationType } from '../firebase';
 import { User } from '../types';
 
 export const useRealtimeProfile = (username: string) => {
   const [profile, setProfile] = useState<User | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !!username && !!auth.currentUser);
 
   useEffect(() => {
-    if (!username) return;
+    if (!username || !auth.currentUser) {
+      return;
+    }
 
     // Listen to profile changes
     const docId = username.replace('@', '');
@@ -21,7 +23,7 @@ export const useRealtimeProfile = (username: string) => {
       }
       setLoading(false);
     }, (error) => {
-      console.warn("Profile fetch error:", error);
+      handleFirestoreError(error, OperationType.GET, `users/${docId}`);
       setLoading(false);
     });
 
@@ -35,7 +37,7 @@ export const useRealtimeProfile = (username: string) => {
       }));
       setPosts(fetchedPosts);
     }, (error) => {
-      console.warn("User posts fetch error:", error);
+      handleFirestoreError(error, OperationType.GET, 'posts');
     });
 
     return () => {
