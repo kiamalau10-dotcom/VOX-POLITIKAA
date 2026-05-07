@@ -9,7 +9,7 @@ interface StreakProtectionModalProps {
   onResolve: (action: 'use' | 'buy' | 'reset') => Promise<void>;
 }
 
-const StreakProtectionModal: React.FC<StreakProtectionModalProps> = ({ currentUser, onResolve }) => {
+const StreakProtectionModal: React.FC<StreakProtectionModalProps> = ({ currentUser, isDarkMode, onResolve }) => {
   const [isResolving, setIsResolving] = React.useState(false);
 
   const handleAction = async (action: 'use' | 'buy' | 'reset') => {
@@ -23,16 +23,18 @@ const StreakProtectionModal: React.FC<StreakProtectionModalProps> = ({ currentUs
       <motion.div 
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-lg p-10 rounded-[3rem] border-4 bg-white border-vox-navy text-vox-navy shadow-2xl"
+        className={`relative w-full max-w-lg p-10 rounded-[3rem] border-4 ${
+          isDarkMode ? 'bg-zinc-900 border-white/10 text-white' : 'bg-white border-black text-black'
+        }`}
       >
         <div className="flex flex-col items-center text-center">
-          <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-blue-600/30">
+          <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-black/30">
             <AlertTriangle size={40} className="text-white" />
           </div>
           
-          <h2 className="text-4xl font-black uppercase italic text-blue-600 mb-4 tracking-tighter">Streak Terputus!</h2>
-          <p className="text-lg font-medium mb-8 leading-relaxed opacity-70">
-            Waduh! Kamu melewatkan hari kemarin. Streak <span className="font-black text-blue-600">{currentUser.previousStreak || 0} hari</span> kamu hampir hangus!
+          <h2 className="text-4xl font-black uppercase italic text-slate-900 mb-4 tracking-tighter">Streak Terputus!</h2>
+          <p className={`text-lg font-medium mb-8 leading-relaxed ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
+            Waduh! Kamu melewatkan hari kemarin. Streak <span className="font-black text-slate-900">{currentUser.previousStreak || 0} hari</span> kamu hampir hangus!
           </p>
 
           <div className="grid grid-cols-1 gap-4 w-full">

@@ -7,7 +7,6 @@ import * as THREE from 'three';
 
 interface HeroProps {
   onStart: (section: AppSection) => void;
-  isDarkMode: boolean;
 }
 
 const AnimatedShape = () => {
@@ -23,8 +22,8 @@ const AnimatedShape = () => {
   return (
     <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.3}>
       <mesh ref={meshRef}>
-        <torusKnotGeometry args={[1, 0.3, 40, 8]} />
-        <meshPhongMaterial color="#0EA5E9" specular="#ffffff" shininess={100} />
+        <torusKnotGeometry args={[1, 0.3, 64, 16]} />
+        <meshPhongMaterial color="#dc2626" specular="#ffffff" shininess={100} />
       </mesh>
     </Float>
   );
@@ -32,7 +31,7 @@ const AnimatedShape = () => {
 
 import Editable from './Editable';
 
-const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
+const Hero: React.FC<HeroProps> = ({ onStart }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(true);
 
@@ -55,17 +54,13 @@ const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
     <div ref={containerRef} className="min-h-screen bg-transparent relative flex flex-col items-center justify-center overflow-hidden px-6">
       
       {/* BACKGROUND CANVAS */}
-      <div className="absolute inset-0 z-0 opacity-40">
+      <div className="absolute inset-0 z-0 opacity-60">
         {isVisible && (
           <Suspense fallback={null}>
             <Canvas 
               camera={{ position: [0, 0, 5], fov: 45 }} 
-              gl={{ 
-                antialias: false, 
-                powerPreference: "low-power",
-                alpha: true
-              }}
-              dpr={[1, 1.5]}
+              gl={{ antialias: false, powerPreference: "high-performance" }}
+              style={{ backgroundColor: '#83f9f8' }}
             >
               <ambientLight intensity={0.5} />
               <pointLight position={[10, 10, 10]} intensity={1} />
@@ -81,7 +76,7 @@ const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`mb-6 inline-block px-4 py-1.5 rounded-full border border-[#0EA5E9]/20 bg-[#E0F2FE] text-[#0284C7] font-bold uppercase tracking-widest text-[10px] shadow-sm`}
+          className="mb-6 inline-block px-4 py-1.5 rounded-full border border-black/30 bg-black/5 text-slate-900 font-bold uppercase tracking-widest text-sm transition-colors duration-500"
         >
           <Editable cmsKey="hero_badge">Masa Depan Indonesia Dimulai Dari Kamu</Editable>
         </motion.div>
@@ -90,12 +85,10 @@ const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className={`text-5xl md:text-8xl font-black tracking-tight mb-8 leading-[1.1] italic transition-colors duration-500 ${
-            isDarkMode ? 'text-white' : 'text-vox-navy'
-          }`}
+          className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight transition-colors duration-500 text-slate-900"
         >
-          <Editable cmsKey="hero_title_1">VoxPolitika:</Editable><br />
-          <span className={isDarkMode ? 'text-vox-emerald' : 'text-vox-primary'}>
+          <Editable cmsKey="hero_title_1">VoxPolitika:</Editable>
+          <span className="text-slate-900">
             <Editable cmsKey="hero_title_2">Edukasi Politik Modern</Editable>
           </span>
         </motion.h1>
@@ -104,9 +97,7 @@ const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.8 }}
-          className={`text-lg md:text-xl mb-12 max-w-2xl mx-auto font-bold italic transition-colors duration-500 ${
-            isDarkMode ? 'text-white/80' : 'text-vox-slate'
-          }`}
+          className="text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium transition-colors duration-500 text-slate-800/80"
         >
           <Editable cmsKey="hero_desc">Belajar Politik, Jelajahi Negara, dan Suarakan Opinimu.</Editable>
         </motion.div>
@@ -115,21 +106,17 @@ const Hero: React.FC<HeroProps> = ({ onStart, isDarkMode }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <button 
             onClick={() => onStart(AppSection.BASICS)}
-            className="w-full sm:w-auto px-10 py-5 bg-vox-emerald text-vox-navy rounded-full font-black italic uppercase tracking-widest text-sm shadow-xl shadow-vox-emerald/20 hover:scale-105 hover:bg-white transition-all active:scale-95"
+            className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-xl shadow-black/30 hover:bg-black hover:-translate-y-1 transition-all"
           >
             Mulai Belajar
           </button>
           <button 
             onClick={() => onStart(AppSection.AI)}
-            className={`w-full sm:w-auto px-10 py-5 rounded-full font-black italic uppercase tracking-widest text-sm border-2 transition-all active:scale-95 ${
-              isDarkMode 
-                ? 'border-white/20 bg-white/5 text-white hover:bg-white hover:text-vox-navy' 
-                : 'border-vox-navy/10 bg-white text-vox-navy hover:bg-vox-navy hover:text-white shadow-xl shadow-vox-navy/5'
-            }`}
+            className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white transition-all shadow-lg"
           >
             Tanya Poka
           </button>

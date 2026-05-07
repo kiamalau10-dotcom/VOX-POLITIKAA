@@ -7,25 +7,18 @@ import { PoliticalParty } from '../types';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
-const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
+const Parties: React.FC = () => {
   const [selectedParty, setSelectedParty] = useState<PoliticalParty | null>(null);
-  const [chartVisible, setChartVisible] = useState(false);
-
-  // Force chart visibility check after mount to solve ResponsiveContainer issues
-  React.useEffect(() => {
-    const timer = setTimeout(() => setChartVisible(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
-    <div className="min-h-screen bg-vox-bg text-vox-navy transition-colors duration-500 py-20 px-6">
+    <div className="min-h-screen bg-sky-200 text-slate-900 transition-colors duration-500 py-20 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-12">
           
           {/* BAGIAN KIRI: DAFTAR PARTAI */}
           <div className="lg:w-1/2">
-            <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tighter italic text-vox-primary">Partai Politik</h2>
-            <p className="text-lg opacity-80 mb-10 font-bold leading-relaxed">
+            <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tighter italic text-slate-900">Partai Politik</h2>
+            <p className="text-lg opacity-80 mb-10 font-bold leading-relaxed text-slate-800">
               Pilar demokrasi Indonesia. Ketahui siapa saja yang mewakili suaramu di kursi parlemen.
             </p>
             
@@ -33,11 +26,11 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
               {PARTIES_DATA.map((party) => (
                 <motion.div
                   key={party.id}
-                  whileHover={{ y: -5 }}
+                  whileHover={{ scale: 1.02 }}
                   onClick={() => setSelectedParty(party)}
-                  className="group p-8 bg-white rounded-[2rem] border-2 border-vox-navy/5 flex flex-col md:flex-row items-center gap-8 transition-all hover:border-vox-primary/50 cursor-pointer text-vox-navy"
+                  className="group p-8 bg-white/90 rounded-[2rem] border-2 border-black/5 flex flex-col md:flex-row items-center gap-8 transition-all hover:border-slate-900/50 cursor-pointer shadow-xl"
                 >
-                  <div className="w-48 h-48 flex-shrink-0 bg-white dark:bg-white p-4 rounded-2xl shadow-inner flex items-center justify-center overflow-hidden">
+                  <div className="w-48 h-48 flex-shrink-0 bg-white p-4 rounded-2xl shadow-inner flex items-center justify-center overflow-hidden">
                     <LazyLoadImage 
                       src={party.logo} 
                       alt={party.abbreviation} 
@@ -52,14 +45,14 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                   </div>
 
                   <div className="flex-1 text-center md:text-left">
-                    <div className="inline-block px-4 py-1 mb-3 bg-vox-primary text-white rounded-full text-[12px] font-black uppercase tracking-widest">
+                    <div className="inline-block px-4 py-1 mb-3 bg-slate-900 text-white rounded-full text-[12px] font-black uppercase tracking-widest">
                       {party.ideology}
                     </div>
-                    <h3 className="text-4xl font-black mb-1 group-hover:text-vox-primary transition-colors">{party.abbreviation}</h3>
-                    <p className="text-xl font-bold opacity-60 mb-2">{party.name}</p>
-                    <div className="h-px w-12 bg-black/20 dark:bg-white/20 mb-3 mx-auto md:mx-0"></div>
-                    <p className="text-sm font-black uppercase tracking-tighter opacity-80">
-                      Ketua Umum: <span className="text-vox-primary">{party.chairman}</span>
+                    <h3 className="text-4xl font-black mb-1 group-hover:text-black transition-colors text-slate-900">{party.abbreviation}</h3>
+                    <p className="text-xl font-bold opacity-60 mb-2 text-slate-700">{party.name}</p>
+                    <div className="h-px w-12 bg-black/20 mb-3 mx-auto md:mx-0"></div>
+                    <p className="text-sm font-black uppercase tracking-tighter opacity-80 text-slate-800">
+                      Ketua Umum: <span className="text-slate-900">{party.chairman}</span>
                     </p>
                   </div>
                 </motion.div>
@@ -68,48 +61,37 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
           </div>
           
           {/* BAGIAN KANAN: STATISTIK */}
-          <div className="lg:w-1/2 text-vox-navy">
-            <div className="sticky top-24 bg-white rounded-[3rem] p-10 shadow-2xl border-2 border-vox-primary/10">
-              <h3 className="text-2xl font-black mb-8 text-center uppercase italic tracking-tighter">Distribusi Kursi DPR 2024-2029</h3>
+          <div className="lg:w-1/2">
+            <div className="sticky top-24 bg-white/90 rounded-[3rem] p-10 shadow-2xl border-2 border-black/10">
+              <h3 className="text-2xl font-black mb-8 text-center uppercase italic tracking-tighter text-slate-900">Distribusi Kursi DPR 2024-2029</h3>
               
-              <div 
-                className={`h-[400px] w-full flex items-center justify-center transition-opacity duration-700 ${chartVisible ? 'opacity-100' : 'opacity-0'}`}
-                style={{ minHeight: '400px' }}
-              >
-                {chartVisible ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={PARTIES_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? "#333" : "#e2e8f0"} />
-                      <XAxis dataKey="abbreviation" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                      <Tooltip 
-                        cursor={{fill: 'rgba(23, 112, 144, 0.05)'}}
-                        contentStyle={{ 
-                          borderRadius: '20px', 
-                          border: 'none', 
-                          backgroundColor: isDarkMode ? '#18181b' : '#fff',
-                          color: isDarkMode ? '#fff' : '#000',
-                          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                          fontWeight: 'bold'
-                        }}
-                      />
-                      <Bar dataKey="seats" radius={[8, 8, 0, 0]} barSize={40}>
-                        {PARTIES_DATA.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="animate-pulse flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-vox-primary border-t-transparent rounded-full animate-spin" />
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-30">Loading Statistics...</p>
-                  </div>
-                )}
+              <div className="h-[400px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={PARTIES_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="abbreviation" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip 
+                      cursor={{fill: 'rgba(0,0,0,0.05)'}}
+                      contentStyle={{ 
+                        borderRadius: '20px', 
+                        border: 'none', 
+                        backgroundColor: '#000',
+                        color: '#fff',
+                        fontWeight: 'bold'
+                      }}
+                    />
+                    <Bar dataKey="seats" radius={[12, 12, 0, 0]} barSize={60}>
+                      {PARTIES_DATA.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
 
-              <div className="mt-10 p-6 bg-vox-primary/5 rounded-2xl border-2 border-vox-primary/20 text-center">
-                <p className="text-sm leading-relaxed italic font-black uppercase opacity-80">
+              <div className="mt-10 p-6 bg-slate-900/5 rounded-2xl border-2 border-slate-900/20 text-center">
+                <p className="text-sm leading-relaxed italic font-black uppercase opacity-80 text-slate-800">
                   "Fungsi DPR mencakup Legislasi, Anggaran, dan Pengawasan terhadap pemerintah."
                 </p>
               </div>
@@ -125,26 +107,26 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md"
             onClick={() => setSelectedParty(null)}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="max-w-4xl w-full rounded-[3rem] p-8 md:p-12 relative bg-white text-vox-navy border-2 border-vox-primary/20 shadow-2xl"
+              className="max-w-4xl w-full rounded-[3rem] p-8 md:p-12 relative bg-white text-slate-900 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setSelectedParty(null)}
-                className="absolute top-8 right-8 p-2 rounded-full hover:bg-black/10 transition-colors"
+                className="absolute top-8 right-8 p-2 rounded-full hover:bg-black/10 transition-colors text-slate-500 hover:text-black"
               >
                 <X size={24} />
               </button>
 
               <div className="flex flex-col md:flex-row gap-12">
                 <div className="flex-1">
-                  <div className="w-full aspect-square bg-white p-8 rounded-[2rem] shadow-2xl flex items-center justify-center">
+                  <div className="w-full aspect-square bg-white p-8 rounded-[2rem] shadow-2xl border border-black/5 flex items-center justify-center">
                     <LazyLoadImage 
                       src={selectedParty.logo} 
                       alt={selectedParty.abbreviation} 
@@ -158,13 +140,13 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                     />
                   </div>
                   <div className="mt-8 grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl bg-vox-primary/5 border border-vox-primary/10 text-center">
-                      <p className="text-[10px] font-bold uppercase opacity-50 mb-1">Kursi DPR</p>
-                      <p className="text-2xl font-black text-vox-primary">{selectedParty.seats}</p>
+                    <div className="p-4 rounded-xl bg-red-600/5 border border-red-600/10 text-center">
+                      <p className="text-[10px] font-bold uppercase opacity-50 mb-1 text-slate-500">Kursi DPR</p>
+                      <p className="text-2xl font-black text-slate-900">{selectedParty.seats}</p>
                     </div>
-                    <div className="p-4 rounded-xl bg-vox-primary/5 border border-vox-primary/10 text-center">
-                      <p className="text-[10px] font-bold uppercase opacity-50 mb-1">Peringkat</p>
-                      <p className="text-2xl font-black text-vox-primary">#{PARTIES_DATA.indexOf(selectedParty) + 1}</p>
+                    <div className="p-4 rounded-xl bg-red-600/5 border border-red-600/10 text-center">
+                      <p className="text-[10px] font-bold uppercase opacity-50 mb-1 text-slate-500">Peringkat</p>
+                      <p className="text-2xl font-black text-slate-900">#{PARTIES_DATA.indexOf(selectedParty) + 1}</p>
                     </div>
                   </div>
                 </div>
@@ -172,30 +154,30 @@ const Parties: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = true }) => {
                 <div className="flex-[1.5] space-y-8">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <span className="px-3 py-1 bg-vox-primary text-white text-[10px] font-black uppercase rounded-full">{selectedParty.ideology}</span>
+                      <span className="px-3 py-1 bg-slate-900 text-white text-[10px] font-black uppercase rounded-full">{selectedParty.ideology}</span>
                     </div>
-                    <h2 className="text-5xl font-black uppercase italic tracking-tighter leading-tight mb-2">{selectedParty.abbreviation}</h2>
-                    <p className="text-xl font-bold opacity-60 mb-6">{selectedParty.name}</p>
-                    <p className="text-lg font-medium opacity-80 leading-relaxed mb-6">{selectedParty.description}</p>
+                    <h2 className="text-5xl font-black uppercase italic tracking-tighter leading-tight mb-2 text-slate-900">{selectedParty.abbreviation}</h2>
+                    <p className="text-xl font-bold opacity-60 mb-6 text-slate-700">{selectedParty.name}</p>
+                    <p className="text-lg font-medium opacity-80 leading-relaxed mb-6 text-slate-800">{selectedParty.description}</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-6 rounded-2xl bg-vox-navy/5 border border-vox-navy/10">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-vox-primary mb-2">Fungsi Demokrasi</h4>
-                        <p className="text-sm font-bold leading-relaxed">{selectedParty.functionInDemocracy}</p>
+                      <div className="p-6 rounded-2xl bg-sky-50 border border-sky-100">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-2">Fungsi Demokrasi</h4>
+                        <p className="text-sm font-bold leading-relaxed text-slate-800">{selectedParty.functionInDemocracy}</p>
                       </div>
-                      <div className="p-6 rounded-2xl bg-vox-navy/5 border border-vox-navy/10">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-vox-primary mb-2">Peran Legislatif</h4>
-                        <p className="text-sm font-bold leading-relaxed">{selectedParty.legislativeRole}</p>
+                      <div className="p-6 rounded-2xl bg-sky-50 border border-sky-100">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-2">Peran Legislatif</h4>
+                        <p className="text-sm font-bold leading-relaxed text-slate-800">{selectedParty.legislativeRole}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-vox-navy/5">
-                      <Users className="text-vox-primary" />
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/5 border border-slate-900/10">
+                      <Users className="text-slate-900" />
                       <div>
-                        <p className="text-[10px] font-bold uppercase opacity-50">Ketua Umum</p>
-                        <p className="font-black">{selectedParty.chairman}</p>
+                        <p className="text-[10px] font-bold uppercase opacity-50 text-slate-500">Ketua Umum</p>
+                        <p className="font-black text-slate-900">{selectedParty.chairman}</p>
                       </div>
                     </div>
                   </div>

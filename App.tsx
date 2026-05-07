@@ -29,7 +29,6 @@ import { useUser } from './components/useUser';
 const Content = React.memo(({ 
   activeSection, 
   currentUser, 
-  isDarkMode, 
   setActiveSection, 
   setIsLoggedIn, 
   handleLogin, 
@@ -43,7 +42,6 @@ const Content = React.memo(({
 }: { 
   activeSection: AppSection, 
   currentUser: User | null, 
-  isDarkMode: boolean, 
   setActiveSection: (section: AppSection) => void,
   setIsLoggedIn: (val: boolean) => void,
   handleLogin: (user: User) => void,
@@ -55,16 +53,22 @@ const Content = React.memo(({
   setIsQuizActive: (val: boolean) => void,
   userFeedbacks: any[]
 }) => {
+  useEffect(() => {
+    if (activeSection === AppSection.DASHBOARD && !currentUser) {
+      setIsLoggedIn(false);
+    }
+  }, [activeSection, currentUser, setIsLoggedIn]);
+
   return (
-    <React.Suspense fallback={<SectionLoader isDarkMode={isDarkMode} />}>
+    <React.Suspense fallback={<SectionLoader />}>
       {(() => {
         switch (activeSection) {
           case AppSection.HOME:
             return (
               <div className="space-y-20">
-                <Hero onStart={setActiveSection} isDarkMode={isDarkMode} />
+                <Hero onStart={setActiveSection} />
                 <div id="vox-circle">
-                  <VoxCircle currentUser={currentUser} isDarkMode={isDarkMode} />
+                  <VoxCircle currentUser={currentUser} />
                 </div>
                 <div id="news-section">
                   <News />
@@ -72,42 +76,34 @@ const Content = React.memo(({
               </div>
             );
           case AppSection.CABINET: return <Cabinet />;
-          case AppSection.PROGRAM: return <ProgramSection isDarkMode={isDarkMode} />;
-          case AppSection.PARTIES: return <Parties isDarkMode={isDarkMode} />;
-          case AppSection.MAP: return <PoliticalMap isDarkMode={isDarkMode} />;
+          case AppSection.PROGRAM: return <ProgramSection />;
+          case AppSection.PARTIES: return <Parties />;
+          case AppSection.MAP: return <PoliticalMap />;
           case AppSection.BASICS: return <PoliticsBasics />;
           case AppSection.AI: return <ChatBot />;
           case AppSection.NEWS: return <News />;
-          case AppSection.QUIZ: 
-            if (!currentUser) {
-              return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
-            }
-            return <Quiz isDarkMode={isDarkMode} currentUser={currentUser} onStateChange={setIsQuizActive} />;
+          case AppSection.QUIZ: return <Quiz currentUser={currentUser} onStateChange={setIsQuizActive} />;
           case AppSection.DASHBOARD: 
             if (!currentUser) {
-              setIsLoggedIn(false);
-              return <Auth isDarkMode={isDarkMode} onLogin={handleLogin} />;
+              return <Auth onLogin={handleLogin} />;
             }
-            return <Dashboard isDarkMode={isDarkMode} currentUser={currentUser} onLogout={handleLogout} />;
+            return <Dashboard currentUser={currentUser} onLogout={handleLogout} />;
           case AppSection.FEEDBACK:
             return (
               <div className="max-w-4xl mx-auto py-20 px-6">
-                <div className="p-10 rounded-3xl border shadow-xl bg-white border-vox-primary/5">
-                  <h2 className="text-3xl font-black mb-2 uppercase italic text-vox-primary">Feedback Dashboard</h2>
-                  <p className="mb-8 font-medium text-vox-navy opacity-70">Suara Anda membangun demokrasi yang lebih baik.</p>
+                <div className="p-10 rounded-3xl border bg-white/90 border-black/5 shadow-2xl">
+                  <h2 className="text-3xl font-black mb-2 uppercase italic text-slate-900">Feedback Dashboard</h2>
+                  <p className="mb-8 font-medium text-zinc-500">Suara Anda membangun demokrasi yang lebih baik.</p>
                   
                   <form onSubmit={handleSendFeedback} className="space-y-6">
                     <textarea 
                       value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
                       placeholder="Tulis kritik atau saran Anda di sini..."
-                      className="w-full h-40 p-6 rounded-2xl outline-none transition-all border-2 bg-vox-bg border-vox-primary/5 focus:border-vox-primary text-vox-navy"
+                      className="w-full h-40 p-6 rounded-2xl outline-none transition-all border-2 bg-gray-50 border-gray-200 focus:border-slate-900"
                       required
                     />
-                    <button 
-                      type="submit"
-                      className="w-full py-4 rounded-xl font-black italic text-vox-navy flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-vox-emerald/20 uppercase tracking-widest text-xs bg-vox-emerald hover:bg-vox-primary hover:text-white"
-                    >
+                    <button type="submit" className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-black transition-all active:scale-95">
                       <Send size={20} /> KIRIM MASUKAN
                     </button>
                   </form>
@@ -120,13 +116,13 @@ const Content = React.memo(({
                     )}
                   </AnimatePresence>
 
-                  <div className="mt-12 pt-8 border-t border-black/5 dark:border-white/5">
+                  <div className="mt-12 pt-8 border-t border-black/5">
                     <h3 className="text-xl font-black uppercase italic mb-6">Riwayat Feedback Anda</h3>
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                       {userFeedbacks.map((fb) => (
-                      <div key={fb.id} className="p-4 rounded-xl border bg-vox-bg border-vox-primary/5 transition-all text-vox-navy">
+                        <div key={fb.id} className="p-4 rounded-xl border bg-white border-black/5 shadow-sm">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-[10px] font-black uppercase text-vox-primary">{fb.date} • {fb.time || 'Baru'}</span>
+                            <span className="text-[10px] font-black uppercase text-slate-900">{fb.date} • {fb.time || 'Baru'}</span>
                             <span className="text-[8px] font-bold opacity-30 uppercase">TERKIRIM</span>
                           </div>
                           <p className="text-xs font-medium italic opacity-80 leading-relaxed">"{fb.message}"</p>
@@ -140,19 +136,19 @@ const Content = React.memo(({
                 </div>
               </div>
             );
-          default: return <Hero onStart={setActiveSection} isDarkMode={isDarkMode} />;
+          default: return <Hero onStart={setActiveSection} />;
         }
       })()}
     </React.Suspense>
   );
 });
 
-const SectionLoader = ({ isDarkMode }: { isDarkMode: boolean }) => (
-  <div className={`h-[60vh] flex items-center justify-center ${isDarkMode ? 'bg-vox-deep-ocean' : 'bg-vox-bg'}`}>
+const SectionLoader = () => (
+  <div className="h-[60vh] flex items-center justify-center bg-transparent">
     <motion.div 
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      className="w-10 h-10 border-4 border-vox-primary border-t-transparent rounded-full"
+      className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full"
     />
   </div>
 );
@@ -161,19 +157,18 @@ const LegalModal: React.FC<{
   title: string; 
   content: React.ReactNode; 
   onClose: () => void;
-  isDarkMode: boolean;
 }> = ({ title, content, onClose }) => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-vox-navy/80 backdrop-blur-md">
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
     <motion.div 
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className="relative w-full max-w-2xl p-12 rounded-[3rem] border-4 bg-white border-vox-navy text-vox-navy shadow-2xl"
+      className="relative w-full max-w-2xl p-12 rounded-[3rem] border-4 bg-white border-black text-black"
     >
-      <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-vox-primary text-white rounded-full hover:scale-110 transition-transform">
+      <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-slate-900 text-white rounded-full hover:scale-110 transition-transform">
         <Send size={20} className="rotate-45" />
       </button>
-      <h3 className="text-3xl font-black uppercase italic text-vox-primary mb-8">{title}</h3>
-      <div className="text-sm font-medium leading-relaxed space-y-4 overflow-y-auto max-h-[60vh] pr-4 custom-scrollbar text-vox-navy">
+      <h3 className="text-3xl font-black uppercase italic text-slate-900 mb-8">{title}</h3>
+      <div className="text-sm font-medium leading-relaxed space-y-4 overflow-y-auto max-h-[60vh] pr-4 custom-scrollbar text-zinc-600">
         {content}
       </div>
     </motion.div>
@@ -185,14 +180,11 @@ const AppContent: React.FC = () => {
   const { currentUser, setCurrentUser, isLoggedIn, setIsLoggedIn, logout, isLoading, resolveStreak } = useUser();
   const [legalModal, setLegalModal] = useState<{ title: string; content: React.ReactNode } | null>(null);
   
-  // --- STATE TEMA & NAVIGASI ---
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
-  });
+  // --- NAVIGASI ---
   const [activeSection, setActiveSection] = useState<AppSection>(AppSection.HOME);
   const [isQuizActive, setIsQuizActive] = useState(false);
 
-  // --- STATE FEEDBACK & AVATAR ---
+  // --- STATE FEEDBACK ---
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
   const [userFeedbacks, setUserFeedbacks] = useState<any[]>([]);
@@ -221,34 +213,11 @@ const AppContent: React.FC = () => {
     }
   }, [isLoggedIn, currentUser?.uid]);
 
-  const toggleDarkMode = useCallback(() => {
-    setIsDarkMode(prev => !prev);
-  }, []);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const body = document.body;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      body.classList.add('dark');
-      localStorage.setItem("theme", "dark");
-    } else {
-      root.classList.remove('dark');
-      body.classList.remove('dark');
-      localStorage.setItem("theme", "light");
-    }
-  }, [isDarkMode]);
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeSection]);
 
-  const handleLogout = useCallback(() => {
-    logout();
-    setActiveSection(AppSection.HOME);
-  }, [logout]);
-
-  const handleLogin = useCallback((user: User) => {
+  const handleLogin = (user: User) => {
     const rememberMe = (user as any).rememberMe;
     setIsLoggedIn(true);
     setCurrentUser(user);
@@ -262,13 +231,12 @@ const AppContent: React.FC = () => {
     }
     
     localStorage.setItem(`user_data_${user.username}`, JSON.stringify(user));
-  }, [setIsLoggedIn, setCurrentUser]);
+  };
 
-  // Sync currentUser from Firestore in real-time
-  // (Moved to UserContext)
-
-  // Sync currentUser from localStorage (for updates from other components)
-  // (Moved to UserContext)
+  const handleLogout = () => {
+    logout();
+    setActiveSection(AppSection.HOME);
+  };
 
   const handleSendFeedback = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,28 +261,30 @@ const AppContent: React.FC = () => {
       console.error("Error sending feedback:", error);
       handleFirestoreError(error, OperationType.CREATE, path);
     }
-  }, [feedback, currentUser, setIsSent, setFeedback]);
+  }, [feedback, currentUser]);
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-vox-deep-ocean' : 'bg-vox-bg'}`}>
+      <div className="min-h-screen flex items-center justify-center bg-sky-100">
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-vox-primary border-t-transparent rounded-full"
+          className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full"
         />
       </div>
     );
   }
 
+  if (!isLoggedIn) {
+    return <Auth onLogin={handleLogin} />;
+  }
+
   return (
-    <div className={`min-h-screen antialiased transition-colors duration-300 ${isDarkMode ? 'dark bg-vox-navy text-white' : 'bg-vox-bg text-vox-navy'}`}>
+    <div className="min-h-screen antialiased bg-sky-200 text-slate-900 font-sans selection:bg-slate-300 selection:text-slate-900">
       {!isQuizActive && (
         <Navbar 
           activeSection={activeSection} 
           setActiveSection={setActiveSection} 
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={toggleDarkMode}
         />
       )}
       
@@ -324,26 +294,24 @@ const AppContent: React.FC = () => {
             <button 
               onClick={() => setIsEditMode(!isEditMode)}
               className={`px-6 py-3 rounded-xl font-black italic uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95 ${
-                isEditMode ? 'bg-green-500 text-white' : 'bg-vox-primary text-white'
+                isEditMode ? 'bg-green-500 text-white' : 'bg-slate-900 text-white'
               }`}
             >
               {isEditMode ? '✓ SIMPAN / OK' : '✎ EDIT MODE'}
             </button>
           </div>
         )}
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="wait">
           <motion.div 
             key={activeSection} 
-            initial={{ opacity: 0, scale: 1.01 }} 
+            initial={{ opacity: 0, scale: 0.98 }} 
             animate={{ opacity: 1, scale: 1 }} 
-            exit={{ opacity: 0, scale: 0.99 }} 
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="will-change-transform"
+            exit={{ opacity: 0, scale: 1.02 }} 
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
             <Content 
               activeSection={activeSection}
               currentUser={currentUser}
-              isDarkMode={isDarkMode}
               setActiveSection={setActiveSection}
               setIsLoggedIn={setIsLoggedIn}
               handleLogin={handleLogin}
@@ -360,32 +328,32 @@ const AppContent: React.FC = () => {
       </main>
 
       {!isQuizActive && (
-        <footer className={`py-24 px-6 border-t mt-20 transition-colors duration-500 ${isDarkMode ? 'bg-vox-navy border-white/5' : 'bg-vox-navy text-white'}`}>
+        <footer className="py-24 px-6 border-t mt-20 bg-white/40 border-black/5 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="col-span-1 md:col-span-2">
-              <span className="text-4xl font-black tracking-tighter text-vox-accent italic">VOXPOLITIKA</span>
-              <p className={`mt-6 max-w-sm font-medium leading-relaxed ${isDarkMode ? 'text-zinc-400' : 'text-blue-100/70'}`}>
+              <span className="text-4xl font-black tracking-tighter text-slate-900 italic">VOXPOLITIKA</span>
+              <p className="mt-6 max-w-sm font-medium leading-relaxed text-zinc-600">
                 Membangun fondasi demokrasi masa depan melalui literasi politik yang inovatif bagi generasi emas Indonesia.
               </p>
             </div>
             
             <div>
-              <h4 className={`font-bold mb-6 uppercase tracking-widest text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Navigasi</h4>
+              <h4 className="font-bold mb-6 uppercase tracking-widest text-xs text-zinc-400">Navigasi</h4>
               <ul className="space-y-4 text-sm font-bold">
                 {Object.values(AppSection).filter(v => v !== 'home' && v !== 'login' && v !== 'feedback').map((sec) => (
                   <li key={sec}>
-                    <button onClick={() => setActiveSection(sec as AppSection)} className="hover:text-vox-secondary transition-colors capitalize">
+                    <button onClick={() => setActiveSection(sec as AppSection)} className="hover:text-slate-900 transition-colors capitalize">
                       {sec.replace('_', ' ')}
                     </button>
                   </li>
                 ))}
-                <li><button onClick={() => setActiveSection(AppSection.FEEDBACK)} className="text-vox-primary hover:underline">Kirim Feedback</button></li>
-                <li><button onClick={handleLogout} className="text-zinc-500 hover:text-white transition-colors">Logout</button></li>
+                <li><button onClick={() => setActiveSection(AppSection.FEEDBACK)} className="text-slate-900 hover:underline">Kirim Feedback</button></li>
+                <li><button onClick={handleLogout} className="text-zinc-500 hover:text-slate-900 transition-colors">Logout</button></li>
               </ul>
             </div>
   
             <div>
-              <h4 className={`font-bold mb-6 uppercase tracking-widest text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Legalitas</h4>
+              <h4 className="font-bold mb-6 uppercase tracking-widest text-xs text-zinc-400">Legalitas</h4>
               <ul className="space-y-4 text-sm font-bold">
                 <li>
                   <button 
@@ -393,36 +361,36 @@ const AppContent: React.FC = () => {
                       title: 'Siapa Kami?',
                       content: (
                         <div className="space-y-6">
-                          <p className="text-2xl font-black text-vox-primary tracking-tighter leading-tight mb-6">
+                          <p className="text-2xl font-black text-slate-900 tracking-tighter leading-tight mb-6">
                             MENHUBUNGKAN GAGASAN,<br />MENCERDASKAN PILIHAN.
                           </p>
                           
                           <p className="font-medium text-lg leading-relaxed">
-                            Selamat datang di <span className="text-vox-primary font-bold">VoxPolitika</span>! Kami adalah tim kecil dengan visi besar dari <span className="underline decoration-vox-primary underline-offset-4 font-bold">SMA Unggul Del</span> yang digerakkan oleh <span className="text-vox-primary">Devina Purba</span>, <span className="text-vox-primary">Hizkia Malau</span>, dan <span className="text-vox-primary">Larissa Siahaan</span>.
+                            Selamat datang di <span className="text-slate-900 font-bold">VoxPolitika</span>! Kami adalah tim kecil dengan visi besar dari <span className="underline decoration-slate-900 underline-offset-4 font-bold">SMA Unggul Del</span> yang digerakkan oleh <span className="text-slate-900">Devina Purba</span>, <span className="text-slate-900">Hizkia Malau</span>, dan <span className="text-slate-900">Larissa Siahaan</span>.
                           </p>
 
-                          <div className={`p-8 border-l-8 border-vox-primary rounded-r-3xl italic font-medium ${isDarkMode ? 'bg-white/5' : 'bg-vox-light/10'}`}>
+                          <div className="p-8 border-l-8 border-slate-900 rounded-r-3xl italic font-medium bg-slate-50">
                             <p className="mb-4">"VoxPolitika lahir dari sebuah keresahan di meja riset. Melalui kompetisi penelitian yang kami ikuti, kami menyadari bahwa data angka saja tidak cukup untuk membawa perubahan."</p>
                             <p>Kami percaya bahwa literasi politik harus bersifat inklusif, mudah diakses, dan berdampak nyata. Karena itulah, kami mentransformasi hasil riset tersebut menjadi sebuah platform interaktif yang dirancang khusus untuk membantu khalayak luas memahami dinamika politik dengan cara yang lebih segar.</p>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 mt-8">
-                            <div className={`p-4 rounded-2xl border ${isDarkMode ? 'border-white/10 bg-white/5' : 'border-black/5 bg-gray-50'}`}>
-                              <span className="block text-[10px] font-black uppercase text-vox-secondary mb-1">Misi Kami</span>
+                            <div className="p-4 rounded-2xl border border-black/5 bg-gray-50">
+                              <span className="block text-[10px] font-black uppercase text-slate-900 mb-1">Misi Kami</span>
                               <p className="text-xs font-bold leading-tight">Inklusivitas & Literasi Digital</p>
                             </div>
-                            <div className={`p-4 rounded-2xl border ${isDarkMode ? 'border-white/10 bg-white/5' : 'border-black/5 bg-gray-50'}`}>
-                              <span className="block text-[10px] font-black uppercase text-vox-secondary mb-1">Target</span>
+                            <div className="p-4 rounded-2xl border border-black/5 bg-gray-50">
+                              <span className="block text-[10px] font-black uppercase text-slate-900 mb-1">Target</span>
                               <p className="text-xs font-bold leading-tight">Generasi Emas Indonesia 2045</p>
                             </div>
                           </div>
                         </div>
                       )
                     })}
-                    className="hover:text-vox-secondary transition-colors flex items-center gap-2 group"
+                    className="hover:text-slate-900 transition-colors flex items-center gap-2 group"
                   >
                     About Us
-                    <span className="bg-vox-primary text-white text-[8px] px-1.5 py-0.5 rounded-full scale-0 group-hover:scale-100 transition-transform origin-left">BARU</span>
+                    <span className="bg-slate-900 text-white text-[8px] px-1.5 py-0.5 rounded-full scale-0 group-hover:scale-100 transition-transform origin-left">BARU</span>
                   </button>
                 </li>
                 <li>
@@ -441,7 +409,7 @@ const AppContent: React.FC = () => {
                         </>
                       )
                     })}
-                    className="hover:text-vox-primary transition-colors"
+                    className="hover:text-slate-900 transition-colors"
                   >
                     Kebijakan Privasi
                   </button>
@@ -463,7 +431,7 @@ const AppContent: React.FC = () => {
                         </>
                       )
                     })}
-                    className="hover:text-vox-primary transition-colors"
+                    className="hover:text-slate-900 transition-colors"
                   >
                     Syarat & Ketentuan
                   </button>
@@ -472,9 +440,9 @@ const AppContent: React.FC = () => {
             </div>
           </div>
           
-          <div className={`max-w-7xl mx-auto mt-20 pt-10 border-t flex flex-col md:flex-row justify-between items-center text-[10px] font-bold tracking-[0.3em] uppercase ${isDarkMode ? 'border-white/10 text-zinc-600' : 'border-black/10 text-zinc-400'}`}>
+          <div className="max-w-7xl mx-auto mt-20 pt-10 border-t flex flex-col md:flex-row justify-between items-center text-[10px] font-bold tracking-[0.3em] uppercase border-black/10 text-zinc-400">
             <p>© 2026 VOXPOLITIKA INDONESIA. ALL RIGHTS RESERVED.</p>
-            <span className="text-vox-primary mt-4 md:mt-0 animate-pulse font-black">Indonesia Emas 2045</span>
+            <span className="text-slate-900 mt-4 md:mt-0 animate-pulse font-black">Indonesia Emas 2045</span>
           </div>
         </footer>
       )}
@@ -485,7 +453,6 @@ const AppContent: React.FC = () => {
           <LegalModal 
             title={legalModal.title} 
             content={legalModal.content} 
-            isDarkMode={isDarkMode} 
             onClose={() => setLegalModal(null)} 
           />
         )}
@@ -496,7 +463,6 @@ const AppContent: React.FC = () => {
         {currentUser && currentUser.needsStreakProtection && (
           <StreakProtectionModal 
             currentUser={currentUser}
-            isDarkMode={isDarkMode}
             onResolve={resolveStreak}
           />
         )}
@@ -506,7 +472,6 @@ const AppContent: React.FC = () => {
       {isAvatarLabOpen && currentUser && (
         <AvatarLab 
           currentUser={currentUser}
-          isDarkMode={isDarkMode}
           onClose={() => setIsAvatarLabOpen(false)}
           onUpdateUser={async (updatedUser) => {
             setCurrentUser(updatedUser);
@@ -519,18 +484,17 @@ const AppContent: React.FC = () => {
             localStorage.setItem('all_users', JSON.stringify(updatedAllUsers));
 
             // Sync to Firestore
-            const path = `users/${updatedUser.username.replace('@', '')}`;
             try {
               const docId = updatedUser.username.replace('@', '');
               await updateDoc(doc(db, 'users', docId), {
-                avatarConfig: null, // Force removal of legacy config
+                avatarConfig: updatedUser.avatarConfig,
                 equippedCostumeId: updatedUser.equippedCostumeId,
                 voxTitle: updatedUser.voxTitle || null,
                 coins: updatedUser.coins,
                 ownedItems: updatedUser.ownedItems || []
               });
             } catch (error) {
-              handleFirestoreError(error, OperationType.UPDATE, path);
+              console.error("Error syncing avatar update to Firestore:", error);
             }
           }}
         />
@@ -540,7 +504,7 @@ const AppContent: React.FC = () => {
         <motion.button
           initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={() => setActiveSection(AppSection.FEEDBACK)}
-          className="fixed bottom-8 left-8 w-16 h-16 bg-white text-vox-navy rounded-2xl shadow-2xl flex items-center justify-center z-40 border-2 border-vox-primary/20"
+          className="fixed bottom-8 left-8 w-16 h-16 bg-white text-black rounded-2xl shadow-2xl flex items-center justify-center z-40 border-2 border-black/5"
         >
           <MessageSquare className="w-8 h-8" />
         </motion.button>

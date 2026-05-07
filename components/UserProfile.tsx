@@ -1,9 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Award, Flame, MessageSquare, Shield, Lock } from 'lucide-react';
+import { Award, Flame, MessageSquare, Shield } from 'lucide-react';
 import { useRealtimeProfile } from '../hooks/useRealtimeProfile';
 import { getAvatarUrl } from '../services/avatarService';
-import { auth } from '../firebase';
 
 interface UserProfileProps {
   targetUsername: string;
@@ -15,32 +14,10 @@ interface UserProfileProps {
 const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, isAdmin }) => {
   const { profile, posts, loading } = useRealtimeProfile(targetUsername);
 
-  if (!auth.currentUser) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-6 text-center">
-        <div className="w-16 h-16 bg-vox-primary/10 rounded-full flex items-center justify-center text-vox-primary">
-          <Lock size={32} />
-        </div>
-        <div className="max-w-xs">
-          <h3 className="text-xl font-black uppercase italic mb-2">Akses Terbatas</h3>
-          <p className="text-xs font-bold opacity-50 leading-relaxed uppercase">
-            Silakan masuk untuk melihat profil Pejuang Demokrasi ini dan berdiskusi dengan mereka.
-          </p>
-        </div>
-        <button 
-          onClick={() => (window as any).setActiveSection?.('dashboard')}
-          className="px-8 py-3 bg-vox-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-vox-primary/20 hover:bg-vox-accent transition-all"
-        >
-          Masuk Sekarang
-        </button>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full animate-spin" />
         <p className="text-[10px] font-black uppercase opacity-50 tracking-widest">Memuat Profil...</p>
       </div>
     );
@@ -58,7 +35,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
     <div className="space-y-8">
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
-        <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-blue-600/20 shadow-2xl bg-white relative group">
+        <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-slate-900/20 shadow-2xl bg-white relative group">
           <img 
             src={getAvatarUrl(targetUsername, profile.avatarConfig)}
             alt={targetUsername}
@@ -66,7 +43,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
             referrerPolicy="no-referrer"
           />
           {profile.role === 'ADMIN' && (
-            <div className="absolute top-2 right-2 p-1 bg-blue-600 rounded-lg text-white">
+            <div className="absolute top-2 right-2 p-1 bg-slate-900 rounded-lg text-white">
               <Shield size={12} />
             </div>
           )}
@@ -84,7 +61,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
             <div className="text-center">
               <div className="flex items-center gap-1">
                 <Flame size={14} className="text-orange-500" />
-                <p className="text-xl font-black text-blue-600">{profile.streak || 0}</p>
+                <p className="text-xl font-black text-slate-900">{profile.streak || 0}</p>
               </div>
               <p className="text-[8px] font-black uppercase opacity-50">Streak</p>
             </div>
@@ -102,7 +79,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(100, (profile.currentExp / (profile.level * 100)) * 100)}%` }}
-            className="h-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+            className="h-full bg-slate-900 shadow-[0_0_10px_rgba(15,23,42,0.5)]"
           />
         </div>
       </div>
@@ -135,11 +112,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-3 rounded-2xl bg-black/5">
-              <p className="text-xl font-black text-blue-600">{profile.quizHistory?.length || 0}</p>
+              <p className="text-xl font-black text-slate-900">{profile.quizHistory?.length || 0}</p>
               <p className="text-[8px] font-black uppercase opacity-50">Total Kuis</p>
             </div>
             <div className="text-center p-3 rounded-2xl bg-black/5">
-              <p className="text-xl font-black text-blue-600">
+              <p className="text-xl font-black text-slate-900">
                 {profile.quizHistory?.length ? Math.round(profile.quizHistory.reduce((acc, curr) => acc + curr.score, 0) / profile.quizHistory.length) : 0}
               </p>
               <p className="text-[8px] font-black uppercase opacity-50">Rata-rata</p>
@@ -151,7 +128,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
       {/* VoxCircle Feed */}
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <MessageSquare size={20} className="text-blue-600" />
+          <MessageSquare size={20} className="text-slate-900" />
           <h4 className="text-xs font-black uppercase tracking-widest">VoxCircle Thoughts</h4>
         </div>
 
@@ -175,7 +152,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ targetUsername, isDarkMode, i
                     <span>{post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString() : 'Baru saja'}</span>
                   </div>
                   {isAdmin && (
-                    <button className="text-blue-600 hover:opacity-70 transition-opacity">
+                    <button className="text-slate-900 hover:opacity-70 transition-opacity">
                       <Shield size={14} />
                     </button>
                   )}

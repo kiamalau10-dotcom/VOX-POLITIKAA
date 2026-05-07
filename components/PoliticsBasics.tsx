@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, ArrowLeft, ChevronRight, Award,
   Scale, Landmark, Users, Search,
-  BookOpen, Brain, ChevronDown, ChevronUp, Star, AlertCircle, Quote,
+  BookOpen, Brain, ChevronDown, ChevronUp, Star, AlertCircle, Quote
 } from 'lucide-react';
 
 import megawatiImage from '../src/assets/images/regenerated_image_1777814754654.webp';
@@ -352,8 +352,8 @@ const modules = [
     title: 'Hakekat Politik',
     desc: 'Seni dan ilmu pengelolaan kekuasaan, pengambilan keputusan, serta perumusan kebijakan publik untuk mencapai tujuan bersama.',
     icon: '⚖️',
-    color: 'bg-vox-primary/5 border-vox-primary/20',
-    accent: 'text-vox-primary',
+    color: 'bg-slate-50 border-slate-200',
+    accent: 'text-slate-900',
     dataTahun: '2025',
     fullContent: {
       pengertian: 'Hakikat politik adalah seni dan ilmu pengelolaan kekuasaan, pengambilan keputusan, serta perumusan kebijakan publik untuk mencapai tujuan bersama, kebaikan umum, dan kesejahteraan rakyat. Politik mencakup interaksi antara pemerintah dan masyarakat, serta mekanisme penyelesaian konflik melalui konsensus untuk menyeimbangkan kepentingan yang berbeda dalam sebuah negara.',
@@ -424,8 +424,8 @@ const modules = [
     title: 'Lembaga Negara',
     desc: 'Organisasi pemerintahan pusat yang dibentuk berdasarkan UUD 1945 untuk menjalankan fungsi legislatif, eksekutif, dan yudikatif.',
     icon: '🏛️',
-    color: 'bg-vox-primary/5 border-vox-primary/20',
-    accent: 'text-vox-primary',
+    color: 'bg-blue-50 border-blue-200',
+    accent: 'text-blue-600',
     dataTahun: '2025',
     fullContent: {
       pengertian: 'Lembaga negara Indonesia adalah organisasi pemerintahan pusat yang dibentuk berdasarkan UUD 1945, undang-undang, atau peraturan lebih rendah, untuk menjalankan fungsi legislatif, eksekutif, dan yudikatif. Utama (tinggi) negara meliputi MPR, DPR, DPD, Presiden/Wakil Presiden, MA, MK, dan BPK. Mereka menjaga demokrasi dan hukum.',
@@ -894,8 +894,8 @@ const modules = [
     title: 'Filsafat Pancasila',
     desc: 'Lima nilai dasar Pancasila sebagai pandangan hidup, sistem etika, dan landasan filosofis bernegara.',
     icon: '🇮🇩',
-    color: 'bg-sky-50 border-sky-300',
-    accent: 'text-sky-700',
+    color: 'bg-zinc-50 border-zinc-300',
+    accent: 'text-zinc-950',
     dataTahun: '2025',
     fullContent: {
       pengertian: 'Filsafat Pancasila adalah konsep pemikiran mendalam para pendiri bangsa yang menjadikan lima nilai dasar Pancasila sebagai pandangan hidup, sistem etika, dan landasan filosofis bernegara. Ini mencakup ajaran ontologis (hakikat keberadaan), epistemologis (sumber pengetahuan), dan aksiologis (nilai/manfaat) yang bersumber dari kebudayaan Indonesia.',
@@ -1189,8 +1189,8 @@ const modules = [
     title: 'Partai Politik',
     desc: 'Organisasi yang dibentuk untuk memperjuangkan cita-cita rakyat dan merebut kekuasaan secara konstitusional.',
     icon: '🚩',
-    color: 'bg-indigo-50 border-indigo-200',
-    accent: 'text-indigo-600',
+    color: 'bg-rose-50 border-rose-200',
+    accent: 'text-rose-600',
     dataTahun: '2025',
     fullContent: {
       pengertian: 'Partai politik adalah organisasi yang dibentuk untuk memperjuangkan cita-cita dan kepentingan rakyat serta merebut kekuasaan secara konstitusional.',
@@ -1727,8 +1727,8 @@ const modules = [
     title: 'Etika Politik',
     desc: 'Tanggung jawab moral para aktor politik dan dasar etis dari kekuasaan negara.',
     icon: '🔮',
-    color: 'bg-cyan-50 border-cyan-200',
-    accent: 'text-cyan-600',
+    color: 'bg-fuchsia-50 border-fuchsia-200',
+    accent: 'text-fuchsia-600',
     dataTahun: '2025',
     fullContent: {
       pengertian: 'Etika politik adalah cabang dari etika yang mempertanyakan tanggung jawab moral para aktor politik dan dasar moral dari kekuasaan negara. Ia mencari jawaban atas pertanyaan: "Apa yang membuat suatu kekuasaan itu sah atau adil?"',
@@ -1871,16 +1871,16 @@ const GlossaryPopup = ({ term, onClose, position }) => {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9, y: -10 }}
       style={{ position: 'fixed', top: Math.max(10, position.y - 160), left: Math.max(10, Math.min(position.x - 200, window.innerWidth - 410)), zIndex: 9999 }}
-      className="w-96 bg-black text-white p-5 rounded-2xl border-4 border-vox-primary shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
+      className="w-96 bg-black text-white p-5 rounded-2xl border-4 border-white shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
     >
       <div className="flex justify-between items-start mb-3">
-        <h4 className="text-lg font-black uppercase text-vox-accent">{term}</h4>
-        <button onClick={onClose} className="text-white hover:text-vox-accent font-bold text-lg leading-none">✕</button>
+        <h4 className="text-lg font-black uppercase text-white">{term}</h4>
+        <button onClick={onClose} className="text-white hover:text-white/70 font-bold text-lg leading-none">✕</button>
       </div>
       <p className="text-sm leading-relaxed mb-3">{data.definition}</p>
       {data.example && (
         <div className="border-t border-white/20 pt-3">
-          <p className="text-[10px] font-black text-vox-accent uppercase mb-1">Contoh:</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Contoh:</p>
           <p className="text-xs italic opacity-80">{data.example}</p>
         </div>
       )}
@@ -1910,7 +1910,7 @@ const TextWithGlossary = ({ text }) => {
         const isHard = hardWords.includes(cleanWord);
         return isHard ? (
           <React.Fragment key={index}>
-            <span onClick={(e) => handleWordClick(e, cleanWord)} className="cursor-pointer border-b-2 border-dotted border-vox-accent hover:bg-vox-accent hover:text-white transition-colors px-0.5 rounded">
+            <span onClick={(e) => handleWordClick(e, cleanWord)} className="cursor-pointer border-b-2 border-dotted border-slate-900 hover:bg-slate-900 hover:text-white transition-colors px-0.5 rounded">
               {word}
             </span>{' '}
           </React.Fragment>
@@ -1943,7 +1943,7 @@ const DataTable = ({ data, columns }) => {
         <thead>
           <tr>
             {keys.map((key, i) => (
-              <th key={i} className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-vox-accent">
+              <th key={i} className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-slate-900">
                 {key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
               </th>
             ))}
@@ -1991,14 +1991,14 @@ const QuizSection = ({ moduleId }) => {
   const handleReset = () => { setAnswers({}); setSubmitted(false); setScore(0); };
 
   return (
-    <div className="mt-16 bg-white text-vox-navy rounded-[2rem] p-8 border-4 border-vox-primary shadow-[12px_12px_0px_0px_rgba(14,165,233,0.3)]">
+    <div className="mt-16 bg-zinc-950 text-white rounded-[2rem] p-8 border-4 border-white">
       <div className="flex items-center gap-3 mb-8">
-        <Brain className="text-vox-primary w-7 h-7" />
+        <Brain className="text-white w-7 h-7" />
         <h3 className="text-2xl font-black uppercase">Uji Pemahaman</h3>
       </div>
 
       {submitted && (
-        <div className={`mb-8 p-6 rounded-2xl border-4 text-center ${score === questions.length ? 'border-green-500 bg-green-900/30' : score >= questions.length / 2 ? 'border-yellow-500 bg-yellow-900/30' : 'border-vox-primary bg-vox-primary/30'}`}>
+        <div className={`mb-8 p-6 rounded-2xl border-4 text-center ${score === questions.length ? 'border-green-500 bg-green-900/30' : score >= questions.length / 2 ? 'border-yellow-500 bg-yellow-900/30' : 'border-white bg-white/10'}`}>
           <div className="text-5xl font-black mb-2">{score}/{questions.length}</div>
           <div className="text-lg font-bold">
             {score === questions.length ? '🎉 Sempurna! Kamu benar-benar menguasai materi ini.' : score >= questions.length / 2 ? '👍 Bagus! Coba ulangi untuk hasil lebih baik.' : '📚 Yuk baca ulang materinya ya!'}
@@ -2010,25 +2010,25 @@ const QuizSection = ({ moduleId }) => {
         {questions.map((q, qi) => (
           <div key={qi}>
             <p className="font-black text-base mb-4 leading-relaxed">
-              <span className="text-vox-accent mr-2">{qi + 1}.</span>{q.q}
+              <span className="text-white mr-2">{qi + 1}.</span>{q.q}
             </p>
             <div className="grid grid-cols-1 gap-2">
               {q.options.map((opt, oi) => {
                 let cls = 'p-4 rounded-xl border-2 text-sm font-medium cursor-pointer transition-all ';
                 if (!submitted) {
-                  cls += answers[qi] === oi ? 'border-vox-accent bg-vox-primary/30 text-white' : 'border-white/20 hover:border-white/50 text-white/70 hover:text-white';
+                  cls += answers[qi] === oi ? 'border-white bg-white/20 text-white' : 'border-white/20 hover:border-white/50 text-white/70 hover:text-white';
                 } else {
                   if (oi === q.correct) cls += 'border-green-500 bg-green-900/40 text-green-300';
-                  else if (answers[qi] === oi && oi !== q.correct) cls += 'border-vox-accent bg-vox-primary/40 text-vox-accent';
+                  else if (answers[qi] === oi && oi !== q.correct) cls += 'border-white bg-white/40 text-slate-300';
                   else cls += 'border-white/10 text-white/30';
                 }
                 return (
-                <div key={oi} className={cls} onClick={() => handleAnswer(qi, oi)}>
-                  <span className="font-black mr-2 text-xs">{String.fromCharCode(65 + oi)}.</span>
-                  {opt}
-                  {submitted && oi === q.correct && <span className="ml-2 text-green-600 text-xs font-black">✓ BENAR</span>}
-                  {submitted && answers[qi] === oi && oi !== q.correct && <span className="ml-2 text-red-500 text-xs font-black">✗ SALAH</span>}
-                </div>
+                  <div key={oi} className={cls} onClick={() => handleAnswer(qi, oi)}>
+                    <span className="font-black mr-2 text-xs">{String.fromCharCode(65 + oi)}.</span>
+                    {opt}
+                    {submitted && oi === q.correct && <span className="ml-2 text-green-400 text-xs font-black">✓ BENAR</span>}
+                    {submitted && answers[qi] === oi && oi !== q.correct && <span className="ml-2 text-white text-xs font-black">✗ SALAH</span>}
+                  </div>
                 );
               })}
             </div>
@@ -2041,7 +2041,7 @@ const QuizSection = ({ moduleId }) => {
           <button
             onClick={handleSubmit}
             disabled={Object.keys(answers).length < questions.length}
-            className="flex-1 py-4 bg-vox-primary disabled:bg-zinc-700 text-white font-black uppercase rounded-2xl transition-all hover:bg-vox-accent disabled:cursor-not-allowed"
+            className="flex-1 py-4 bg-zinc-900 disabled:bg-zinc-700 text-white font-black uppercase rounded-2xl transition-all hover:bg-black disabled:cursor-not-allowed"
           >
             {Object.keys(answers).length < questions.length ? `Jawab ${questions.length - Object.keys(answers).length} soal lagi` : 'Kumpulkan Jawaban'}
           </button>
@@ -2061,10 +2061,10 @@ const QuizSection = ({ moduleId }) => {
 const ExpandableSection = ({ title, children }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-2 border-vox-navy rounded-2xl overflow-hidden bg-white text-vox-navy">
+    <div className="border-2 border-black rounded-2xl overflow-hidden bg-white/50">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex justify-between items-center p-5 text-left font-black uppercase text-sm hover:bg-vox-navy hover:text-white transition-all border-b-2 border-vox-navy/5"
+        className="w-full flex justify-between items-center p-5 text-left font-black uppercase text-sm hover:bg-black hover:text-white transition-all text-black"
       >
         {title}
         {open ? <ChevronUp className="w-5 h-5 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 flex-shrink-0" />}
@@ -2077,7 +2077,7 @@ const ExpandableSection = ({ title, children }) => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-5 border-t-2 border-black dark:border-white/20">
+            <div className="p-5 border-t-2 border-black">
               {children}
             </div>
           </motion.div>
@@ -2097,7 +2097,7 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.expandedSections) return null;
     return (
       <div className="mt-12 space-y-4">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-6">
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-6">
           Materi Lebih Dalam
         </h3>
         {fc.expandedSections.map((sec, i) => (
@@ -2105,10 +2105,10 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
             <div className="space-y-4">
               {sec.items.map((item, j) => (
                 <div key={j} className="flex gap-4">
-                  <div className="w-2 flex-shrink-0 bg-vox-primary rounded-full mt-1" />
+                  <div className="w-2 flex-shrink-0 bg-slate-900 rounded-full mt-1" />
                   <div>
-                    <p className="font-black text-sm mb-1">{item.label}</p>
-                    <p className="text-sm opacity-70 leading-relaxed">{item.desc}</p>
+                    <p className="font-black text-sm mb-1 text-black">{item.label}</p>
+                    <p className="text-sm opacity-70 leading-relaxed text-black">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -2123,13 +2123,13 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.poinPenting) return null;
     return (
       <div className="mt-12">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-6">Poin Penting</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-6">Poin Penting</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {fc.poinPenting.map((p, i) => (
-            <div key={i} className="p-5 bg-white border-2 border-vox-navy/10 rounded-2xl text-vox-navy">
+            <div key={i} className="p-5 bg-white border-2 border-black rounded-2xl shadow-sm">
               <div className="text-3xl mb-3">{p.icon}</div>
-              <h4 className="font-black mb-2">{p.title}</h4>
-              <p className="text-sm opacity-70 leading-relaxed">{p.desc}</p>
+              <h4 className="font-black mb-2 text-black">{p.title}</h4>
+              <p className="text-sm opacity-70 leading-relaxed text-black">{p.desc}</p>
             </div>
           ))}
         </div>
@@ -2141,12 +2141,12 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.pilarUtama) return null;
     return (
       <div className="mt-12">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-6">Pilar Utama</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-6">Pilar Utama</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {fc.pilarUtama.map((p, i) => (
-            <div key={i} className="p-5 bg-white border-l-4 border-vox-primary text-vox-navy">
-              <h4 className="font-black mb-2">{p.nama}</h4>
-              <p className="text-sm opacity-70">{p.desc}</p>
+            <div key={i} className="p-5 bg-white rounded-2xl border-l-4 border-slate-900 shadow-sm">
+              <h4 className="font-black mb-2 text-black">{p.nama}</h4>
+              <p className="text-sm opacity-70 text-black">{p.desc}</p>
             </div>
           ))}
         </div>
@@ -2158,14 +2158,14 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.prinsipUtama) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Prinsip Utama Demokrasi</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Prinsip Utama Demokrasi</h3>
         <div className="space-y-3">
           {fc.prinsipUtama.map((p, i) => (
-            <div key={i} className="flex gap-4 p-4 bg-white border-2 border-vox-navy/10 rounded-xl text-vox-navy">
-              <CheckCircle2 className="text-vox-primary w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div key={i} className="flex gap-4 p-4 bg-white border-2 border-black/10 rounded-xl shadow-sm">
+              <CheckCircle2 className="text-slate-900 w-5 h-5 flex-shrink-0 mt-0.5" />
               <div>
-                <span className="font-black text-sm">{p.nama}: </span>
-                <span className="text-sm opacity-70">{p.desc}</span>
+                <span className="font-black text-sm text-black">{p.nama}: </span>
+                <span className="text-sm opacity-70 text-black">{p.desc}</span>
               </div>
             </div>
           ))}
@@ -2178,12 +2178,12 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.jenisDemokrasi) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Jenis-Jenis Demokrasi</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Jenis-Jenis Demokrasi</h3>
         <div className="space-y-3">
           {fc.jenisDemokrasi.map((j, i) => (
-            <div key={i} className="p-5 bg-zinc-100 dark:bg-zinc-900 rounded-2xl">
-              <h4 className="font-black mb-1 text-sm">{j.jenis}</h4>
-              <p className="text-sm opacity-70">{j.desc}</p>
+            <div key={i} className="p-5 bg-white/80 rounded-2xl border border-black/5 shadow-sm">
+              <h4 className="font-black mb-1 text-sm text-black">{j.jenis}</h4>
+              <p className="text-sm opacity-70 text-black">{j.desc}</p>
             </div>
           ))}
         </div>
@@ -2195,11 +2195,11 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.prinsipPemilu) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Asas Pemilu: LUBER JURDIL</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Asas Pemilu: LUBER JURDIL</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {fc.prinsipPemilu.daftar.map((item, i) => (
-            <div key={i} className="p-4 bg-vox-navy text-white rounded-2xl text-center border-b-4 border-vox-primary">
-              <div className="text-2xl font-black text-vox-accent mb-1">{item.asas.charAt(0)}</div>
+            <div key={i} className="p-4 bg-black text-white rounded-2xl text-center">
+              <div className="text-2xl font-black text-slate-500 mb-1">{item.asas.charAt(0)}</div>
               <div className="font-black text-sm mb-1">{item.asas}</div>
               <div className="text-xs opacity-60 leading-tight">{item.desc}</div>
             </div>
@@ -2213,13 +2213,13 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.sejarahDemokrasi) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Sejarah Demokrasi Indonesia</h3>
-        <div className="relative pl-8 border-l-4 border-vox-primary space-y-6">
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Sejarah Demokrasi Indonesia</h3>
+        <div className="relative pl-8 border-l-4 border-slate-900 space-y-6">
           {fc.sejarahDemokrasi.map((item, i) => (
             <div key={i} className="relative">
-              <div className="absolute -left-[2.3rem] w-4 h-4 bg-vox-primary rounded-full" />
-              <h4 className="font-black text-sm mb-1">{item.periode}</h4>
-              <p className="text-sm opacity-70">{item.desc}</p>
+              <div className="absolute -left-[2.1rem] md:-left-[2.3rem] w-4 h-4 bg-slate-900 rounded-full" />
+              <h4 className="font-black text-sm mb-1 text-black">{item.periode}</h4>
+              <p className="text-sm opacity-70 text-black">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -2233,15 +2233,15 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
       <div className="mt-12 space-y-8">
         {fc.bagianLembaga.map((bag, i) => (
           <ExpandableSection key={i} title={bag.kategori}>
-            <p className="text-sm opacity-70 mb-4">{bag.desc}</p>
+            <p className="text-sm opacity-70 mb-4 text-black">{bag.desc}</p>
             <div className="space-y-4">
               {bag.lembaga.map((l, j) => (
-                <div key={j} className="p-4 bg-white rounded-xl border border-vox-navy/10 text-vox-navy">
+                <div key={j} className="p-4 bg-white rounded-xl border border-black/10 shadow-sm">
                   <div className="flex justify-between flex-wrap gap-2 mb-1">
-                    <h4 className="font-black text-sm">{l.nama}</h4>
-                    <span className="text-xs font-bold bg-vox-primary/10 dark:bg-vox-primary/20 text-vox-primary px-2 py-0.5 rounded-full">{l.ketua}</span>
+                    <h4 className="font-black text-sm text-black">{l.nama}</h4>
+                    <span className="text-xs font-bold bg-slate-100 text-slate-900 px-2 py-0.5 rounded-full">{l.ketua}</span>
                   </div>
-                  <p className="text-sm opacity-60">{l.tugas}</p>
+                  <p className="text-sm opacity-60 text-black">{l.tugas}</p>
                 </div>
               ))}
             </div>
@@ -2256,23 +2256,23 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     return (
       <div className="mt-12">
         <ExpandableSection title="Trias Politica: Locke vs Montesquieu">
-          <p className="text-sm opacity-70 mb-6 leading-relaxed">{fc.triasPolitica.pengertian}</p>
+          <p className="text-sm opacity-70 mb-6 leading-relaxed text-black">{fc.triasPolitica.pengertian}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {fc.triasPolitica.perbedaanPandangan.map((pandangan, i) => (
-              <div key={i} className="p-5 bg-white rounded-2xl text-vox-navy">
-                <h4 className="font-black text-base mb-4 text-vox-primary">{pandangan.tokoh}</h4>
+              <div key={i} className="p-5 bg-white rounded-2xl shadow-sm border border-black/5">
+                <h4 className="font-black text-base mb-4 text-slate-900">{pandangan.tokoh}</h4>
                 <div className="space-y-2">
                   {pandangan.poin.map((p, j) => (
                     <div key={j} className="flex gap-2">
-                      <span className="text-vox-accent font-black text-xs mt-0.5">▸</span>
+                      <span className="text-slate-900 font-black text-xs mt-0.5">▸</span>
                       <div>
-                        <span className="font-black text-sm">{p.nama}: </span>
-                        <span className="text-sm opacity-70">{p.desc}</span>
+                        <span className="font-black text-sm text-black">{p.nama}: </span>
+                        <span className="text-sm opacity-70 text-black">{p.desc}</span>
                       </div>
                     </div>
                   ))}
                 </div>
-                <p className="mt-4 text-xs font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 p-3 rounded-xl leading-relaxed">{pandangan.catatan}</p>
+                <p className="mt-4 text-xs font-bold bg-yellow-50 text-yellow-800 p-3 rounded-xl leading-relaxed">{pandangan.catatan}</p>
               </div>
             ))}
           </div>
@@ -2285,15 +2285,15 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.tahapanPemilu) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Tahapan Pemilu</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Tahapan Pemilu</h3>
         <div className="space-y-4">
           {fc.tahapanPemilu.map((fase, i) => (
-            <div key={i} className="p-5 bg-white border-2 border-vox-navy/10 rounded-2xl text-vox-navy">
-              <h4 className="font-black mb-3 text-vox-primary">{fase.fase}</h4>
+            <div key={i} className="p-5 bg-white border-2 border-black/10 rounded-2xl shadow-sm">
+              <h4 className="font-black mb-3 text-slate-900">{fase.fase}</h4>
               <ul className="space-y-2">
                 {fase.poin.map((p, j) => (
-                  <li key={j} className="flex gap-2 text-sm">
-                    <span className="text-vox-accent flex-shrink-0">•</span>
+                  <li key={j} className="flex gap-2 text-sm text-black">
+                    <span className="text-slate-900 flex-shrink-0">•</span>
                     <span className="opacity-70">{p}</span>
                   </li>
                 ))}
@@ -2310,13 +2310,13 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     return (
       <div className="mt-10 space-y-6">
         {fc.tigaLembaga.map((l, i) => (
-          <div key={i} className="p-6 bg-white border-2 border-vox-navy/10 rounded-2xl text-vox-navy">
-            <h4 className="font-black text-base mb-2 text-vox-primary">{l.nama}</h4>
-            <p className="text-sm opacity-70 mb-4 italic">{l.desc}</p>
+          <div key={i} className="p-6 bg-white border-2 border-black rounded-2xl shadow-sm">
+            <h4 className="font-black text-base mb-2 text-slate-900">{l.nama}</h4>
+            <p className="text-sm opacity-70 mb-4 italic text-black">{l.desc}</p>
             <ul className="space-y-2">
               {l.tugas.map((t, j) => (
-                <li key={j} className="flex gap-2 text-sm">
-                  <CheckCircle2 className="text-vox-accent w-4 h-4 flex-shrink-0 mt-0.5" />
+                <li key={j} className="flex gap-2 text-sm text-black">
+                  <CheckCircle2 className="text-slate-900 w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span className="opacity-70">{t}</span>
                 </li>
               ))}
@@ -2331,12 +2331,12 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.asas) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Asas Otonomi Daerah</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Asas Otonomi Daerah</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {fc.asas.map((a, i) => (
-            <div key={i} className="p-5 bg-white rounded-2xl border-t-4 border-vox-primary text-vox-navy">
-              <h4 className="font-black mb-2">{a.nama}</h4>
-              <p className="text-sm opacity-70">{a.desc}</p>
+            <div key={i} className="p-5 bg-white rounded-2xl border-t-4 border-slate-900 shadow-sm">
+              <h4 className="font-black mb-2 text-black">{a.nama}</h4>
+              <p className="text-sm opacity-70 text-black">{a.desc}</p>
             </div>
           ))}
         </div>
@@ -2348,12 +2348,12 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.pembagianUrusan) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Pembagian Urusan Pemerintahan</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Pembagian Urusan Pemerintahan</h3>
         <div className="space-y-3">
           {fc.pembagianUrusan.map((u, i) => (
-            <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-2xl border-l-4 border-vox-primary">
-              <h4 className="font-black mb-1">{u.kategori}</h4>
-              <p className="text-sm opacity-70">{u.desc}</p>
+            <div key={i} className="p-5 bg-white rounded-2xl border-l-4 border-slate-900 shadow-sm">
+              <h4 className="font-black mb-1 text-black">{u.kategori}</h4>
+              <p className="text-sm opacity-70 text-black">{u.desc}</p>
             </div>
           ))}
         </div>
@@ -2365,15 +2365,15 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.maknaAlinea) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Makna Pembukaan UUD 1945</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Makna Pembukaan UUD 1945</h3>
         <div className="space-y-4">
           {fc.maknaAlinea.map((a, i) => (
-            <div key={i} className="p-5 bg-white dark:bg-zinc-900 border-2 border-black/10 rounded-2xl">
+            <div key={i} className="p-5 bg-white border-2 border-black/10 rounded-2xl shadow-sm">
               <div className="flex items-center gap-2 mb-3">
-                <span className="bg-vox-primary text-white text-xs font-black px-3 py-1 rounded-full">{a.alinea}</span>
-                <span className="font-black text-sm">{a.intisari}</span>
+                <span className="bg-slate-900 text-white text-xs font-black px-3 py-1 rounded-full">{a.alinea}</span>
+                <span className="font-black text-sm text-black">{a.intisari}</span>
               </div>
-              <p className="text-sm opacity-70 leading-relaxed">{a.makna}</p>
+              <p className="text-sm opacity-70 leading-relaxed text-black">{a.makna}</p>
             </div>
           ))}
         </div>
@@ -2385,12 +2385,12 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.indeksPartisipasiPemilu) return null;
     const ipp = fc.indeksPartisipasiPemilu;
     return (
-      <div className="mt-10 p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl">
-        <h3 className="text-xl font-black mb-4">Capaian Partisipasi Pemilu 2024</h3>
+      <div className="mt-10 p-6 bg-white/80 rounded-2xl shadow-sm border border-black/5">
+        <h3 className="text-xl font-black mb-4 text-black">Capaian Partisipasi Pemilu 2024</h3>
         <div className="grid grid-cols-3 gap-4">
           {ipp.capaianPartisipasi.map((c, i) => (
-            <div key={i} className="bg-vox-navy text-white p-4 rounded-xl text-center border-l-4 border-vox-primary">
-              <div className="text-2xl font-black text-vox-accent">{c.tingkatPartisipasi}</div>
+            <div key={i} className="bg-black text-white p-4 rounded-xl text-center">
+              <div className="text-2xl font-black text-slate-500">{c.tingkatPartisipasi}</div>
               <div className="text-xs mt-1 opacity-60">{c.jenisPemilu}</div>
               <div className="text-xs mt-1 text-green-400 font-bold">{c.keterangan}</div>
             </div>
@@ -2404,12 +2404,12 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     if (!fc.bentukPartisipasi) return null;
     return (
       <div className="mt-10">
-        <h3 className="text-2xl font-black uppercase text-vox-primary border-b-4 border-black dark:border-white pb-2 mb-5">Bentuk Partisipasi Publik</h3>
+        <h3 className="text-2xl font-black uppercase text-slate-900 border-b-4 border-black pb-2 mb-5">Bentuk Partisipasi Publik</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {fc.bentukPartisipasi.map((b, i) => (
-            <div key={i} className="p-5 bg-zinc-100 dark:bg-zinc-900 rounded-2xl">
-              <h4 className="font-black text-sm mb-2">{b.bentuk}</h4>
-              <p className="text-sm opacity-70">{b.desc}</p>
+            <div key={i} className="p-5 bg-white/80 rounded-2xl shadow-sm">
+              <h4 className="font-black text-sm mb-2 text-black">{b.bentuk}</h4>
+              <p className="text-sm opacity-70 text-black">{b.desc}</p>
             </div>
           ))}
         </div>
@@ -2420,8 +2420,8 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
   const renderDataUtama = () => {
     if (!fc.dataUtama) return null;
     return (
-      <div className="bg-vox-navy text-white p-8 rounded-[2rem] border-4 border-vox-primary my-8 shadow-xl">
-        <h2 className="text-xl font-black uppercase mb-2 text-vox-accent">{fc.dataUtama.judul}</h2>
+      <div className="bg-black text-white p-8 rounded-[2rem] border-4 border-white my-8">
+        <h2 className="text-xl font-black uppercase mb-2 text-white">{fc.dataUtama.judul}</h2>
         <p className="text-xs opacity-60 mb-4">Periode: {fc.dataUtama.periode} | Sumber: {fc.dataUtama.sumber}</p>
         {fc.dataUtama.peringkat && <DataTable data={fc.dataUtama.peringkat} columns={['provinsi', 'skor', 'perubahan']} />}
         {fc.dataUtama.data && <DataTable data={fc.dataUtama.data} />}
@@ -2435,12 +2435,12 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
       <div className="space-y-12 mt-12">
         {fc.subSections.map((sub, i) => (
           <div key={i}>
-            <h3 className="text-xl font-black uppercase text-vox-primary border-b-2 border-black dark:border-white/20 pb-2 mb-4">{sub.title}</h3>
-            <p className="text-base opacity-70 mb-4">{sub.content}</p>
+            <h3 className="text-xl font-black uppercase text-slate-900 border-b-2 border-black pb-2 mb-4">{sub.title}</h3>
+            <p className="text-base opacity-70 mb-4 text-black">{sub.content}</p>
             {sub.data && Array.isArray(sub.data) && (
               typeof sub.data[0] === 'object'
-                ? <div className="overflow-x-auto border-2 border-black dark:border-white/20 rounded-xl"><table className="min-w-full text-sm"><thead className="bg-zinc-100 dark:bg-zinc-800"><tr>{Object.keys(sub.data[0]).map((k, ki) => <th key={ki} className="px-4 py-2 text-left text-xs font-black uppercase">{k}</th>)}</tr></thead><tbody>{sub.data.map((row, ri) => <tr key={ri} className="border-t border-zinc-200 dark:border-zinc-700">{Object.values(row).map((v, vi) => <td key={vi} className="px-4 py-3 text-sm">{String(v)}</td>)}</tr>)}</tbody></table></div>
-                : <div className="space-y-2">{sub.data.map((item, idx) => <div key={idx} className="flex gap-3 items-start p-4 bg-white dark:bg-zinc-900 border border-black/10 rounded-xl"><CheckCircle2 className="text-vox-primary w-4 h-4 flex-shrink-0 mt-0.5" /><span className="text-sm opacity-80">{item}</span></div>)}</div>
+                ? <div className="overflow-x-auto border-2 border-black rounded-xl bg-white"><table className="min-w-full text-sm"><thead className="bg-zinc-100 text-black"><tr>{Object.keys(sub.data[0]).map((k, ki) => <th key={ki} className="px-4 py-2 text-left text-xs font-black uppercase">{k}</th>)}</tr></thead><tbody>{sub.data.map((row, ri) => <tr key={ri} className="border-t border-zinc-200">{Object.values(row).map((v, vi) => <td key={vi} className="px-4 py-3 text-sm text-black">{String(v)}</td>)}</tr>)}</tbody></table></div>
+                : <div className="space-y-2">{sub.data.map((item, idx) => <div key={idx} className="flex gap-3 items-start p-4 bg-white border border-black/10 rounded-xl shadow-sm"><CheckCircle2 className="text-slate-900 w-4 h-4 flex-shrink-0 mt-0.5" /><span className="text-sm opacity-80 text-black">{item}</span></div>)}</div>
             )}
           </div>
         ))}
@@ -2452,23 +2452,23 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
     <motion.div
       initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 25 }}
-      className="fixed inset-0 z-[200] bg-zinc-50 dark:bg-zinc-900 overflow-y-auto"
+      className="fixed inset-0 z-[200] bg-sky-50 overflow-y-auto"
     >
-      <nav className="sticky top-0 z-10 bg-zinc-900/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b-2 border-white/20">
-        <button onClick={onBack} className="flex items-center gap-2 font-black uppercase text-xs hover:text-vox-primary">
+      <nav className="sticky top-0 z-10 bg-white/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b-2 border-black">
+        <button onClick={onBack} className="flex items-center gap-2 font-black uppercase text-xs hover:text-slate-900 text-black">
           <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
         <div className="flex gap-3 items-center">
-          <span className="bg-vox-primary text-white px-3 py-1 rounded-full text-xs font-black">Data {module.dataTahun}</span>
-          <span className="font-black text-vox-primary uppercase text-xs hidden md:block">{module.title}</span>
+          <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-xs font-black">Data {module.dataTahun}</span>
+          <span className="font-black text-slate-900 uppercase text-xs hidden md:block">{module.title}</span>
         </div>
       </nav>
 
       <div className="max-w-4xl mx-auto py-16 px-6">
         <header className="mb-12">
           <span className="text-7xl mb-4 block">{module.icon}</span>
-          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none mb-6">{module.title}</h1>
-          <div className="text-lg font-medium opacity-60 italic border-l-8 border-vox-primary pl-5 leading-relaxed">
+          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none mb-6 text-black">{module.title}</h1>
+          <div className="text-lg font-medium opacity-70 italic border-l-8 border-slate-900 pl-5 leading-relaxed text-black">
             <TextWithGlossary text={fc.pengertian} />
           </div>
         </header>
@@ -2496,7 +2496,7 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
 
         <button
           onClick={() => { onComplete(module.id); onBack(); }}
-          className="w-full mt-12 py-6 bg-vox-primary text-white text-xl font-black uppercase rounded-[2.5rem] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:bg-black dark:hover:bg-white dark:hover:text-black hover:shadow-none transition-all"
+          className="w-full mt-12 py-6 bg-slate-900 text-white text-xl font-black uppercase rounded-[2.5rem] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:shadow-none transition-all"
         >
           ✓ Tandai Selesai & Kembali
         </button>
@@ -2509,13 +2509,13 @@ const StudyRoom = ({ module, onBack, onComplete }) => {
 // 13. MAIN COMPONENT
 // ============================================================
 // ==================== SUB-COMPONENTS (MEMOIZED) ====================
-const SidebarItem = React.memo(({ module, activeId, onClick, isDarkMode }: any) => (
+const SidebarItem = React.memo(({ module, activeId, onClick }: any) => (
   <button
     onClick={() => onClick(module.id)}
     className={`w-full flex items-center gap-4 p-5 rounded-3xl transition-all duration-500 mb-3 group relative overflow-hidden ${
       activeId === module.id
-        ? 'bg-vox-primary text-white shadow-2xl shadow-vox-primary/30 scale-[1.02]'
-        : isDarkMode ? 'hover:bg-white/5 text-white/60' : 'hover:bg-black/5 text-black/60'
+        ? 'bg-slate-900 text-white shadow-2xl shadow-black/30 scale-[1.02]'
+        : 'hover:bg-black/5 text-black/60'
     }`}
   >
     <span className="text-2xl group-hover:scale-125 transition-transform">{module.icon}</span>
@@ -2533,7 +2533,7 @@ const TokohGridCard = React.memo(({ tokoh, onClick }: any) => (
   <motion.div
     whileHover={{ scale: 1.05 }}
     onClick={() => onClick(tokoh)}
-    className="group cursor-pointer relative h-[280px] md:h-[320px] rounded-[1.5rem] overflow-hidden bg-black dark:bg-zinc-900 border-4 border-black dark:border-white/10 shadow-[6px_6px_0px_0px_rgba(37,99,235,1)]"
+    className="group cursor-pointer relative h-[280px] md:h-[320px] rounded-[1.5rem] overflow-hidden bg-black border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
   >
     <img
       src={tokoh.image}
@@ -2543,18 +2543,18 @@ const TokohGridCard = React.memo(({ tokoh, onClick }: any) => (
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end">
       <h4 className="text-sm font-black text-white uppercase leading-none mb-1">{tokoh.name}</h4>
-      <p className="text-vox-accent font-black text-[10px] uppercase leading-tight">{tokoh.role}</p>
+      <p className="text-slate-500 font-black text-[10px] uppercase leading-tight">{tokoh.role}</p>
     </div>
   </motion.div>
 ));
 
-const GlossaryItem = React.memo(({ term, data, isDarkMode }: any) => (
-    <div className={`p-8 rounded-3xl border transition-all hover:scale-[1.02] ${isDarkMode ? 'bg-vox-deep-ocean border-white/5' : 'bg-white border-vox-primary/5 shadow-xl shadow-blue-100/20'}`}>
-    <h4 className="text-2xl font-black italic text-vox-primary uppercase tracking-tighter mb-4">{term}</h4>
-    <p className="text-xs font-medium leading-relaxed mb-6 opacity-70">{data.definition}</p>
-    <div className={`p-4 rounded-xl border-l-4 border-vox-primary ${isDarkMode ? 'bg-vox-primary/5' : 'bg-vox-primary/10'}`}>
-      <span className="text-[8px] font-black uppercase text-vox-primary block mb-1">Contoh dalam Kalimat:</span>
-      <p className="text-[10px] italic font-medium opacity-60">"{data.example}"</p>
+const GlossaryItem = React.memo(({ term, data }: any) => (
+  <div className="p-8 rounded-3xl border transition-all hover:scale-[1.02] bg-white border-black/10">
+    <h4 className="text-2xl font-black italic text-slate-900 uppercase tracking-tighter mb-4">{term}</h4>
+    <p className="text-xs font-medium leading-relaxed mb-6 opacity-70 text-black">{data.definition}</p>
+    <div className="p-4 rounded-xl border-l-4 border-slate-900 bg-slate-100">
+      <span className="text-[8px] font-black uppercase text-slate-900 block mb-1">Contoh dalam Kalimat:</span>
+      <p className="text-[10px] italic font-medium opacity-60 text-black">"{data.example}"</p>
     </div>
   </div>
 ));
@@ -2563,7 +2563,7 @@ const ModuleCard = React.memo(({ mod, completedModules, setActiveModule }: any) 
   <motion.div
     whileHover={{ scale: 1.02, y: -4 }}
     onClick={() => setActiveModule(mod)}
-    className={`cursor-pointer p-6 bg-white dark:bg-vox-deep-ocean border-2 border-vox-primary/5 rounded-[2rem] shadow-xl shadow-blue-100/30 flex flex-col justify-between relative overflow-hidden`}
+    className="cursor-pointer p-6 bg-white border-4 border-black rounded-[2rem] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between relative overflow-hidden"
   >
     {completedModules.includes(mod.id) && (
       <div className="absolute top-4 right-4 bg-green-500 text-white p-1.5 rounded-full">
@@ -2574,11 +2574,11 @@ const ModuleCard = React.memo(({ mod, completedModules, setActiveModule }: any) 
       <span className="text-4xl mb-3 block">{mod.icon}</span>
       <h4 className="text-base font-black uppercase mb-2 leading-tight pr-6">{mod.title}</h4>
       <p className="text-xs opacity-50 mb-3 line-clamp-2 leading-relaxed">{mod.desc}</p>
-      <div className="bg-vox-bg dark:bg-vox-navy inline-block px-2 py-1 rounded-full text-[10px] font-black">
+      <div className="bg-zinc-100 inline-block px-2 py-1 rounded-full text-[10px] font-black">
         Data {mod.dataTahun}
       </div>
     </div>
-    <div className="flex items-center gap-1 font-black text-vox-primary uppercase text-[10px] tracking-widest mt-4">
+    <div className="flex items-center gap-1 font-black text-slate-900 uppercase text-[10px] tracking-widest mt-4">
       Pelajari <ChevronRight size={10} />
     </div>
   </motion.div>
@@ -2589,13 +2589,13 @@ const ProfileRoom = React.memo(({ tokoh, onBack }: any) => {
     <motion.div
       initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 25 }}
-      className="fixed inset-0 z-[300] bg-white dark:bg-zinc-900 overflow-y-auto"
+      className="fixed inset-0 z-[300] bg-sky-50 overflow-y-auto"
     >
-      <nav className="sticky top-0 z-10 bg-zinc-900/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b-2 border-white/20">
-        <button onClick={onBack} className="flex items-center gap-2 font-black uppercase text-xs hover:text-vox-primary text-black dark:text-white">
+      <nav className="sticky top-0 z-10 bg-white/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b-2 border-black">
+        <button onClick={onBack} className="flex items-center gap-2 font-black uppercase text-xs hover:text-slate-900 text-black">
           <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
-        <span className="font-black text-vox-primary uppercase text-xs tracking-widest">{tokoh.name}</span>
+        <span className="font-black text-slate-900 uppercase text-xs tracking-widest">{tokoh.name}</span>
       </nav>
 
       <div className="max-w-5xl mx-auto py-16 px-6">
@@ -2604,21 +2604,21 @@ const ProfileRoom = React.memo(({ tokoh, onBack }: any) => {
             <div className="sticky top-32 space-y-6">
               <img
                 src={tokoh.image} alt={tokoh.name} referrerPolicy="no-referrer"
-                className="w-full aspect-[3/4] object-cover object-top rounded-[2.5rem] border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_rgba(37,99,235,1)]"
+                className="w-full aspect-[3/4] object-cover object-top rounded-[2.5rem] border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
                 onError={(e) => { e.currentTarget.src = `https://via.placeholder.com/600x800?text=${tokoh.name}`; }}
               />
-              <div className="bg-zinc-100 dark:bg-zinc-900 p-5 rounded-2xl">
-                <p className="text-[10px] font-black text-vox-primary uppercase mb-1">Masa Pengabdian</p>
-                <p className="text-xl font-black italic dark:text-white">{tokoh.period}</p>
+              <div className="bg-white p-5 rounded-2xl shadow-md border border-black/5">
+                <p className="text-[10px] font-black text-slate-900 uppercase mb-1">Masa Pengabdian</p>
+                <p className="text-xl font-black italic text-black">{tokoh.period}</p>
               </div>
               {tokoh.pencapaianKunci && (
-                <div className="bg-vox-navy text-white p-5 rounded-2xl border-2 border-vox-primary/20">
-                  <p className="text-[10px] font-black text-vox-accent uppercase mb-3">Pencapaian Kunci</p>
+                <div className="bg-black text-white p-5 rounded-2xl">
+                  <p className="text-[10px] font-black text-slate-500 uppercase mb-3">Pencapaian Kunci</p>
                   <ul className="space-y-2">
                     {tokoh.pencapaianKunci.map((p: string, i: number) => (
                       <li key={i} className="flex gap-2 text-xs">
                         <Star className="text-yellow-400 w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                        <span className="opacity-80">{p}</span>
+                        <span className="opacity-80 text-white/90">{p}</span>
                       </li>
                     ))}
                   </ul>
@@ -2628,22 +2628,21 @@ const ProfileRoom = React.memo(({ tokoh, onBack }: any) => {
           </div>
           <div className="flex-[1.5] space-y-12">
              <div className="space-y-2">
-               <h2 className="text-5xl md:text-7xl font-black uppercase italic italic text-black dark:text-white">{tokoh.name}</h2>
-               <p className="text-vox-primary font-extrabold uppercase tracking-[0.2em]">{tokoh.role}</p>
+               <h2 className="text-5xl md:text-7xl font-black uppercase italic text-black">{tokoh.name}</h2>
+               <p className="text-slate-900 font-extrabold uppercase tracking-[0.2em]">{tokoh.role}</p>
              </div>
              
-             <div className="p-8 bg-vox-primary text-white rounded-[2.5rem] relative overflow-hidden">
-                <Quote className="absolute -top-4 -left-4 w-20 h-20 opacity-10" />
+             <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] relative overflow-hidden">                <Quote className="absolute -top-4 -left-4 w-20 h-20 opacity-10" />
                 <p className="text-xl font-black italic relative z-10">"{tokoh.contribution}"</p>
              </div>
 
              {tokoh.friendlyDesc && (
                <div className="space-y-6">
-                  <div className="flex items-center gap-2 border-b-2 border-black dark:border-white/20 pb-2">
-                    <BookOpen className="w-5 h-5 text-vox-primary" />
-                    <h3 className="font-black uppercase text-xs tracking-[0.2em] text-black dark:text-white">Narasi Pengabdian</h3>
+                  <div className="flex items-center gap-2 border-b-2 border-black pb-2">
+                    <BookOpen className="w-5 h-5 text-slate-900" />
+                    <h3 className="font-black uppercase text-xs tracking-[0.2em] text-black">Narasi Pengabdian</h3>
                   </div>
-                  <p className="text-lg font-medium leading-relaxed opacity-80 text-black dark:text-white whitespace-pre-line">{tokoh.friendlyDesc}</p>
+                  <p className="text-lg font-medium leading-relaxed opacity-80 text-black whitespace-pre-line">{tokoh.friendlyDesc}</p>
                </div>
              )}
           </div>
@@ -2684,32 +2683,32 @@ const PoliticsBasics = () => {
   const progress = Math.round((completedModules.length / modules.length) * 100);
 
   return (
-    <div className="min-h-screen bg-vox-bg text-vox-navy py-16 px-4 md:px-6 font-sans">
+    <div className="min-h-screen bg-sky-200 text-slate-900 py-16 px-4 md:px-6 font-sans">
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
         <header className="mb-16">
           <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter leading-none mb-3 uppercase">
-            <span className="text-vox-primary">DASAR</span><span className="text-vox-navy">POLITIK</span>
+            <span className="text-slate-900">DASAR</span><span className="text-slate-900">POLITIK</span>
           </h1>
-          <p className="text-lg font-bold opacity-40 uppercase tracking-widest mb-6">
+          <p className="text-lg font-bold opacity-70 uppercase tracking-widest mb-6 text-slate-800">
             20 Modul Lengkap · Data Aktual 2025-2026
           </p>
-          <div className="flex flex-wrap gap-2 text-[10px] font-black uppercase mb-8">
+          <div className="flex flex-wrap gap-2 text-xs font-mono mb-8">
             {['IDI 2025','APBN 2025','DPR 2024-2025','Pilkada 2025','KPK 2025','MK 2025'].map(tag => (
-              <span key={tag} className="bg-vox-bg px-3 py-1 rounded-full border border-vox-primary/10">{tag}</span>
+              <span key={tag} className="bg-white/80 px-3 py-1 rounded-full border border-black/10 text-slate-900">{tag}</span>
             ))}
           </div>
 
           {/* PROGRESS BAR */}
-          <div className="bg-[#E0F2FE] p-5 rounded-2xl border-2 border-vox-primary/10">
+          <div className="bg-white/90 p-5 rounded-2xl border-2 border-black shadow-md">
             <div className="flex justify-between items-center mb-2">
-              <span className="font-black text-sm uppercase text-vox-navy">Progress Belajar</span>
-              <span className="font-black text-vox-primary">{completedModules.length}/{modules.length} modul · {progress}%</span>
+              <span className="font-black text-sm uppercase text-black">Progress Belajar</span>
+              <span className="font-black text-slate-900">{completedModules.length}/{modules.length} modul · {progress}%</span>
             </div>
-            <div className="h-4 bg-[#F0F9FF] rounded-full overflow-hidden">
+            <div className="h-4 bg-sky-200 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-vox-primary rounded-full"
+                className="h-full bg-slate-900 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.5 }}
@@ -2719,24 +2718,24 @@ const PoliticsBasics = () => {
         </header>
 
         {/* SEARCH */}
-        <div className="relative mb-12">
+        <div className="relative mb-12 shadow-lg rounded-2xl">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari modul... (contoh: Pancasila, Pemilu, DPR)"
-            className="w-full pl-14 pr-6 py-5 text-base bg-[#E0F2FE] border-2 border-vox-primary/10 rounded-2xl font-black uppercase text-vox-navy outline-none focus:border-vox-primary transition-colors"
+            className="w-full pl-14 pr-6 py-5 text-base bg-white border-2 border-black rounded-2xl font-medium outline-none focus:border-slate-900 transition-colors text-black placeholder-zinc-400"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-vox-primary font-black">✕</button>
+            <button onClick={() => setSearchQuery('')} className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-slate-900 font-black">✕</button>
           )}
         </div>
 
         {/* SEARCH RESULTS */}
         {searchQuery && filteredModules && (
           <div className="mb-16">
-            <h2 className="text-lg font-black uppercase mb-4 opacity-60">
+            <h2 className="text-lg font-black uppercase mb-4 opacity-80 text-black">
               {filteredModules.length} hasil untuk "{searchQuery}"
             </h2>
             {filteredModules.length > 0 ? (
@@ -2746,9 +2745,9 @@ const PoliticsBasics = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 opacity-40">
-                <AlertCircle className="w-12 h-12 mx-auto mb-4" />
-                <p className="font-black">Modul tidak ditemukan.</p>
+              <div className="text-center py-16 opacity-60">
+                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-black" />
+                <p className="font-black text-black">Modul tidak ditemukan.</p>
               </div>
             )}
           </div>
@@ -2758,9 +2757,9 @@ const PoliticsBasics = () => {
         {!searchQuery && (
           <>
             <section className="mb-20">
-              <h2 className="text-3xl font-black uppercase italic mb-8 flex items-center gap-4 border-b-4 border-black dark:border-white pb-4">
-                <Landmark className="text-vox-primary w-7 h-7" /> Dasar Tata Negara
-                <span className="text-sm font-mono opacity-40 ml-auto">Modul 1–6</span>
+              <h2 className="text-3xl font-black uppercase italic mb-8 flex items-center gap-4 border-b-4 border-black pb-4 text-black shadow-sm">
+                <Landmark className="text-slate-900 w-7 h-7" /> Dasar Tata Negara
+                <span className="text-sm font-mono opacity-60 ml-auto">Modul 1–6</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cat1.map(mod => <ModuleCard key={mod.id} mod={mod} completedModules={completedModules} setActiveModule={setActiveModule} />)}
@@ -2768,9 +2767,9 @@ const PoliticsBasics = () => {
             </section>
 
             <section className="mb-20">
-              <h2 className="text-3xl font-black uppercase italic mb-8 flex items-center gap-4 border-b-4 border-black dark:border-white pb-4">
-                <Scale className="text-vox-primary w-7 h-7" /> Ideologi & Struktur Hukum
-                <span className="text-sm font-mono opacity-40 ml-auto">Modul 7–12</span>
+              <h2 className="text-3xl font-black uppercase italic mb-8 flex items-center gap-4 border-b-4 border-black pb-4 text-black shadow-sm">
+                <Scale className="text-slate-900 w-7 h-7" /> Ideologi & Struktur Hukum
+                <span className="text-sm font-mono opacity-60 ml-auto">Modul 7–12</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cat2.map(mod => <ModuleCard key={mod.id} mod={mod} completedModules={completedModules} setActiveModule={setActiveModule} />)}
@@ -2778,9 +2777,9 @@ const PoliticsBasics = () => {
             </section>
 
             <section className="mb-20">
-              <h2 className="text-3xl font-black uppercase italic mb-8 flex items-center gap-4 border-b-4 border-black dark:border-white pb-4">
-                <Users className="text-vox-primary w-7 h-7" /> Instrumen & Partisipasi Publik
-                <span className="text-sm font-mono opacity-40 ml-auto">Modul 13–20</span>
+              <h2 className="text-3xl font-black uppercase italic mb-8 flex items-center gap-4 border-b-4 border-black pb-4 text-black shadow-sm">
+                <Users className="text-slate-900 w-7 h-7" /> Instrumen & Partisipasi Publik
+                <span className="text-sm font-mono opacity-60 ml-auto">Modul 13–20</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cat3.map(mod => <ModuleCard key={mod.id} mod={mod} completedModules={completedModules} setActiveModule={setActiveModule} />)}
@@ -2792,8 +2791,8 @@ const PoliticsBasics = () => {
         {/* TOKOH GALLERY */}
         {!searchQuery && (
           <section className="mt-24">
-            <h2 className="text-4xl font-black uppercase italic mb-10 flex items-center gap-4 border-b-4 border-black dark:border-white pb-4">
-              <Award className="text-vox-primary w-8 h-8" /> Galeri Kepemimpinan
+            <h2 className="text-4xl font-black uppercase italic mb-10 flex items-center gap-4 border-b-4 border-black pb-4 text-black">
+              <Award className="text-slate-900 w-8 h-8" /> Galeri Kepemimpinan
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {tokohBangsa.map(tokoh => (
@@ -2803,7 +2802,7 @@ const PoliticsBasics = () => {
           </section>
         )}
 
-        <footer className="mt-32 text-center text-xs opacity-30 pb-8">
+        <footer className="mt-32 text-center text-xs opacity-50 pb-8 text-black">
           <p>20 Modul Pembelajaran Politik · Data: Kemenko Polkam, BPS, KPU, Bawaslu, MK, KPK, DPR RI, Kemenkeu, Formappi, Transparency International · 2025-2026</p>
         </footer>
       </div>

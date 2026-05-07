@@ -2,57 +2,45 @@
   "entities": {
     "User": {
       "title": "User Profile",
-      "description": "User profile and progress data.",
+      "description": "Stores user progress, social data, and settings.",
       "type": "object",
       "properties": {
-        "username": { "type": "string" },
+        "username": { "type": "string", "description": "Unique @username" },
         "displayName": { "type": "string" },
-        "password": { "type": "string" },
         "role": { "type": "string", "enum": ["ADMIN", "USER"] },
         "level": { "type": "number" },
         "currentExp": { "type": "number" },
         "streak": { "type": "number" },
-        "lastLoginDate": { "type": "string" },
-        "progress": { "type": "object" },
-        "quizHistory": { "type": "array" },
+        "lastLoginDate": { "type": "string", "format": "date" },
         "coins": { "type": "number" },
         "streakFreezeCount": { "type": "number" },
-        "uid": { "type": "string" },
-        "lastActive": { "type": "string" }
+        "followers": { "type": "array", "items": { "type": "string" } },
+        "following": { "type": "array", "items": { "type": "string" } },
+        "equippedCostumeId": { "type": "string" },
+        "voxTitle": { "type": "string" },
+        "lastActive": { "type": "string", "format": "date-time" }
       },
       "required": ["username", "displayName", "role"]
     },
-    "UserByUid": {
-      "title": "User UID Mapping",
-      "description": "Mapping from Firebase Auth UID to username and role for security rules.",
-      "type": "object",
-      "properties": {
-        "username": { "type": "string" },
-        "role": { "type": "string", "enum": ["ADMIN", "USER"] }
-      },
-      "required": ["username", "role"]
-    },
     "Post": {
-      "title": "VoxCircle Post",
-      "description": "A post in the VoxCircle social feed.",
+      "title": "Social Post",
+      "description": "A post in the Vox Circle feed.",
       "type": "object",
       "properties": {
+        "id": { "type": "string" },
         "username": { "type": "string" },
         "displayName": { "type": "string" },
-        "avatarConfig": { "type": "object" },
         "content": { "type": "string" },
-        "timestamp": { "type": "object" },
-        "likes": { "type": "array" },
-        "comments": { "type": "array" },
-        "role": { "type": "string", "enum": ["ADMIN", "USER"] },
-        "shares": { "type": "number" },
-        "authorId": { "type": "string" }
+        "timestamp": { "type": "string", "format": "date-time" },
+        "likes": { "type": "array", "items": { "type": "string" } },
+        "comments": { "type": "array", "items": { "type": "object" } },
+        "shares": { "type": "number" }
       },
       "required": ["username", "content", "timestamp"]
     },
     "GlobalStats": {
-      "title": "Global Statistics",
-      "description": "Aggregated application statistics.",
+      "title": "Global Analytics",
+      "description": "Aggregated stats for the admin dashboard.",
       "type": "object",
       "properties": {
         "totalUsers": { "type": "number" },
@@ -61,73 +49,56 @@
         "totalQuizzesTaken": { "type": "number" }
       }
     },
-    "QuizResult": {
-      "title": "Quiz Result",
-      "description": "User completion data for a quiz.",
+    "Follow": {
+      "title": "User Follow Relation",
+      "description": "Stores follow relationships between users.",
       "type": "object",
       "properties": {
-        "username": { "type": "string" },
-        "score": { "type": "number" },
-        "date": { "type": "string" },
-        "uid": { "type": "string" },
-        "quizId": { "type": "string" },
-        "topic": { "type": "string" }
+        "followerId": { "type": "string" },
+        "followingId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
       },
-      "required": ["username", "score", "uid"]
+      "required": ["followerId", "followingId", "timestamp"]
     },
     "Vote": {
-      "title": "Live Vote",
-      "description": "A signal of support or participation.",
+      "title": "User Vote/Voice",
+      "description": "Stores real-time votes or voices from users.",
       "type": "object",
       "properties": {
+        "userId": { "type": "string" },
         "username": { "type": "string" },
-        "timestamp": { "type": "object" },
-        "userId": { "type": "string" }
+        "type": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
       },
-      "required": ["username", "timestamp"]
-    },
-    "Feedback": {
-      "title": "User Feedback",
-      "description": "Suggestions or reported issues.",
-      "type": "object",
-      "properties": {
-        "username": { "type": "string" },
-        "uid": { "type": "string" },
-        "message": { "type": "string" },
-        "date": { "type": "string" },
-        "timestamp": { "type": "object" }
-      },
-      "required": ["username", "message", "timestamp"]
+      "required": ["userId", "username", "timestamp"]
     }
   },
   "firestore": {
-    "users/{username}": {
+    "/users/{userId}": {
       "schema": "User",
-      "description": "Collection of user profiles."
+      "description": "User profile data."
     },
-    "users_by_uid/{uid}": {
-      "schema": "UserByUid",
-      "description": "Security mapping for role validation."
+    "/users_by_uid/{uid}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      },
+      "description": "Mapping from Firebase UID to username and role for security rules."
     },
-    "posts/{postId}": {
+    "/posts/{postId}": {
       "schema": "Post",
-      "description": "VoxCircle feed posts."
+      "description": "Vox Circle posts."
     },
-    "stats/global": {
+    "/stats/global": {
       "schema": "GlobalStats",
       "description": "Global application statistics."
     },
-    "quiz_results/{resultId}": {
-      "schema": "QuizResult",
-      "description": "Leaderboard and history data."
-    },
-    "votes/{voteId}": {
+    "/votes/{voteId}": {
       "schema": "Vote",
-      "description": "Real-time activity pulses."
-    },
-    "feedbacks/{fbId}": {
-      "schema": "Feedback",
-      "description": "User feedback storage."
+      "description": "Real-time user votes."
     }
   }
 }

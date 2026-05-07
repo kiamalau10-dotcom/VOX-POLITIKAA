@@ -1,181 +1,85 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 0. Default deny
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // --- GLOBAL HELPERS ---
-    function isSignedIn() {
+    
+    // Helper Functions
+    function isAuthenticated() {
       return request.auth != null;
     }
 
-    function isOwner(uid) {
-      return isSignedIn() && request.auth.uid == uid;
-    }
-
     function isAdmin() {
-      // Role is checked against a trusted mapping in users_by_uid
-      // User with UID must exist and have role ADMIN
-      return isSignedIn() && 
+      return isAuthenticated() && 
              exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role == 'ADMIN';
+             get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.role.upper() == 'ADMIN';
     }
 
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    function isOwner(username) {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.username == username;
     }
-
-    function incoming() {
-      return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
-    }
-
-    // --- ENTITY VALIDATORS ---
 
     function isValidUser(data) {
-      // Required fields based on blueprint
-      return data.keys().hasAll(['username', 'displayName', 'role']) &&
-             data.username is string && data.username.size() <= 64 &&
-             data.displayName is string && data.displayName.size() <= 128 &&
-             data.role in ['ADMIN', 'USER'] &&
-             // Optional fields types
-             (data.get('level', 1) is number) &&
-             (data.get('coins', 0) is number) &&
-             (data.get('streak', 0) is number) &&
-             (data.get('uid', '') is string);
+      return data.username is string && data.username.size() > 0 &&
+             data.displayName is string && data.displayName.size() > 0 &&
+             data.role in ['ADMIN', 'USER', 'admin', 'user'];
     }
 
-    function isValidPost(data) {
-      return data.keys().hasAll(['username', 'content', 'timestamp', 'authorId']) &&
-             data.username is string && data.username.size() <= 64 &&
-             data.content is string && data.content.size() <= 2000 &&
-             data.authorId is string && data.authorId.size() <= 128 &&
-             data.timestamp is timestamp;
-    }
-
-    // --- COLLECTION RULES ---
-
-    // 1. Users Collection
+    // Rules
+    
     match /users/{username} {
-      // Allow public get so guests can see profiles/avatars in common feeds
-      allow get: if true;
-      // Secure list query: user can list if they are signed in, 
-      // but we filter by a field (level) to avoid open scraping warning and satisfy rules
-      allow list: if isSignedIn() && resource.data.level is number;
-      
-      allow create: if (
-        isValidId(username) &&
-        isValidUser(incoming()) &&
-        // Ensure user is setting their own UID if signed in
-        (incoming().uid == request.auth.uid)
-      );
-
-      allow update: if (
-        isValidUser(incoming()) && (
-          isAdmin() || (
-            isSignedIn() && 
-            existing().uid == request.auth.uid &&
-            // Immutables
-            incoming().uid == existing().uid &&
-            incoming().username == existing().username &&
-            // Role can only be changed by admin
-            incoming().role == existing().role &&
-            // Action based updates
-            (
-                // Profile/Social Update
-                incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'voxTitle', 'avatarConfig', 'equippedCostumeId', 'ownedItems']) ||
-                // Progress/Stats Update
-                incoming().diff(existing()).affectedKeys().hasOnly(['level', 'currentExp', 'coins', 'streak', 'lastActive', 'quizHistory', 'needsStreakProtection', 'previousStreak', 'streakFreezeCount', 'lastLoginDate', 'progress', 'lastActive'])
-            )
-          )
-        )
-      );
-      
-      allow delete: if isAdmin() || (isSignedIn() && existing().uid == request.auth.uid);
+      allow read: if true; 
+      allow create: if isValidUser(request.resource.data);
+      allow update: if (isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin())) || 
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginDate', 'streak', 'streakFreezeCount', 'lastActive', 'uid', 'currentExp', 'level', 'coins', 'quizHistory', 'achievements', 'ownedItems', 'avatarConfig', 'equippedCostumeId', 'voxTitle', 'needsStreakProtection', 'previousStreak', 'displayName', 'username', 'role', 'password']));
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
     }
 
-    // 2. Users By UID (Security Mapping)
-    match /users_by_uid/{uid} {
-      allow get: if isOwner(uid) || isAdmin();
-      allow list: if isAdmin();
-      
-      allow create: if (
-        isOwner(uid) && 
-        incoming().keys().hasAll(['username', 'role']) &&
-        incoming().role == 'USER'
-      );
-      
-      allow update: if (
-        isAdmin() || (
-            isOwner(uid) && 
-            incoming().role == existing().role &&
-            incoming().username == existing().username
-        )
-      );
-      
-      allow delete: if isAdmin() || isOwner(uid);
-    }
-
-    // 3. Posts Collection
     match /posts/{postId} {
-      allow read: if isSignedIn(); 
-      
-      allow create: if (
-        isSignedIn() &&
-        isValidId(postId) &&
-        isValidPost(incoming()) &&
-        incoming().authorId == request.auth.uid
-      );
-
-      allow update: if (
-        isSignedIn() && (
-          // Action: Edit post (limited to content)
-          (existing().authorId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['content', 'updatedAt'])) ||
-          // Action: Interact (like/comment)
-          incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'comments', 'shares'])
-        )
-      );
-
-      allow delete: if isAdmin() || (isSignedIn() && existing().authorId == request.auth.uid);
+      allow read: if true;
+      allow create: if true; // Allow creation for unauthenticated users if Anonymous Auth is disabled
+      allow update: if true;
+      allow delete: if isAdmin() || (isAuthenticated() && (
+        (resource.data.authorId == request.auth.uid) ||
+        (exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.username == resource.data.username)
+      )) || (request.auth == null);
     }
 
-    // 4. Global Stats
-    match /stats/{docId} {
-      allow get: if true; 
-      allow list: if false; 
-      
-      allow update: if isSignedIn() && (
-        // Only allow incrementing specific global counters
-        incoming().diff(existing()).affectedKeys().hasOnly(['totalUsers', 'activeUsers', 'totalVotes', 'totalQuizzesTaken', 'votes', 'quizRuns'])
-      );
-      allow create, delete: if isAdmin();
+    match /users_by_uid/{uid} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == uid;
     }
-    // 5. Quiz Results
+
+    match /stats/{statId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      allow create: if true;
+      allow delete: if isAdmin();
+    }
+
     match /quiz_results/{resultId} {
-      allow list: if isSignedIn();
-      allow get: if isSignedIn();
-      allow create: if isSignedIn() && (incoming().uid == request.auth.uid || incoming().username == request.auth.token.name);
-      allow update, delete: if isAdmin();
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      allow create: if true;
+      allow delete: if isAdmin();
     }
 
-    // 6. Live Votes
     match /votes/{voteId} {
-      allow read: if isSignedIn();
-      allow create: if true; // Allow guests to vote/pulse
-      allow update, delete: if isAdmin();
+      allow read: if true;
+      allow create: if true;
     }
 
-    // 7. Feedbacks
-    match /feedbacks/{fbId} {
-      allow list: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
-      allow get: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
-      allow create: if true; // Allow guests to give feedback
-      allow update, delete: if isAdmin();
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /_connection_test_/{docId} {
+      allow read: if true;
     }
   }
 }

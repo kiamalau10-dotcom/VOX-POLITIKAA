@@ -1,77 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-@layer components {
-  .img-high-quality {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: auto;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
-}
-
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  
-  /* Oceanic Clarity Palette */
-  --color-vox-primary: #0EA5E9; /* Ocean Blue */
-  --color-vox-primary-dark: #0284C7;
-  --color-vox-navy: #0F172A; /* Deep Midnight Navy */
-  --color-vox-slate: #64748B; /* Slate Gray */
-  --color-vox-bg: #F0F9FF; /* Alice Blue */
-  --color-vox-card: #E0F2FE; /* Light Sky Blue */
-  --color-vox-accent: #38BDF8; /* Sky Blue accent */
-  --color-vox-emerald: #00D289; /* Emerald Green */
-  
-  /* Support for Deep Ocean */
-  --color-vox-deep-ocean: #0F172A;
 }
 
 @layer base {
   body {
-    /* Transitions for smooth theme switching */
-    @apply bg-vox-bg text-[#0F172A] transition-colors duration-500 overflow-x-hidden;
+    background-color: #83f9f8;
+    color: #0f172a; /* Darker navy/black for contrast */
     font-family: "Plus Jakarta Sans", sans-serif;
     scroll-behavior: smooth;
-  }
-
-  body.dark {
-    @apply bg-vox-navy text-white;
+    transition: background-color 0.5s ease;
   }
 }
 
 @layer components {
-  /* Dynamic Glass Card */
+  /* White card for light sections */
   .glass-card {
-    @apply bg-white shadow-[0_4px_30px_-4px_rgba(15,23,42,0.1)] border border-[#0EA5E9]/10 rounded-3xl backdrop-blur-md transition-all duration-300;
+    @apply bg-white/90 border border-black/10 backdrop-blur-md shadow-lg;
   }
-
-  .dark .glass-card {
-    @apply bg-white border-white/5 shadow-[0_8px_40px_-10px_rgba(0,0,0,0.3)];
-  }
-
-  /* Section Title styling */
-  .section-title {
-    @apply text-3xl font-black uppercase italic tracking-tighter;
-  }
-
-  .dark .section-title {
-    @apply text-white;
+  
+  /* Darker blue card for contrast if needed */
+  .blue-card {
+    @apply bg-sky-900/40 border border-white/20 backdrop-blur-md text-white;
   }
 }
 
-/* Mengubah warna scrollbar (batang penggeser) menjadi Brand Color */
+/* Mengubah warna scrollbar (batang penggeser) menjadi Merah */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #177090;
+  background: #dc2626;
   border-radius: 10px;
 }
 
-/* Mengubah warna saat teks disorot/diblok */
+/* Mengubah warna saat teks disorot/diblok menjadi Merah Putih */
 ::selection {
-  background-color: #177090;
+  background-color: #dc2626;
   color: white;
 }
