@@ -4,6 +4,7 @@ import { CheckCircle2, XCircle, Trophy, ArrowRight, RotateCcw, ShieldAlert, Meda
 import { Question, User } from '../types';
 import { ALL_QUESTIONS } from '../services/quizData';
 import { useUser } from './useUser';
+import { getAvatarUrl } from '../services/avatarService';
 import { 
   db, 
   collection, 
@@ -388,7 +389,7 @@ const Quiz: React.FC<{
                         <span className="text-lg font-black opacity-30">#{idx + 1}</span>
                         <div className="w-8 h-8 rounded-lg overflow-hidden border border-black/5">
                           <img 
-                            src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user.username.replace('@', '')}&backgroundColor=f8fafc,f1f5f9&radius=20`}
+                            src={getAvatarUrl(user.username.replace('@', ''))}
                             alt={user.username}
                             className="w-full h-full object-contain"
                             referrerPolicy="no-referrer"

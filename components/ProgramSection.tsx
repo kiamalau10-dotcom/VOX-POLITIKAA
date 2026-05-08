@@ -175,7 +175,7 @@ const ProgramSection: React.FC = () => {
                         <div className="overflow-hidden rounded-2xl border-2 border-black/10">
                           <table className="w-full text-left border-collapse">
                             <thead>
-                              <tr className="bg-red-600 text-white">
+                              <tr className="bg-slate-900 text-white">
                                 <th className="p-4 uppercase font-black italic text-xs">Indikator</th>
                                 <th className="p-4 uppercase font-black italic text-xs">Target</th>
                               </tr>

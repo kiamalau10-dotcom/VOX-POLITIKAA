@@ -23,7 +23,7 @@ const AnimatedShape = () => {
     <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.3}>
       <mesh ref={meshRef}>
         <torusKnotGeometry args={[1, 0.3, 64, 16]} />
-        <meshPhongMaterial color="#dc2626" specular="#ffffff" shininess={100} />
+        <meshPhongMaterial color="#013362" specular="#ffffff" shininess={100} />
       </mesh>
     </Float>
   );

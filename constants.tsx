@@ -7,6 +7,8 @@ import danantaraImg from './src/assets/images/regenerated_image_1777851846449.jp
 import inaDigitalImg from './src/assets/images/regenerated_image_1777851847184.jpg';
 import swasembadaImg from './src/assets/images/regenerated_image_1777851847996.jpg';
 
+import bubuImage from './src/assets/images/regenerated_image_1778244010848.png';
+
 export const CABINET_DATA: Minister[] = [
   {
     id: 'pres',
@@ -182,7 +184,7 @@ export const CABINET_DATA: Minister[] = [
     position: 'Menteri Kesehatan',
     bio: 'Dokter seluruh rakyat Indonesia yang memastikan semua orang sehat.',
     tasks: ['Menyediakan obat dan vaksin', 'Memperbaiki puskesmas dan RS', 'Mencegah penyakit menular'],
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS69BniaYqvyzOaX47FnoVw3USj6VIjIw9smw&s'
+    image: bubuImage
   },
   {
     id: 'mensos',
@@ -535,6 +537,169 @@ export const STRATEGIC_PROGRAMS: StrategicProgram[] = [
     images: [swasembadaImg],
     impact: 'Mewujudkan kedaulatan nasional di sektor dasar, meningkatkan kesejahteraan petani/nelayan, dan menciptakan lapangan kerja luas di pedesaan.'
   }
+];
+
+export const POLITICAL_BADGES = [
+  { 
+    id: 'simpatisan', 
+    title: 'Simpatisan', 
+    ring: 'Ring 1: Pendatang Baru', 
+    price: 0, 
+    description: 'Baru bergabung di VoxPolitika.', 
+    icon: '🗳️' 
+  },
+  { 
+    id: 'aktivis', 
+    title: 'Aktivis', 
+    ring: 'Ring 1: Pendatang Baru', 
+    price: 100, 
+    description: 'Aktif memberikan opini di kolom komentar.', 
+    icon: '📣' 
+  },
+  { 
+    id: 'penulis_opini', 
+    title: 'Penulis Opini', 
+    ring: 'Ring 1: Pendatang Baru', 
+    price: 250, 
+    description: 'Berhasil membuat 3 artikel/postingan.', 
+    icon: '📝' 
+  },
+  { 
+    id: 'saksi', 
+    title: 'Saksi', 
+    ring: 'Ring 1: Pendatang Baru', 
+    price: 400, 
+    description: 'Rajin memantau dan memverifikasi isu.', 
+    icon: '🕵️' 
+  },
+  { 
+    id: 'relawan', 
+    title: 'Relawan', 
+    ring: 'Ring 1: Pendatang Baru', 
+    price: 600, 
+    description: 'Membagikan konten ke platform lain.', 
+    icon: '🤝' 
+  },
+  { 
+    id: 'kepala_desa', 
+    title: 'Kepala Desa', 
+    ring: 'Ring 2: Pejabat Daerah', 
+    price: 1000, 
+    description: 'Memulai diskusi di komunitas lokal.', 
+    icon: '🏘️' 
+  },
+  { 
+    id: 'camat', 
+    title: 'Camat Vox', 
+    ring: 'Ring 2: Pejabat Daerah', 
+    price: 1500, 
+    description: 'Diskusi yang dibuat mencapai 50 komentar.', 
+    icon: '👔' 
+  },
+  { 
+    id: 'walikota', 
+    title: 'Walikota', 
+    ring: 'Ring 2: Pejabat Daerah', 
+    price: 2500, 
+    description: 'Memiliki 20 pengikut (followers) setia.', 
+    icon: '🏢' 
+  },
+  { 
+    id: 'bupati', 
+    title: 'Bupati Vox', 
+    ring: 'Ring 2: Pejabat Daerah', 
+    price: 4000, 
+    description: 'Kontennya sering masuk daftar populer.', 
+    icon: '🏛️' 
+  },
+  { 
+    id: 'gubernur', 
+    title: 'Gubernur', 
+    ring: 'Ring 2: Pejabat Daerah', 
+    price: 6000, 
+    description: 'Tokoh regional yang mulai diperhitungkan.', 
+    icon: '👑' 
+  },
+  { 
+    id: 'staf_khusus', 
+    title: 'Staf Khusus', 
+    ring: 'Ring 3: Elite Senayan', 
+    price: 8000, 
+    description: 'Ahli dalam analisis data politik.', 
+    icon: '💼' 
+  },
+  { 
+    id: 'hakim', 
+    title: 'Hakim Vox', 
+    ring: 'Ring 3: Elite Senayan', 
+    price: 9500, 
+    description: 'Jago memberikan argumen yang adil dan netral.', 
+    icon: '⚖️' 
+  },
+  { 
+    id: 'anggota_dewan', 
+    title: 'Anggota Dewan', 
+    ring: 'Ring 3: Elite Senayan', 
+    price: 11000, 
+    description: 'Punya akses ke ruang diskusi eksklusif.', 
+    icon: '🎖️' 
+  },
+  { 
+    id: 'menteri', 
+    title: 'Menteri Vox', 
+    ring: 'Ring 3: Elite Senayan', 
+    price: 12500, 
+    description: 'Membawahi satu kategori isu (misal: Hukum).', 
+    icon: '👔' 
+  },
+  { 
+    id: 'diplomat', 
+    title: 'Diplomat', 
+    ring: 'Ring 3: Elite Senayan', 
+    price: 14000, 
+    description: 'Penengah debat yang paling disegani.', 
+    icon: '🤝' 
+  },
+  { 
+    id: 'ketua_dpr', 
+    title: 'Ketua DPR', 
+    ring: 'Ring 4: Pimpinan Nasional', 
+    price: 15500, 
+    description: 'Pemegang kendali narasi di forum utama.', 
+    icon: '🏛️' 
+  },
+  { 
+    id: 'tokoh_bangsa', 
+    title: 'Tokoh Bangsa', 
+    ring: 'Ring 4: Pimpinan Nasional', 
+    price: 17000, 
+    description: 'User yang kontribusinya sangat terasa bagi komunitas.', 
+    icon: '🎩' 
+  },
+  { 
+    id: 'wakil_presiden', 
+    title: 'Wakil Presiden', 
+    ring: 'Ring 4: Pimpinan Nasional', 
+    price: 18000, 
+    description: 'Jabatan eksekutif tertinggi kedua.', 
+    icon: '🦅' 
+  },
+  { 
+    id: 'presiden_vox', 
+    title: 'Presiden Vox', 
+    ring: 'Ring 4: Pimpinan Nasional', 
+    price: 19000, 
+    description: 'Pemimpin opini publik di VoxPolitika.', 
+    icon: '🇮🇩' 
+  },
+  { 
+    id: 'negarawan', 
+    title: 'Negarawan', 
+    ring: 'Ring 4: Pimpinan Nasional', 
+    price: 20000, 
+    description: 'Gelar Abadi. Level tertinggi yang bisa dicapai.', 
+    icon: '✨' 
+  },
 ];
 
 export const PROVINCES_DATA: ProvinceData[] = [

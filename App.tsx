@@ -188,12 +188,12 @@ const AppContent: React.FC = () => {
   const [feedback, setFeedback] = useState('');
   const [isSent, setIsSent] = useState(false);
   const [userFeedbacks, setUserFeedbacks] = useState<any[]>([]);
-  const [isAvatarLabOpen, setIsAvatarLabOpen] = useState(false);
+  const [avatarLabTarget, setAvatarLabTarget] = useState<User | null>(null);
 
   useEffect(() => {
-    (window as any).openAvatarLab = () => setIsAvatarLabOpen(true);
+    (window as any).openAvatarLab = (target?: User) => setAvatarLabTarget(target || currentUser);
     (window as any).setActiveSection = (section: AppSection) => setActiveSection(section);
-  }, []);
+  }, [currentUser]);
 
   // Fetch real-time feedback history ONLY for the logged-in user
   useEffect(() => {
@@ -307,7 +307,7 @@ const AppContent: React.FC = () => {
             initial={{ opacity: 0, scale: 0.98 }} 
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 1.02 }} 
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            transition={{ duration: 0.1, ease: "easeInOut" }}
           >
             <Content 
               activeSection={activeSection}
@@ -469,30 +469,31 @@ const AppContent: React.FC = () => {
       </AnimatePresence>
 
       {/* Avatar Lab Modal */}
-      {isAvatarLabOpen && currentUser && (
+      {avatarLabTarget && (
         <AvatarLab 
-          currentUser={currentUser}
-          onClose={() => setIsAvatarLabOpen(false)}
+          currentUser={avatarLabTarget}
+          onClose={() => setAvatarLabTarget(null)}
           onUpdateUser={async (updatedUser) => {
-            setCurrentUser(updatedUser);
-            localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            const isSelf = updatedUser.username === currentUser?.username;
             
-            // Update allUsers list
-            const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
-            const updatedAllUsers = allUsers.map((u: any) => u.username === updatedUser.username ? updatedUser : u);
-            localStorage.setItem('all_users', JSON.stringify(updatedAllUsers));
-
+            if (isSelf) {
+              setCurrentUser(updatedUser);
+              localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
+              localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            }
+            
             // Sync to Firestore
             try {
               const docId = updatedUser.username.replace('@', '');
               await updateDoc(doc(db, 'users', docId), {
-                avatarConfig: updatedUser.avatarConfig,
-                equippedCostumeId: updatedUser.equippedCostumeId,
                 voxTitle: updatedUser.voxTitle || null,
                 coins: updatedUser.coins,
                 ownedItems: updatedUser.ownedItems || []
               });
+              
+              if (!isSelf) {
+                alert(`Gelar & Badge untuk @${updatedUser.username} berhasil diperbarui!`);
+              }
             } catch (error) {
               console.error("Error syncing avatar update to Firestore:", error);
             }

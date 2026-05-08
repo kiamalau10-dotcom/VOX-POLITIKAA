@@ -50,15 +50,24 @@ const ChatBot: React.FC = () => {
     try {
       const response = await getAsistenResponse(userMsg, history as any);
       
-      // Simulate streaming for better UX
+      if (response.includes("AI belum dikonfigurasi")) {
+        setIsTyping(false);
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: 'Maaf, Poka belum siap menjawab karena API Key belum aktif. Silakan hubungi admin @voxpolitika untuk aktivasi sistem AI.' 
+        }]);
+        return;
+      }
+
+      // Optimized streaming: balanced for perceived speed and smoothness
       setIsTyping(false);
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
       
       let currentText = '';
       const words = response.split(' ');
       
-      // Optimized streaming: process in large chunks for speed
-      const chunkSize = Math.max(2, Math.ceil(words.length / 20)); 
+      // Process in medium chunks for speed without overwhelming the UI thread
+      const chunkSize = Math.max(3, Math.ceil(words.length / 15)); 
       
       for (let i = 0; i < words.length; i += chunkSize) {
         const nextChunk = words.slice(i, i + chunkSize).join(' ');
@@ -66,13 +75,24 @@ const ChatBot: React.FC = () => {
         
         setMessages(prev => {
           const newMessages = [...prev];
-          newMessages[newMessages.length - 1].content = currentText;
+          if (newMessages.length > 0) {
+            newMessages[newMessages.length - 1].content = currentText;
+          }
           return newMessages;
         });
         
-        // Super fast delay for fluid feel
-        await new Promise(resolve => setTimeout(resolve, 5));
+        // Minimal delay for smooth visual flow
+        await new Promise(resolve => setTimeout(resolve, 2));
       }
+      
+      // Ensure the final text is exactly the response
+      setMessages(prev => {
+        const newMessages = [...prev];
+        if (newMessages.length > 0) {
+          newMessages[newMessages.length - 1].content = response;
+        }
+        return newMessages;
+      });
     } catch {
       setIsTyping(false);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Maaf, Poka sedang istirahat sebentar. Coba lagi nanti ya!' }]);

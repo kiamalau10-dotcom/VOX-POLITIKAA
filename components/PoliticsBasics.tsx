@@ -338,7 +338,7 @@ const quizData = {
     { q: 'Apa sanksi DKPP bagi penyelenggara pemilu yang terbukti melanggar etika?', options: ['Denda finansial', 'Pemberhentian dari jabatan', 'Hukuman penjara', 'Penundaan gaji'], correct: 1 },
   ],
   'kalender-politik': [
-    { q: 'Kapan Pidato Kenegaraan Presiden dalam rangka HUT RI ke-80?', options: ['17 Agustus 2025', '16 Agustus 2025', '20 Oktober 2025', '1 Juni 2025'], correct: 1 },
+    { q: 'Kapan Pidato Kenegaraan Presiden dalam rangka HUT RI ke-80?', options: ['17 Agustus 2025', '16 Agustus 2025', '20 Oktober 2025', '1 Juni 2025'], correct: 0 },
     { q: 'Pemilu 2029 akan mulai dipersiapkan dengan langkah apa di tahun 2025?', options: ['Pendaftaran calon legislatif', 'Verifikasi partai politik', 'Pemutakhiran data pemilih berkelanjutan', 'Pelaksanaan kampanye'], correct: 2 },
   ],
 };
@@ -1835,7 +1835,7 @@ const modules = [
         periode: 'Oktober 2025 – Desember 2026',
         sumber: 'KPU RI & DPR RI',
         data: [
-          { tanggal: '16 Agustus 2025', agenda: 'Pidato Kenegaraan Presiden', keterangan: 'HUT RI ke-80' },
+          { tanggal: '17 Agustus 2025', agenda: 'Pidato Kenegaraan Presiden', keterangan: 'HUT RI ke-80' },
           { tanggal: 'September 2025', agenda: 'Pengumuman IDI 2025', keterangan: 'Kemenko Polkam' },
           { tanggal: 'Okt-Des 2025', agenda: 'Masa Sidang DPR', keterangan: 'Pembahasan RAPBN 2026' },
           { tanggal: 'Februari 2026', agenda: 'Pilkada Ulang', keterangan: 'Daerah sengketa' },

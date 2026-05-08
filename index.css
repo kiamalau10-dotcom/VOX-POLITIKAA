@@ -27,18 +27,35 @@
   }
 }
 
-/* Mengubah warna scrollbar (batang penggeser) menjadi Merah */
+/* Mengubah warna scrollbar (batang penggeser) menjadi Biru Tua */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #dc2626;
+  background: #013362;
   border-radius: 10px;
 }
 
-/* Mengubah warna saat teks disorot/diblok menjadi Merah Putih */
+/* Mengubah warna saat teks disorot/diblok menjadi Biru Tua Putih */
 ::selection {
-  background-color: #dc2626;
+  background-color: #013362;
   color: white;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #013362;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #001f3f;
 }

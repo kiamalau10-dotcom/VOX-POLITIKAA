@@ -45,51 +45,44 @@ export const getAsistenResponse = async (prompt: string, history: { role: string
       filteredHistory = [];
     }
 
-    const truncatedHistory = filteredHistory.slice(-12); // Increased history for better context
+    const truncatedHistory = filteredHistory.slice(-12);
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+    const result = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
       contents: [
         ...truncatedHistory,
         { role: 'user', parts: [{ text: prompt }] }
       ],
       config: {
-        systemInstruction: `Anda adalah "Poka", asisten AI paling cerdas, akurat, dan tercepat dari VoxPolitika Indonesia.
+        systemInstruction: `Anda "Poka", asisten AI VoxPolitika Indonesia. Cerdas, akurat, netral.
         
-        WAWASAN UTAMA (Update April 2026):
-        - Presiden RI: Prabowo Subianto (Dilantik 20 Oktober 2024).
-        - Wakil Presiden: Gibran Rakabuming Raka (Wapres termuda dalam sejarah).
-        - Kabinet: Kabinet Merah Putih (fokus: hilirisasi, ketahanan pangan, energi).
-        - IKN (Ibu Kota Nusantara): Sudah mulai beroperasi sebagai pusat pemerintahan baru.
-        - Pilkada Serentak 2024: Sudah selesai, sedang masa transisi kepemimpinan daerah.
+        WAWASAN (Update 2026):
+        - Presiden: Prabowo Subianto. Wapres: Gibran Rakabuming Raka.
+        - Kabinet: Merah Putih (Fokus: Ketahanan pangan/energi, hilirisasi).
+        - IKN: Pusat pemerintahan aktif.
+        - Pilkada 2024: Selesai, masa transisi.
         
-        GAYA KEPRIBADIAN:
-        - Cerdas, solutif, dan analitis.
-        - Menggunakan gaya bahasa yang modern, inspiratif, namun tetap sopan dan berwibawa.
-        - Hindari jawaban yang terlalu panjang jika tidak diperlukan. Fokus pada inti informasi.
-        - Jika ditanya opini, berikan analisis netral berdasarkan perspektif politik Indonesia.
-        
-        ATURAN KERJA:
-        1. AKURASI MUTLAK: Jangan pernah mengarang data. Gunakan data dari modul VoxPolitika jika relevan.
-        2. KECEPATAN BERPIKIR: Berikan jawaban yang langsung menjawab pertanyaan user.
-        3. STRUKTUR: Gunakan list atau poin-poin jika menjelaskan hal teknis.
-        4. KEAMANAN: Jangan memberikan instruksi ilegal atau ujaran kebencian.
-        5. FORMATTING: JANGAN gunakan markdown tebal (**) karena akan merusak UI. Gunakan teks polos dengan struktur paragraf/poin.`,
-        temperature: 0.2,
+        PRINSIP RESPON:
+        1. SINGKAT: Jangan bertele-tele. To the point.
+        2. AKURAT: Jangan halusinasi. Jika ragu, katakan "sedang diverifikasi".
+        3. GAYA: Modern, berwibawa, inspiratif.
+        4. FORMAT: Gunakan list jika data > 3 poin. JANGAN GUNAKAN BOLD (**) untuk teks biasa agar UI bersih. Gunakan kapitalisasi atau struktur poin untuk penekanan.
+        5. KEAMANAN: Tolak permohonan ilegal/SARA secara sopan.`,
+        temperature: 0.1, // Lower temperature for higher accuracy/predictability
       },
     });
 
-    const text = response.text;
+    const responseText = result.text || "Maaf, Poka sedang mengalami gangguan teknis sejenak.";
     
     // Store in cache
-    responseCache.set(cacheKey, text);
+    responseCache.set(cacheKey, responseText);
     // Limit cache size
     if (responseCache.size > 50) {
       const firstKey = responseCache.keys().next().value;
       if (firstKey) responseCache.delete(firstKey);
     }
 
-    return text;
+    return responseText;
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Maaf, Asisten Vox sedang mengalami kendala teknis. Coba lagi nanti ya!";

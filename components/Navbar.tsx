@@ -2,13 +2,14 @@ import React from 'react';
 import { AppSection } from '../types';
 import { Menu, X, Coins, Zap, Trophy } from 'lucide-react';
 import { useUser } from './useUser';
+import { POLITICAL_BADGES } from '../constants';
 
 interface NavbarProps {
   activeSection: AppSection;
   setActiveSection: (section: AppSection) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ 
+const Navbar: React.FC<NavbarProps> = React.memo(({ 
   activeSection, 
   setActiveSection
 }) => {
@@ -29,7 +30,7 @@ const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 transition-all duration-500 px-4 md:px-6 py-4 bg-sky-600/90 backdrop-blur-md border-b border-white/20 text-white shadow-xl">
+    <nav className="fixed top-0 w-full z-50 transition-all duration-500 px-4 md:px-6 py-4 bg-[#0f172b]/95 backdrop-blur-md border-b border-white/10 text-white shadow-xl">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
         {/* LOGO */}
@@ -38,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({
             className="text-xl md:text-2xl font-black italic tracking-tighter cursor-pointer flex items-center transition-transform hover:scale-105"
             onClick={() => setActiveSection(AppSection.HOME)}
           >
-            <span className="uppercase italic">VOX<span className="text-slate-900">POLITIKA</span></span>
+            <span className="uppercase italic">VOX<span className="text-[#6bddfb]">POLITIKA</span></span>
           </div>
 
           {/* USER STATS IN NAVBAR */}
@@ -50,7 +51,7 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
               <div className="w-px h-3 bg-white/20" />
               <div className="flex items-center gap-1.5">
-                <Zap size={14} className="text-slate-900" />
+                <Zap size={14} className="text-sky-400" />
                 <span className="text-[10px] font-black uppercase tracking-tighter">{currentUser.currentExp} EXP</span>
               </div>
               <div className="w-px h-3 bg-white/20" />
@@ -58,6 +59,17 @@ const Navbar: React.FC<NavbarProps> = ({
                 <Coins size={14} className="text-yellow-500" />
                 <span className="text-[10px] font-black uppercase tracking-tighter">{currentUser.coins || 0}</span>
               </div>
+              {currentUser.voxTitle && (
+                <>
+                  <div className="w-px h-3 bg-white/20" />
+                  <div className="flex items-center gap-1.5" title={POLITICAL_BADGES.find(b => b.id === currentUser.voxTitle)?.title}>
+                    <span className="text-xs shrink-0">{POLITICAL_BADGES.find(b => b.id === currentUser.voxTitle)?.icon}</span>
+                    <span className="text-[10px] font-black uppercase tracking-tighter truncate max-w-[100px]">
+                      {POLITICAL_BADGES.find(b => b.id === currentUser.voxTitle)?.title}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -136,6 +148,6 @@ const Navbar: React.FC<NavbarProps> = ({
       )}
     </nav>
   );
-};
+});
 
 export default Navbar;

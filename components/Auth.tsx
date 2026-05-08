@@ -54,6 +54,8 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
           quizHistory: [],
           coins: 100,
           streakFreezeCount: 0,
+          voxTitle: 'simpatisan',
+          ownedItems: ['simpatisan'],
           uid: uid // Store the UID if we have it
         };
 
@@ -125,10 +127,17 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
               quizHistory: [],
               coins: 9999999,
               streakFreezeCount: 99,
+              voxTitle: 'negarawan',
+              ownedItems: ['simpatisan', 'negarawan'],
               uid: uid
             };
           } else {
-            user = savedUser!;
+            user = {
+              ...savedUser!,
+              voxTitle: savedUser!.voxTitle || 'simpatisan',
+              ownedItems: savedUser!.ownedItems || ['simpatisan'],
+              coins: savedUser!.coins || 0
+            };
           }
 
           // Ensure UID is set

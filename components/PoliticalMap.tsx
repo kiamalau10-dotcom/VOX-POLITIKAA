@@ -255,11 +255,7 @@ const PoliticalMap: React.FC = () => {
       </AnimatePresence>
 
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #dc2626; }
-        .outline-text { -webkit-text-stroke: 1px #dc2626; color: transparent; }
+        .outline-text { -webkit-text-stroke: 1px #013362; color: transparent; }
       `}</style>
     </div>
   );

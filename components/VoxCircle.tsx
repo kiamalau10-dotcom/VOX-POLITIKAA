@@ -23,11 +23,14 @@ import {
   handleFirestoreError
 } from '../firebase';
 
+import { POLITICAL_BADGES } from '../constants';
+
 interface Post {
   id: string;
   username: string;
   displayName: string;
   avatarConfig?: any;
+  voxTitle?: string;
   content: string;
   timestamp: any;
   likes: string[];
@@ -47,6 +50,7 @@ const PostCard = React.memo(({ post, currentUser, onLike, onCommentToggle, onCom
   isCommenting: boolean
 }) => {
   const [commentText, setCommentText] = React.useState('');
+  const badge = POLITICAL_BADGES.find(b => b.id === post.voxTitle);
 
   const formatTimestamp = (ts: any) => {
     if (!ts) return 'Baru saja';
@@ -64,7 +68,7 @@ const PostCard = React.memo(({ post, currentUser, onLike, onCommentToggle, onCom
     >
       <div className="flex justify-between items-start mb-6">
         <div className="flex gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-slate-950/10 overflow-hidden border-2 border-slate-950/20">
+          <div className="w-12 h-12 rounded-2xl bg-slate-950/10 overflow-hidden border-2 border-slate-950/20 relative">
               <LazyLoadImage 
                 src={avatarUrl} 
                 alt="avatar" 
@@ -72,6 +76,11 @@ const PostCard = React.memo(({ post, currentUser, onLike, onCommentToggle, onCom
                 wrapperClassName="w-full h-full"
                 referrerPolicy="no-referrer"
               />
+              {badge && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-lg flex items-center justify-center border border-white shadow-sm z-10">
+                  <span className="text-[10px]">{badge.icon}</span>
+                </div>
+              )}
           </div>
           <div>
             <h4 className="font-black uppercase text-sm text-slate-900">{post.displayName}</h4>
@@ -188,6 +197,7 @@ const VoxCircle: React.FC<{ currentUser: User | null }> = ({ currentUser }) => {
         username: currentUser.username,
         displayName: currentUser.displayName,
         avatarConfig: currentUser.avatarConfig || null,
+        voxTitle: currentUser.voxTitle || 'simpatisan',
         content: newPost,
         timestamp: serverTimestamp(),
         likes: [],

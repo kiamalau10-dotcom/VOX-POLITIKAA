@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, History, TrendingUp, MessageSquare, Users, Award, LogOut, Flame, BookOpen, CheckCircle2, AlertCircle, Sparkles, Trash2, Coins, Snowflake } from 'lucide-react';
 import { User, Feedback, Vote } from '../types';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { useCMS } from './CMSContext';
 import { useUser } from './useUser';
+import { getAvatarUrl } from '../services/avatarService';
+import { POLITICAL_BADGES } from '../constants';
 
 import { 
   db, 
@@ -31,33 +32,81 @@ const StreakFire: React.FC<{ count: number; isPopping: boolean }> = ({ count, is
   return (
     <div className="relative flex flex-col items-center justify-center py-6">
       <motion.div
-        animate={isPopping ? { scale: [1, 1.5, 1], rotate: [0, 10, -10, 0] } : {}}
-        transition={{ duration: 0.5, type: "spring" }}
+        animate={isPopping ? { 
+          scale: [1, 1.6, 1], 
+          rotate: [0, 15, -15, 0],
+          filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
+        } : {}}
+        transition={{ duration: 0.6, type: "spring" }}
         className="relative"
       >
-        <div className="absolute inset-0 bg-orange-500/40 blur-3xl rounded-full scale-150" />
+        {/* Glow behind */}
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3]
+          }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="absolute inset-0 bg-orange-500/30 blur-3xl rounded-full scale-150" 
+        />
+        
+        {/* Particles / Sparks */}
+        <AnimatePresence>
+          {isPopping && [...Array(8)].map((_, i) => {
+            const randomX = (Math.sin(i * 123.45) * 75); // Pseudo-random based on index
+            const randomY = -(Math.abs(Math.cos(i * 543.21)) * 150 + 50);
+            return (
+              <motion.div
+                key={i}
+                initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
+                animate={{ 
+                  scale: [0, 1, 0],
+                  x: randomX,
+                  y: randomY,
+                  opacity: 0 
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="absolute left-1/2 top-1/2 w-2 h-2 bg-yellow-400 rounded-full blur-[1px] z-20"
+              />
+            );
+          })}
+        </AnimatePresence>
+
         <motion.svg
-          width="80"
-          height="100"
+          width="100"
+          height="120"
           viewBox="0 0 100 120"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           animate={{ 
-            scale: [1, 1.05, 1],
-            opacity: [0.9, 1, 0.9]
+            scale: [1, 1.08, 1],
+            opacity: [0.95, 1, 0.95]
           }}
-          transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
-          className="relative z-10 drop-shadow-[0_0_15px_rgba(239,68,68,0.6)]"
+          transition={{ repeat: Infinity, duration: 0.6, ease: "easeInOut" }}
+          className="relative z-10 drop-shadow-[0_0_20px_rgba(239,68,68,0.7)]"
         >
           <defs>
             <linearGradient id="fireGradient" x1="50%" y1="0%" x2="50%" y2="100%">
-              <stop offset="0%" stopColor="#FACC15" />
-              <stop offset="50%" stopColor="#F97316" />
+              <stop offset="0%" stopColor="#FBEEAC" />
+              <stop offset="40%" stopColor="#FACC15" />
+              <stop offset="70%" stopColor="#F97316" />
               <stop offset="100%" stopColor="#DC2626" />
             </linearGradient>
           </defs>
-          <path d="M50 120C77.6142 120 100 97.6142 100 70C100 42.3858 80 10 50 0C20 10 0 42.3858 0 70C0 97.6142 22.3858 120 50 120Z" fill="url(#fireGradient)" />
-          <path d="M50 100C66.5685 100 80 86.5685 80 70C80 53.4315 70 30 50 20C30 30 20 53.4315 20 70C20 86.5685 33.4315 100 50 100Z" fill="#FACC15" opacity="0.6" />
+          <motion.path
+            d="M50 120C77.6142 120 100 97.6142 100 70C100 42.3858 80 10 50 0C20 10 0 42.3858 0 70C0 97.6142 22.3858 120 50 120Z"
+            fill="url(#fireGradient)"
+            animate={{
+              d: [
+                "M50 120C80 120 100 90 100 60C100 30 85 10 50 0C15 10 0 30 0 60C0 90 20 120 50 120Z",
+                "M50 115C75 115 95 85 95 55C95 25 75 5 50 0C25 5 5 25 5 55C5 85 25 115 50 115Z",
+                "M50 120C80 120 100 90 100 60C100 30 85 10 50 0C15 10 0 30 0 60C0 90 20 120 50 120Z"
+              ]
+            }}
+            transition={{ repeat: Infinity, duration: 0.4 }}
+          />
+          <path d="M50 100C66.5685 100 80 86.5685 80 70C80 53.4315 70 30 50 20C30 30 20 53.4315 20 70C20 86.5685 33.4315 100 50 100Z" fill="#6bddfb" opacity="0.6" />
         </motion.svg>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 text-center">
@@ -126,7 +175,7 @@ const AdminStatsPlatform: React.FC<{ stats: any; liveStats?: any }> = ({ stats, 
               <XAxis dataKey="name" stroke="#999" fontSize={10} fontWeight="bold" />
               <YAxis stroke="#999" fontSize={10} fontWeight="bold" />
               <Tooltip contentStyle={{ backgroundColor: '#fff', border: 'none', borderRadius: '1rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }} />
-              <Line type="monotone" dataKey="value" stroke="#dc2626" strokeWidth={4} dot={{ r: 6, fill: '#dc2626' }} activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="value" stroke="#013362" strokeWidth={4} dot={{ r: 6, fill: '#013362' }} activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -149,38 +198,29 @@ const AdminStatsPlatform: React.FC<{ stats: any; liveStats?: any }> = ({ stats, 
   );
 };
 
-const DashboardAvatar2D = ({ username, config }: { username: string, config: any }) => {
-  const isMale = config?.gender === 'male';
-  const maleHair = ['short01', 'short02', 'short03', 'short04', 'short05'];
-  const femaleHair = ['long01', 'long02', 'long03', 'long04', 'long05', 'hijab01'];
+const DashboardAvatar2D = ({ username, voxTitle }: { username: string, voxTitle?: string }) => {
+  const badge = POLITICAL_BADGES.find(b => b.id === voxTitle);
+  const avatarUrl = getAvatarUrl(username);
   
-  const hairPool = isMale ? maleHair : femaleHair;
-  const hairIndex = Math.abs(username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % hairPool.length;
-  const hair = isMale ? hairPool[hairIndex] : (config?.hair === 'hijab' ? 'hijab01' : hairPool[hairIndex]);
-
-  const params = new URLSearchParams({
-    seed: username,
-    hair: hair,
-  });
-
-  if (config?.skin === 'light') params.set('skinColor', 'fce5d8');
-  if (config?.skin === 'medium') params.set('skinColor', 'e0ac69');
-  if (config?.skin === 'dark') params.set('skinColor', '8d5524');
-
-  const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?${params.toString()}&backgroundColor=f8fafc,f1f5f9&radius=20`;
   return (
     <div className="w-full h-full p-2 bg-gradient-to-br from-slate-50 to-slate-100 relative">
-      <LazyLoadImage 
+      <img 
         key={username} 
-        src={avatarUrl} 
+        src={avatarUrl}
         alt="Avatar" 
         className="w-full h-full object-contain drop-shadow-xl" 
-        effect="opacity"
-        wrapperClassName="w-full h-full"
-        referrerPolicy="no-referrer" 
-        onError={(e: any) => { e.currentTarget.src = `https://api.dicebear.com/9.x/initials/svg?seed=${username}`; }} 
+        referrerPolicy="no-referrer"
       />
-      <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+      {badge && (
+        <motion.div 
+          initial={{ scale: 0, rotate: -45 }}
+          animate={{ scale: 1, rotate: 12 }}
+          className="absolute -top-1 -right-1 bg-yellow-400 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg border-2 border-white z-20"
+        >
+          <span className="text-sm">{badge.icon}</span>
+        </motion.div>
+      )}
+      <div className="absolute bottom-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse z-20" />
     </div>
   );
 };
@@ -329,8 +369,9 @@ const Dashboard: React.FC<{ currentUser: User | null; onLogout: () => void }> = 
     }
     setStreakData({ count: newCount, lastLogin: today });
     setHasCheckedToday(true);
-    if (currentUser) {
+    if (currentUser && setCurrentUser) {
       const updatedUser = { ...currentUser, streak: newCount, lastLoginDate: today, streakFreezeCount: currentFreeze };
+      setCurrentUser(updatedUser);
       localStorage.setItem(`user_data_${updatedUser.username}`, JSON.stringify(updatedUser));
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
       
@@ -436,8 +477,8 @@ const Dashboard: React.FC<{ currentUser: User | null; onLogout: () => void }> = 
   const renderAvatar = () => {
     return (
       <div className="w-24 h-24 bg-slate-900/10 rounded-3xl overflow-hidden border-2 border-slate-900/20 shadow-xl relative group">
-        <DashboardAvatar2D username={currentUser.username} config={currentUser.avatarConfig} />
-        {role === 'ADMIN' && <div className="absolute top-1 right-1"><Shield size={12} className="text-slate-900" /></div>}
+        <DashboardAvatar2D username={currentUser.username} voxTitle={currentUser.voxTitle} />
+        {role === 'ADMIN' && <div className="absolute top-1 right-1 z-30"><Shield size={12} className="text-slate-900" /></div>}
       </div>
     );
   };
@@ -468,9 +509,40 @@ const Dashboard: React.FC<{ currentUser: User | null; onLogout: () => void }> = 
                   {renderAvatar()}
                   <div>
                     <h3 className="text-2xl font-black uppercase italic">{displayName}</h3>
-                    {currentUser.voxTitle && <p className="text-[10px] font-black uppercase text-slate-900 tracking-[0.2em] mb-1">{currentUser.voxTitle}</p>}
-                    <div className="flex items-center gap-2"><span className="text-[10px] font-black uppercase tracking-widest opacity-50">{username}</span><span className="bg-slate-900 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">{role}</span></div>
-                    {role === 'USER' && <button onClick={() => (window as any).openAvatarLab()} className="mt-2 text-[10px] font-black uppercase text-slate-900 hover:underline">Ganti Avatar →</button>}
+                    {currentUser.voxTitle && (
+                      <div className="mt-3 mb-4 p-4 bg-slate-900/5 rounded-3xl border border-slate-900/10 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 transition-transform group-hover:scale-[2] group-hover:rotate-0">
+                          <span className="text-4xl">{POLITICAL_BADGES.find(b => b.id === currentUser.voxTitle)?.icon}</span>
+                        </div>
+                        <div className="flex items-center gap-3 mb-2 relative z-10">
+                          <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                            <span className="text-lg">{POLITICAL_BADGES.find(b => b.id === currentUser.voxTitle)?.icon}</span>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase text-slate-900 tracking-[0.2em] leading-none">
+                              {POLITICAL_BADGES.find(b => b.id === currentUser.voxTitle)?.title || currentUser.voxTitle}
+                            </p>
+                            <p className="text-[8px] font-bold uppercase opacity-40 mt-0.5">Gelar & Bio Aktif</p>
+                          </div>
+                        </div>
+                        <p className="text-[10px] font-medium opacity-60 leading-relaxed italic border-t border-slate-900/5 pt-2 relative z-10">
+                          "{POLITICAL_BADGES.find(b => b.id === currentUser.voxTitle)?.description}"
+                        </p>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-50">{username}</span>
+                      <span className="bg-slate-900 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">{role}</span>
+                    </div>
+                    {(role === 'USER' || role === 'ADMIN') && (
+                      <button 
+                        onClick={() => (window as any).openAvatarLab()} 
+                        className="mt-4 w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase text-white border-2 border-sky-300 px-4 py-2.5 rounded-2xl bg-sky-400 hover:bg-white hover:text-sky-500 transition-all cursor-pointer shadow-lg shadow-sky-400/30 group animate-pulse hover:animate-none"
+                      >
+                        <Shield size={14} className="group-hover:rotate-12 transition-transform" />
+                        Gelar & Badge Lab Saya →
+                      </button>
+                    )}
                   </div>
                 </div>
             <div className="space-y-4">
@@ -498,7 +570,7 @@ const Dashboard: React.FC<{ currentUser: User | null; onLogout: () => void }> = 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="p-8 rounded-[2.5rem] border overflow-hidden relative bg-white border-black/5 shadow-xl">
                 <div className="flex items-center gap-3 mb-6 relative z-10"><Sparkles size={20} className="text-yellow-500" /><h4 className="text-xs font-black uppercase tracking-widest">Aktivitas Harian</h4></div>
                 <StreakFire count={streakData.count} isPopping={isPopping} />
-                <button onClick={handleCheckStreak} disabled={hasCheckedToday} className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg relative z-10 ${hasCheckedToday ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-950 shadow-slate-900/20'}`}>{hasCheckedToday ? 'Streak Secured!' : 'Cek Streak Hari Ini'}</button>
+                <button onClick={handleCheckStreak} disabled={hasCheckedToday} className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg relative z-10 ${hasCheckedToday ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-sky-400 text-white hover:bg-sky-500 shadow-sky-400/20'}`}>{hasCheckedToday ? 'Streak Secured!' : 'Cek Streak Hari Ini'}</button>
                 <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-slate-900/10 rounded-full blur-3xl" />
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-8 rounded-[2.5rem] border bg-white border-black/5 shadow-xl">
@@ -595,8 +667,31 @@ const Dashboard: React.FC<{ currentUser: User | null; onLogout: () => void }> = 
                   <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {usersList.map((user) => (
                       <div key={user.username} className="flex items-center justify-between p-4 rounded-2xl bg-black/5">
-                        <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center text-slate-900 font-black uppercase">{user.username.charAt(0)}</div><div><p className="text-sm font-black uppercase">{user.username}</p><p className="text-[8px] font-bold opacity-50 uppercase">{user.role}</p></div></div>
-                        {user.role !== 'ADMIN' && <button onClick={() => handleRemoveUser(user.username)} className="p-2 text-zinc-400 hover:text-slate-900 transition-colors"><Trash2 size={16} /></button>}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center text-slate-900 font-black uppercase overflow-hidden relative">
+                            <DashboardAvatar2D username={user.username} voxTitle={user.voxTitle} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black uppercase">{user.username}</p>
+                            <p className="text-[8px] font-bold opacity-50 uppercase flex items-center gap-1">
+                              {POLITICAL_BADGES.find(b => b.id === user.voxTitle)?.icon} {POLITICAL_BADGES.find(b => b.id === user.voxTitle)?.title || 'Simpatisan'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button 
+                            onClick={() => (window as any).openAvatarLab(user)}
+                            className="p-2 text-zinc-400 hover:text-slate-900 transition-colors"
+                            title="Edit Gelar & Badge (Admin)"
+                          >
+                            <Shield size={16} />
+                          </button>
+                          {user.role !== 'ADMIN' && (
+                            <button onClick={() => handleRemoveUser(user.username)} className="p-2 text-zinc-400 hover:text-red-600 transition-colors" title="Hapus User">
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
