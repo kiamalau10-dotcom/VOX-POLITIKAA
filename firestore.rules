@@ -57,7 +57,7 @@ service cloud.firestore {
     }
 
     match /feedbacks/{feedbackId} {
-      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      allow read: if isAdmin() || (isAuthenticated() && (resource.data.uid == request.auth.uid || (exists(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)) && get(/databases/$(database)/documents/users_by_uid/$(request.auth.uid)).data.username == resource.data.username)));
       allow create: if true;
       allow delete: if isAdmin();
     }

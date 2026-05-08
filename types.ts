@@ -132,6 +132,7 @@ export interface Vote {
 
 export interface Feedback {
   id: string;
+  uid?: string;
   username: string;
   displayName?: string;
   message: string;

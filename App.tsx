@@ -19,7 +19,7 @@ const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const ProgramSection = React.lazy(() => import('./components/ProgramSection'));
 import StreakProtectionModal from './components/StreakProtectionModal';
 import { MessageSquare, Send } from 'lucide-react';
-import { db, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError, serverTimestamp, query, where, orderBy, onSnapshot } from './firebase';
+import { db, auth, collection, addDoc, doc, updateDoc, OperationType, handleFirestoreError, serverTimestamp, query, where, orderBy, onSnapshot } from './firebase';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import { CMSProvider, useCMS } from './components/CMSContext';
@@ -120,16 +120,33 @@ const Content = React.memo(({
                     <h3 className="text-xl font-black uppercase italic mb-6">Riwayat Feedback Anda</h3>
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                       {userFeedbacks.map((fb) => (
-                        <div key={fb.id} className="p-4 rounded-xl border bg-white border-black/5 shadow-sm">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-[10px] font-black uppercase text-slate-900">{fb.date} • {fb.time || 'Baru'}</span>
-                            <span className="text-[8px] font-bold opacity-30 uppercase">TERKIRIM</span>
+                        <div key={fb.id} className="p-5 rounded-2xl border bg-slate-50/50 border-black/5 shadow-sm hover:shadow-md transition-shadow group">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center">
+                                <MessageSquare size={12} />
+                              </div>
+                              <span className="text-[10px] font-black uppercase text-slate-900 tracking-tighter">
+                                {fb.date || 'Tadi'} • {fb.time || ''}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
+                              <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                              <span className="text-[8px] font-black text-green-600 uppercase tracking-widest">Terkirim</span>
+                            </div>
                           </div>
-                          <p className="text-xs font-medium italic opacity-80 leading-relaxed">"{fb.message}"</p>
+                          <p className="text-[11px] font-medium italic text-slate-700 leading-relaxed border-l-2 border-slate-200 pl-3 group-hover:border-slate-900 transition-colors">
+                            "{fb.message}"
+                          </p>
                         </div>
                       ))}
                       {userFeedbacks.length === 0 && (
-                        <p className="text-center py-8 text-[10px] font-bold uppercase opacity-30 italic">Belum ada feedback yang dikirim.</p>
+                        <div className="text-center py-12 bg-gray-50/50 rounded-3xl border-2 border-dashed border-black/5">
+                          <MessageSquare size={32} className="mx-auto mb-3 opacity-10" />
+                          <p className="text-[10px] font-black uppercase opacity-30 tracking-widest italic leading-relaxed">
+                            Belum ada feedback yang dikirim.<br/>Bantu kami membangun VoxPolitika!
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -197,10 +214,18 @@ const AppContent: React.FC = () => {
 
   // Fetch real-time feedback history ONLY for the logged-in user
   useEffect(() => {
-    if (isLoggedIn && currentUser?.uid) {
+    if (isLoggedIn && currentUser?.username) {
+      // Use potential UIDs: current UID or legacy username-based UID
+      const possibleUids = [
+        currentUser.uid, 
+        auth.currentUser?.uid, 
+        `legacy_${currentUser.username.replace('@', '')}`,
+        'anonymous' // Including anonymous might show too much if many use it, but safe for now if limited
+      ].filter(Boolean) as string[];
+
       const q = query(
         collection(db, 'feedbacks'), 
-        where('uid', '==', currentUser.uid),
+        where('uid', 'in', possibleUids.slice(0, 10)), // limit of 10 for 'in' query
         orderBy('timestamp', 'desc')
       );
       const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -211,7 +236,7 @@ const AppContent: React.FC = () => {
       });
       return () => unsubscribe();
     }
-  }, [isLoggedIn, currentUser?.uid]);
+  }, [isLoggedIn, currentUser?.username, currentUser?.uid]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -245,8 +270,11 @@ const AppContent: React.FC = () => {
     const path = 'feedbacks';
     try {
       const now = new Date();
+      // Use username as a stable UID fallback if Firebase UID isn't ready
+      const uid = currentUser?.uid || auth.currentUser?.uid || `legacy_${currentUser?.username?.replace('@', '')}` || 'anonymous';
+      
       await addDoc(collection(db, path), {
-        uid: currentUser?.uid || auth.currentUser?.uid || 'anonymous',
+        uid: uid,
         username: currentUser?.username || 'Anonymous',
         displayName: currentUser?.displayName || 'Warga Anonim',
         message: feedback,
@@ -257,9 +285,14 @@ const AppContent: React.FC = () => {
       setIsSent(true);
       setFeedback('');
       setTimeout(() => setIsSent(false), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending feedback:", error);
-      handleFirestoreError(error, OperationType.CREATE, path);
+      alert("Maaf, gagal mengirim feedback. Silakan coba lagi sebentar lagi.");
+      try {
+        handleFirestoreError(error, OperationType.CREATE, path);
+      } catch {
+        // Silently catch the re-throw from handleFirestoreError
+      }
     }
   }, [feedback, currentUser]);
 
