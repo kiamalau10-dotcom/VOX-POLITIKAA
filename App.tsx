@@ -82,7 +82,11 @@ const Content = React.memo(({
           case AppSection.BASICS: return <PoliticsBasics />;
           case AppSection.AI: return <ChatBot />;
           case AppSection.NEWS: return <News />;
-          case AppSection.QUIZ: return <Quiz currentUser={currentUser} onStateChange={setIsQuizActive} />;
+          case AppSection.QUIZ: 
+            if (!currentUser) {
+              return <Auth onLogin={handleLogin} />;
+            }
+            return <Quiz currentUser={currentUser} onStateChange={setIsQuizActive} />;
           case AppSection.DASHBOARD: 
             if (!currentUser) {
               return <Auth onLogin={handleLogin} />;
@@ -308,10 +312,6 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!isLoggedIn) {
-    return <Auth onLogin={handleLogin} />;
-  }
-
   return (
     <div className="min-h-screen antialiased bg-sky-200 text-slate-900 font-sans selection:bg-slate-300 selection:text-slate-900">
       {!isQuizActive && (
@@ -381,7 +381,9 @@ const AppContent: React.FC = () => {
                   </li>
                 ))}
                 <li><button onClick={() => setActiveSection(AppSection.FEEDBACK)} className="text-slate-900 hover:underline">Kirim Feedback</button></li>
-                <li><button onClick={handleLogout} className="text-zinc-500 hover:text-slate-900 transition-colors">Logout</button></li>
+                {isLoggedIn && (
+                  <li><button onClick={handleLogout} className="text-zinc-500 hover:text-slate-900 transition-colors">Logout</button></li>
+                )}
               </ul>
             </div>
   
