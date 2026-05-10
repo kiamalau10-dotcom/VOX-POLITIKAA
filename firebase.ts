@@ -1,138 +1,76 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, deleteUser } from 'firebase/auth';
-import { initializeFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, where, limit, getDocs, getDocFromServer, arrayUnion, arrayRemove, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
-import firebaseConfig from './firebase-applet-config.json';
+export interface Session {
+  id: string;
+  title: string;
+  subtitle: string;
+  content: string;
+  analogy?: {
+    concept: string;
+    description: string;
+  };
+  quiz: {
+    question: string;
+    options?: string[];
+    answer: string;
+    type: 'true-false' | 'multiple-choice' | 'fill-in';
+  };
+}
 
-// Initialize Firebase SDK
-const app = initializeApp(firebaseConfig);
-
-// Use initializeFirestore with long polling to bypass potential proxy/websocket issues in sandboxed environments
-export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-}, firebaseConfig.firestoreDatabaseId);
-
-export const auth = getAuth(app);
-
-// Helper to delete account (Auth + Firestore)
-export const deleteAccount = async (username: string) => {
-  const user = auth.currentUser;
-  if (!user) throw new Error("No user logged in");
-
-  const docId = username.replace('@', '');
-  const batch = writeBatch(db);
-
-  // 1. Delete user document
-  batch.delete(doc(db, 'users', docId));
-  
-  // 2. Delete user mapping
-  batch.delete(doc(db, 'users_by_uid', user.uid));
-
-  // 3. Delete user's posts (optional but recommended for clean up)
-  const postsQuery = query(collection(db, 'posts'), where('username', '==', username));
-  const postsSnap = await getDocs(postsQuery);
-  postsSnap.forEach(postDoc => batch.delete(postDoc.ref));
-
-  await batch.commit();
-  await deleteUser(user);
-};
-
-// Helper to get the correct redirect URL based on environment
-export const getRedirectURL = () => {
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  if (isLocal) return 'http://localhost:3000';
-  return window.location.origin;
-};
-
-export const googleProvider = new GoogleAuthProvider();
-
-// Test connection to Firestore
-async function testConnection() {
-  try {
-    // Attempt to read a dummy doc to verify connection
-    // We use a small timeout to avoid long waits in offline mode
-    await getDocFromServer(doc(db, '_connection_test_', 'ping'));
-    console.log("Firebase connection established successfully.");
-  } catch {
-    // Silently fail as the app will automatically operate in offline mode
-    // This avoids flooding the console with errors if Firebase is not yet provisioned
-    console.info("Firestore is currently in offline mode. Data will be persisted locally.");
+export const MODULE_SESSIONS: Session[] = [
+  {
+    id: '1',
+    title: 'Sesi 1: Hakikat Harmoni & Solidaritas',
+    subtitle: 'Kenapa Kita Nggak Bisa Hidup Sendirian?',
+    content: `Hai! Pernah terpikir nggak kenapa di orkestra, suara biola, trompet, dan piano yang beda banget malah bisa jadi musik yang enak didengar? Itulah Harmoni.\n\nHarmoni sosial bukan berarti kita harus jadi sama (seragam). Bayangin kalau satu orkestra cuma bunyi biola semua, pasti ngebosenin kan? Harmoni itu seni menyusun perbedaan jadi keindahan.\n\nSolidaritas terbagi dua menurut Durkheim:\n1. Mekanik: Kayak sapu lidi. Kuat karena semuanya sama (masyarakat tradisional).\n2. Organik: Kayak mesin mobil. Kuat karena komponennya beda tapi saling butuh (masyarakat modern).`,
+    quiz: {
+      question: 'Harmoni akan tercipta jika kita menghapus semua perbedaan agar tercipta keseragaman.',
+      answer: 'false',
+      type: 'true-false'
+    }
+  },
+  {
+    id: '2',
+    title: 'Sesi 2: Integrasi Sosial',
+    subtitle: 'Gimana Cara Kita Bisa Menyatu?',
+    content: `Integrasi itu kayak bikin Es Buah. Ada semangka, melon, dan susu. Mereka beda, tapi saat disatukan, rasanya pecah banget!\n\nAda 3 bentuk integrasi:\n1. Normatif: Disatukan norma (Bhinneka Tunggal Ika).\n2. Fungsional: Disatukan karena saling butuh fungsi (Aceh kopi, Jakarta jual).\n3. Koersif: Disatukan paksaan (Pengusuran PKL demi ketertiban).`,
+    quiz: {
+      question: 'Proses peleburan dua budaya hingga ciri khas aslinya hilang disebut...',
+      options: ['Akulturasi', 'Asimilasi', 'Akomodasi', 'Amalgamasi'],
+      answer: 'Asimilasi',
+      type: 'multiple-choice'
+    }
+  },
+  {
+    id: '3',
+    title: 'Sesi 3: Akomodasi & Kesetaraan',
+    subtitle: 'Toolbox Untuk Mengatasi Konflik',
+    content: `Kalau lagi berantem sama teman, jangan langsung ghosting! Pakai "Akomodasi".\n\nBeberapa tool-nya:\n- Mediasi: Pihak ketiga cuma jadi penasihat.\n- Arbitrase: Pihak ketiga yang mutusin.\n- Kompromi: Sama-sama ngalah dikit.\n- Stalemate: Kekuatan seimbang, jadi berhenti berantem sendiri.\n\nKesetaraan: Bukan berarti semua orang punya tinggi badan yang sama, tapi semua orang punya hak yang sama buat main basket!`,
+    quiz: {
+      question: 'Pihak ketiga dalam "Mediasi" berhak mengambil keputusan final.',
+      answer: 'false',
+      type: 'true-false'
+    }
+  },
+  {
+    id: '4',
+    title: 'Sesi 4: Inklusi & Kohesi Sosial',
+    subtitle: 'No One Left Behind!',
+    content: `Inklusi sosial itu proses ngajak semua orang ikut serta, terutama yang sering "terpinggirkan" (Marginal). Contohnya teman difabel dapet akses kursi roda di sekolah.\n\nKohesi sosial itu "lem" masyarakat. Bahannya: Kepercayaan, Rasa Memiliki, dan Kerjasama.`,
+    quiz: {
+      question: 'Inklusi sosial sejalan dengan ideologi Pancasila.',
+      answer: 'true',
+      type: 'true-false'
+    }
+  },
+  {
+    id: '5',
+    title: 'Sesi 5: Aksi Nyata (Agent of Change)',
+    subtitle: 'Waktunya Bikin Perubahan!',
+    content: `Gimana cara bangun harmoni? \n1. Kampanye: Sebar info positif.\n2. Dialog: Ngobrol dua arah.\n3. Kolaborasi: Bakti sosial atau filantropi (kedermawanan).\n\nIngat alurnya: Perencanaan (SWOT) -> Pelaksanaan -> Evaluasi.`,
+    quiz: {
+      question: 'Apa kepanjangan dari SWOT dalam perencanaan?',
+      options: ['Strength, Weakness, Oppt, Threat', 'Social, Work, Out, Time'],
+      answer: 'Strength, Weakness, Oppt, Threat',
+      type: 'multiple-choice'
+    }
   }
-}
-
-testConnection();
-
-export enum OperationType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  LIST = 'list',
-  GET = 'get',
-  WRITE = 'write',
-}
-
-export interface FirestoreErrorInfo {
-  error: string;
-  operationType: OperationType;
-  path: string | null;
-  authInfo: {
-    userId: string | undefined;
-    email: string | null | undefined;
-    emailVerified: boolean | undefined;
-    isAnonymous: boolean | undefined;
-    tenantId: string | null | undefined;
-    providerInfo: {
-      providerId: string;
-      displayName: string | null;
-      email: string | null;
-      photoUrl: string | null;
-    }[];
-  }
-}
-
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData.map(provider => ({
-        providerId: provider.providerId,
-        displayName: provider.displayName,
-        email: provider.email,
-        photoUrl: provider.photoURL
-      })) || []
-    },
-    operationType,
-    path
-  }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
-}
-
-export { 
-  signInWithPopup,
-  signOut, 
-  onAuthStateChanged,
-  signInAnonymously,
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  collection, 
-  query, 
-  orderBy, 
-  onSnapshot, 
-  addDoc, 
-  deleteDoc, 
-  where, 
-  limit, 
-  getDocs,
-  arrayUnion,
-  arrayRemove,
-  serverTimestamp,
-  writeBatch,
-  increment
-};
+];

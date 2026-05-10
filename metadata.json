@@ -1,5 +1,8 @@
 {
-  "name": "Remix: VoxPolitika",
-  "description": "Platform edukasi politik interaktif modern untuk remaja Indonesia, meningkatkan literasi politik dengan visualisasi 3D, data kabinet, dan asisten AI.",
-  "requestFramePermissions": []
+  "name": "Remix: Harmoni Sosial v2: Soci-AI Arena",
+  "description": "Platform belajar Sosiologi tercanggih dengan Dynamic AI Question Engine, Social Study Rooms, Labirin Hub, dan Quiz Battle Multiplayer.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
 }
